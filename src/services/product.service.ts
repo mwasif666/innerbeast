@@ -55,13 +55,13 @@ const buildQuery = (params: Record<string, string | number | boolean | undefined
 }
 
 export const getProducts = async (filters = {}) => {
-  return await api<ApiListResponse<Product>>(`/products${buildQuery(filters)}`)
+  return (await api(`/products${buildQuery(filters)}`)) as ApiListResponse<Product>
 }
 
 export const getSingleProduct = async (slugOrId: string) => {
-  return await api<ApiSingleResponse<Product>>(`/products/${slugOrId}`)
+  return (await api(`/products/${slugOrId}`)) as ApiSingleResponse<Product>
 }
 
 export const getCategories = async () => {
-  return await api<ApiListResponse<Category>>('/categories')
+  return (await api('/categories')) as ApiListResponse<Category>
 }
