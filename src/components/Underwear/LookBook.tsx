@@ -21,7 +21,7 @@ const LookBook: React.FC<Props> = ({ data }) => {
 
     const handleDetailProduct = (productId: string) => {
         // redirect to shop with category selected
-        router.push(`/product/default?id=${productId}`);
+        router.push(`/product/one-scrolling?id=${productId}`);
     };
 
 
