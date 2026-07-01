@@ -170,7 +170,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
                                     <>
                                         {
                                             <Image
-                                                src={data.variation.find(item => item.color === activeColor)?.image ?? ''}
+                                                src={data.variation.find(item => item.color === activeColor)?.image ?? data.thumbImage[0]}
                                                 width={500}
                                                 height={500}
                                                 alt={data.name}
@@ -443,7 +443,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
                                             }}
                                         >
                                             <Image
-                                                src={item.colorImage}
+                                                src={item.image || item.colorImage}
                                                 width={100}
                                                 height={100}
                                                 alt='color'
@@ -627,7 +627,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
                                             </div>
                                             <div className="list-action-right flex items-center justify-center gap-3 mt-4">
                                                 <div
-                                                    className={`add-wishlist-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative ${wishlistState.wishlistArray.some(item => item.id === data.id) ? 'active' : ''}`}
+                                                    className={`add-wishlist-btn w-[32px] h-[32px] flex items-center justify-center rounded-full border border-white/25 bg-[#1b1d1d] text-white duration-300 relative ${wishlistState.wishlistArray.some(item => item.id === data.id) ? 'active' : ''}`}
                                                     onClick={(e) => {
                                                         e.stopPropagation()
                                                         handleAddToWishlist()
@@ -645,7 +645,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
                                                     )}
                                                 </div>
                                                 <div
-                                                    className={`compare-btn w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative ${compareState.compareArray.some(item => item.id === data.id) ? 'active' : ''}`}
+                                                    className={`compare-btn w-[32px] h-[32px] flex items-center justify-center rounded-full border border-white/25 bg-[#1b1d1d] text-white duration-300 relative ${compareState.compareArray.some(item => item.id === data.id) ? 'active' : ''}`}
                                                     onClick={(e) => {
                                                         e.stopPropagation()
                                                         handleAddToCompare()
@@ -656,7 +656,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
                                                     <Icon.CheckCircle size={20} className='checked-icon' />
                                                 </div>
                                                 <div
-                                                    className="quick-view-btn-list w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white duration-300 relative"
+                                                    className="quick-view-btn-list w-[32px] h-[32px] flex items-center justify-center rounded-full border border-white/25 bg-[#1b1d1d] text-white duration-300 relative"
                                                     onClick={(e) => {
                                                         e.stopPropagation()
                                                         handleQuickviewOpen()

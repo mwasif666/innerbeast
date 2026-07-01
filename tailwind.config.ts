@@ -24,6 +24,8 @@ const config: Config = {
     colors: {
       transparent: 'transparent',
       'green': '#D2EF9A',
+      'orange': '#EE6B1F',
+      'dark': '#0c0d0d',
       'black': '#1F1F1F',
       'secondary': '#696C70',
       'secondary2': '#A0A0A0',

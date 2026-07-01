@@ -47,15 +47,15 @@ const TabFeatures: React.FC<Props> = ({ data, start, limit }) => {
             <div className="tab-features-block md:pt-20 pt-10">
                 <div className="container">
                     <div className="heading flex flex-col items-center text-center">
-                        <div className="menu-tab flex items-center gap-2 p-1 bg-surface rounded-2xl">
+                        <div className="menu-tab flex items-center gap-1.5 p-1.5 bg-[#171919] border border-white/10 rounded-2xl shadow-lg shadow-black/20">
                             {['best sellers', 'on sale', 'new arrivals'].map((item, index) => (
                                 <div
                                     key={index}
-                                    className={`tab-item relative text-secondary heading5 py-2 px-5 cursor-pointer duration-500 hover:text-black ${activeTab === item ? 'active' : ''}`}
+                                    className={`tab-item relative heading5 py-2 px-5 cursor-pointer duration-300 ${activeTab === item ? 'active !bg-transparent !text-white !shadow-none' : 'text-white/60 hover:text-white'}`}
                                     onClick={() => handleTabClick(item)}
                                 >
                                     {activeTab === item && (
-                                        <motion.div layoutId='active-pill' className='absolute inset-0 rounded-2xl bg-white'></motion.div>
+                                        <motion.div layoutId='features-active-pill' className='absolute inset-0 rounded-xl border border-white/10 bg-[#303333] shadow-md'></motion.div>
                                     )}
                                     <span className='relative heading5 z-[1]'>
                                         {item}

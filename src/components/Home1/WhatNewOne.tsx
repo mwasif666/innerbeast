@@ -26,15 +26,15 @@ const WhatNewOne: React.FC<Props> = ({ data, start, limit }) => {
                 <div className="container">
                     <div className="heading flex flex-col items-center text-center">
                         <div className="heading3">What{String.raw`'s`} new</div>
-                        <div className="menu-tab flex items-center gap-2 p-1 bg-surface rounded-2xl mt-6">
+                        <div className="menu-tab flex items-center gap-1.5 p-1.5 bg-[#171919] border border-white/10 rounded-2xl mt-6 shadow-lg shadow-black/20">
                             {['top', 't-shirt', 'dress', 'sets', 'shirt'].map((type) => (
                                 <div
                                     key={type}
-                                    className={`tab-item relative text-secondary text-button-uppercase py-2 px-5 cursor-pointer duration-500 hover:text-black ${activeTab === type ? 'active' : ''}`}
+                                    className={`tab-item relative text-button-uppercase py-2 px-5 cursor-pointer duration-300 ${activeTab === type ? 'active !bg-transparent !text-white !shadow-none' : 'text-white/60 hover:text-white'}`}
                                     onClick={() => handleTabClick(type)}
                                 >
                                     {activeTab === type && (
-                                        <motion.div layoutId='active-pill' className='absolute inset-0 rounded-2xl bg-white'></motion.div>
+                                        <motion.div layoutId='whats-new-active-pill' className='absolute inset-0 rounded-xl border border-white/10 bg-[#303333] shadow-md'></motion.div>
                                     )}
                                     <span className='relative text-button-uppercase z-[1]'>
                                         {type}

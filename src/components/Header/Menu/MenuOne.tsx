@@ -69,15 +69,15 @@ const MenuOne: React.FC<Props> = ({ props }) => {
 
     return (
         <>
-            <div className={`header-menu style-one ${fixedHeader ? 'fixed' : 'absolute'} top-0 left-0 right-0 w-full md:h-[74px] h-[56px] ${props}`}>
+            <div className={`header-menu style-one ${fixedHeader ? 'fixed' : 'absolute'} top-0 left-0 right-0 w-full md:h-[74px] h-[56px] ${props} !bg-white !text-black`}>
                 <div className="container mx-auto h-full">
                     <div className="header-main flex justify-between h-full">
                         <div className="menu-mobile-icon lg:hidden flex items-center" onClick={handleMenuMobile}>
                             <i className="icon-category text-2xl"></i>
                         </div>
-                        <div className="left flex items-center gap-16">
+                        <>
                             <Link href={'/'} className='flex items-center max-lg:absolute max-lg:left-1/2 max-lg:-translate-x-1/2'>
-                                <div className="heading4">Anvogue</div>
+                                <Image src={'/innerbeast-logo.png'} width={420} height={141} alt='logo' priority className='w-[140px] h-auto' />
                             </Link>
                             <div className="menu-main h-full max-lg:hidden">
                                 <ul className='flex items-center gap-8 h-full'>
@@ -91,12 +91,12 @@ const MenuOne: React.FC<Props> = ({ props }) => {
                                     </li>
                                     <li className='h-full'>
                                         <Link
-                                            href="/shop/breadcrumb1"
+                                            href="/shop/sidebar-list"
                                             className={`text-button-uppercase duration-300 h-full flex items-center justify-center ${pathname.includes('/shop/') ? 'active' : ''}`}
                                         >
                                             Shop
                                         </Link>
-                                        <div className="mega-menu absolute top-[74px] left-0 bg-white w-screen">
+                                        <div className="mega-menu hidden absolute top-[74px] left-0 bg-white w-screen">
                                             <div className="container">
                                                 <div className="flex justify-between py-8">
                                                     <div className="nav-link basis-2/3 flex justify-between pr-12">
@@ -310,11 +310,6 @@ const MenuOne: React.FC<Props> = ({ props }) => {
                                         </div>
                                     </li>
                                     <li className='h-full relative'>
-                                        <Link href="/blog/grid" className={`text-button-uppercase duration-300 h-full flex items-center justify-center ${pathname.includes('/blog') ? 'active' : ''}`}>
-                                            Blog
-                                        </Link>
-                                    </li>
-                                    <li className='h-full relative'>
                                         <Link href="/pages/about" className={`text-button-uppercase duration-300 h-full flex items-center justify-center ${pathname === '/pages/about' ? 'active' : ''}`}>
                                             About Us
                                         </Link>
@@ -326,7 +321,7 @@ const MenuOne: React.FC<Props> = ({ props }) => {
                                     </li>
                                 </ul>
                             </div>
-                        </div>
+                        </>
                         <div className="right flex gap-12">
                             <div className="max-md:hidden search-icon flex items-center cursor-pointer relative">
                                 <Icon.MagnifyingGlass size={24} color='black' onClick={openModalSearch} />
@@ -372,7 +367,9 @@ const MenuOne: React.FC<Props> = ({ props }) => {
                                 >
                                     <Icon.X size={14} />
                                 </div>
-                                <Link href={'/'} className='logo text-3xl font-semibold text-center'>Anvogue</Link>
+                                <Link href={'/'} className='logo flex items-center justify-center'>
+                                    <Image src={'/innerbeast-logo.png'} width={420} height={141} alt='logo' priority className='w-[140px] h-auto' />
+                                </Link>
                             </div>
                             <div className="form-search relative mt-2">
                                 <Icon.MagnifyingGlass size={20} className='absolute left-3 top-1/2 -translate-y-1/2 cursor-pointer' />
@@ -383,8 +380,11 @@ const MenuOne: React.FC<Props> = ({ props }) => {
                                     <li>
                                         <Link href="/" className='text-xl font-semibold flex items-center justify-between mt-5'>Home</Link>
                                     </li>
+                                    <li>
+                                        <Link href="/shop/sidebar-list" className='text-xl font-semibold flex items-center justify-between mt-5'>Shop</Link>
+                                    </li>
                                     <li
-                                        className={`${openSubNavMobile === 3 ? 'open' : ''}`}
+                                        className={`hidden ${openSubNavMobile === 3 ? 'open' : ''}`}
                                         onClick={() => handleOpenSubNavMobile(3)}
                                     >
                                         <a href={'#!'} className='text-xl font-semibold flex items-center justify-between mt-5'>Shop
@@ -612,7 +612,7 @@ const MenuOne: React.FC<Props> = ({ props }) => {
                                             </div>
                                         </div>
                                     </li>
-                                    <li>
+                                    <li className="hidden">
                                         <Link href="/blog/grid" className='text-xl font-semibold flex items-center justify-between mt-5'>Blog</Link>
                                     </li>
                                     <li>

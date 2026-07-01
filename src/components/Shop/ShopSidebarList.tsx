@@ -197,16 +197,16 @@ const ShopSidebarList: React.FC<Props> = ({ data, productPerPage, dataType }) =>
 
     return (
         <>
-            <div className="breadcrumb-block style-img">
-                <div className="breadcrumb-main bg-linear overflow-hidden">
+            <div className="breadcrumb-block style-img text-white">
+                <div className="breadcrumb-main bg-[#242626] overflow-hidden">
                     <div className="container lg:pt-[134px] pt-24 pb-10 relative">
                         <div className="main-content w-full h-full flex flex-col items-center justify-center relative z-[1]">
                             <div className="text-content">
                                 <div className="heading2 text-center">{dataType === null ? 'Shop' : dataType}</div>
                                 <div className="link flex items-center justify-center gap-1 caption1 mt-3">
                                     <Link href={'/'}>Homepage</Link>
-                                    <Icon.CaretRight size={14} className='text-secondary2' />
-                                    <div className='text-secondary2 capitalize'>{dataType === null ? 'Shop' : dataType}</div>
+                                    <Icon.CaretRight size={14} className='text-white/70' />
+                                    <div className='text-white/70 capitalize'>{dataType === null ? 'Shop' : dataType}</div>
                                 </div>
                             </div>
                             <div className="list-tab flex flex-wrap items-center justify-center gap-y-5 gap-8 lg:mt-[70px] mt-12 overflow-hidden">
@@ -225,7 +225,7 @@ const ShopSidebarList: React.FC<Props> = ({ data, productPerPage, dataType }) =>
                 </div>
             </div>
 
-            <div className="shop-product breadcrumb1 lg:py-20 md:py-14 py-10">
+            <div className="shop-product breadcrumb1 lg:py-20 md:py-14 py-10 bg-[#101212] text-white">
                 <div className="container">
                     <div className="flex max-md:flex-wrap max-md:flex-col-reverse gap-y-8">
                         <div className="sidebar lg:w-1/4 md:w-1/3 w-full md:pr-12">
@@ -238,7 +238,7 @@ const ShopSidebarList: React.FC<Props> = ({ data, productPerPage, dataType }) =>
                                             className={`item flex items-center justify-between cursor-pointer ${dataType === item ? 'active' : ''}`}
                                             onClick={() => handleType(item)}
                                         >
-                                            <div className='text-secondary has-line-before hover:text-black capitalize'>{item}</div>
+                                            <div className='text-secondary has-line-before hover:text-white capitalize'>{item}</div>
                                             <div className='text-secondary2'>
                                                 ({data.filter(dataItem => dataItem.type === item && dataItem.category === 'fashion').length})
                                             </div>
@@ -408,7 +408,7 @@ const ShopSidebarList: React.FC<Props> = ({ data, productPerPage, dataType }) =>
                                         <select
                                             id="select-filter"
                                             name="select-filter"
-                                            className='caption1 py-2 pl-3 md:pr-20 pr-10 rounded-lg border border-line'
+                                            className='caption1 py-2 pl-3 md:pr-20 pr-10 rounded-lg border border-white/20 bg-[#1b1d1d] text-white'
                                             onChange={(e) => { handleSortChange(e.target.value) }}
                                             defaultValue={'Sorting'}
                                         >

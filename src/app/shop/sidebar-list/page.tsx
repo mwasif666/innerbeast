@@ -17,7 +17,7 @@ export default function SidebarList() {
         <>
             <TopNavOne props="style-one bg-black" slogan="New customers save 10% with the code GET10" />
             <div id="header" className='relative w-full'>
-                <MenuOne props="bg-transparent" />
+                <MenuOne props="bg-white text-black" />
             </div>
             <ShopSidebarList data={productData} productPerPage={4} dataType={type} />
             <Footer />

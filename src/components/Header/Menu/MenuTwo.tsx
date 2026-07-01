@@ -65,22 +65,27 @@ const MenuTwo = () => {
 
     return (
         <>
-            <div className={`header-menu style-one ${fixedHeader ? ' fixed' : 'relative'} bg-white w-full md:h-[74px] h-[56px]`}>
+            <div className={`header-menu style-one text-black ${fixedHeader ? ' fixed' : 'relative'} bg-white w-full md:h-[74px] h-[56px]`}>
                 <div className="container mx-auto h-full">
                     <div className="header-main flex justify-between h-full">
                         <div className="menu-mobile-icon lg:hidden flex items-center" onClick={handleMenuMobile}>
                             <i className="icon-category text-2xl"></i>
                         </div>
                         <Link href={'/'} className='flex items-center'>
-                            <div className="heading4">Anvogue</div>
+                            <Image src={'/innerbeast-logo.png'} width={420} height={141} alt='InnerBeast' priority className='w-[140px] h-auto' />
                         </Link>
                         <div className="menu-main h-full max-lg:hidden">
                             <ul className='flex items-center gap-8 h-full'>
                                 <li className='h-full'>
-                                    <Link href="#!" className='text-button-uppercase duration-300 h-full flex items-center justify-center'>
+                                    <Link href="/" className={`text-button-uppercase duration-300 h-full flex items-center justify-center ${pathname === '/' ? 'active' : ''}`}>
+                                        Home
+                                    </Link>
+                                </li>
+                                <li className='h-full'>
+                                    <Link href="/shop/sidebar-list" className={`text-button-uppercase duration-300 h-full flex items-center justify-center ${pathname.startsWith('/shop') ? 'active' : ''}`}>
                                         Shop
                                     </Link>
-                                    <div className="mega-menu absolute top-[74px] left-0 bg-white w-screen">
+                                    <div className="mega-menu hidden absolute top-[74px] left-0 bg-white w-screen">
                                         <div className="container">
                                             <div className="flex justify-between py-8">
                                                 <div className="nav-link basis-2/3 flex justify-between pr-12">
@@ -293,83 +298,15 @@ const MenuTwo = () => {
                                         </div>
                                     </div>
                                 </li>
-                                <li className='h-full relative'>
-                                    <Link href="#!" className='text-button-uppercase duration-300 h-full flex items-center justify-center'>
-                                        Blog
+                                <li className='h-full'>
+                                    <Link href="/pages/about" className={`text-button-uppercase duration-300 h-full flex items-center justify-center ${pathname === '/pages/about' ? 'active' : ''}`}>
+                                        About Us
                                     </Link>
-                                    <div className="sub-menu py-3 px-5 -left-10 absolute bg-white rounded-b-xl">
-                                        <ul className='w-full'>
-                                            <li>
-                                                <Link href="/blog/default" className={`text-secondary duration-300 ${pathname === '/blog/default' ? 'active' : ''}`}>
-                                                    Blog Default
-                                                </Link>
-                                            </li>
-                                            <li>
-                                                <Link href="/blog/list" className={`text-secondary duration-300 ${pathname === '/blog/list' ? 'active' : ''}`}>
-                                                    Blog List
-                                                </Link>
-                                            </li>
-                                            <li>
-                                                <Link href="/blog/grid" className={`text-secondary duration-300 ${pathname === '/blog/grid' ? 'active' : ''}`}>
-                                                    Blog Grid
-                                                </Link>
-                                            </li>
-                                            <li>
-                                                <Link href="/blog/detail1" className={`text-secondary duration-300 ${pathname === '/blog/detail1' ? 'active' : ''}`}>
-                                                    Blog Detail 1
-                                                </Link>
-                                            </li>
-                                            <li>
-                                                <Link href="/blog/detail2" className={`text-secondary duration-300 ${pathname === '/blog/detail2' ? 'active' : ''}`}>
-                                                    Blog Detail 2
-                                                </Link>
-                                            </li>
-                                        </ul>
-                                    </div>
                                 </li>
-                                <li className='h-full relative'>
-                                    <Link href="#!" className='text-button-uppercase duration-300 h-full flex items-center justify-center'>
-                                        Pages
+                                <li className='h-full'>
+                                    <Link href="/pages/contact" className={`text-button-uppercase duration-300 h-full flex items-center justify-center ${pathname === '/pages/contact' ? 'active' : ''}`}>
+                                        Contact Us
                                     </Link>
-                                    <div className="sub-menu py-3 px-5 -left-10 absolute bg-white rounded-b-xl">
-                                        <ul className='w-full'>
-                                            <li>
-                                                <Link href="/pages/about" className={`text-secondary duration-300 ${pathname === '/pages/about' ? 'active' : ''}`}>
-                                                    About Us
-                                                </Link>
-                                            </li>
-                                            <li>
-                                                <Link href="/pages/contact" className={`text-secondary duration-300 ${pathname === '/pages/contact' ? 'active' : ''}`}>
-                                                    Contact Us
-                                                </Link>
-                                            </li>
-                                            <li>
-                                                <Link href="/pages/store-list" className={`text-secondary duration-300 ${pathname === '/pages/store-list' ? 'active' : ''}`}>
-                                                    Store List
-                                                </Link>
-                                            </li>
-                                            <li>
-                                                <Link href="/pages/page-not-found" className={`text-secondary duration-300 ${pathname === '/pages/page-not-found' ? 'active' : ''}`}>
-                                                    404
-                                                </Link>
-                                            </li>
-                                            <li>
-                                                <Link href="/pages/faqs" className={`text-secondary duration-300 ${pathname === '/pages/faqs' ? 'active' : ''}`}>
-                                                    FAQs
-                                                </Link>
-                                            </li>
-                                            <li>
-                                                <Link href="/pages/coming-soon" className={`text-secondary duration-300 ${pathname === '/pages/coming-soon' ? 'active' : ''}`}>
-                                                    Coming Soon
-                                                </Link>
-                                            </li>
-                                            <li>
-                                                <Link href="/pages/customer-feedbacks" className={`text-secondary duration-300 ${pathname === '/pages/customer-feedbacks' ? 'active' : ''}`}>
-                                                    Customer Feedbacks
-                                                </Link>
-                                            </li>
-                                        </ul>
-                                    </div>
                                 </li>
                             </ul>
                         </div>
@@ -418,7 +355,9 @@ const MenuTwo = () => {
                                 >
                                     <Icon.X size={14} />
                                 </div>
-                                <Link href={'/'} className='logo text-3xl font-semibold text-center'>Anvogue</Link>
+                                <Link href={'/'} className='flex items-center justify-center'>
+                                    <Image src={'/innerbeast-logo.png'} width={420} height={141} alt='InnerBeast' priority className='w-[130px] h-auto' />
+                                </Link>
                             </div>
                             <div className="form-search relative mt-2">
                                 <Icon.MagnifyingGlass size={20} className='absolute left-3 top-1/2 -translate-y-1/2 cursor-pointer' />
@@ -426,8 +365,20 @@ const MenuTwo = () => {
                             </div>
                             <div className="list-nav mt-6">
                                 <ul>
+                                    <li>
+                                        <Link href="/" className='text-xl font-semibold flex items-center justify-between mt-5'>Home</Link>
+                                    </li>
+                                    <li>
+                                        <Link href="/shop/sidebar-list" className='text-xl font-semibold flex items-center justify-between mt-5'>Shop</Link>
+                                    </li>
+                                    <li>
+                                        <Link href="/pages/about" className='text-xl font-semibold flex items-center justify-between mt-5'>About Us</Link>
+                                    </li>
+                                    <li>
+                                        <Link href="/pages/contact" className='text-xl font-semibold flex items-center justify-between mt-5'>Contact Us</Link>
+                                    </li>
                                     <li
-                                        className={`${openSubNavMobile === 3 ? 'open' : ''}`}
+                                        className={`hidden ${openSubNavMobile === 3 ? 'open' : ''}`}
                                         onClick={() => handleOpenSubNavMobile(3)}
                                     >
                                         <a href={'#!'} className='text-xl font-semibold flex items-center justify-between mt-5'>Shop
@@ -640,7 +591,7 @@ const MenuTwo = () => {
                                         </div>
                                     </li>
                                     <li
-                                        className={`${openSubNavMobile === 5 ? 'open' : ''}`}
+                                        className={`hidden ${openSubNavMobile === 5 ? 'open' : ''}`}
                                         onClick={() => handleOpenSubNavMobile(5)}
                                     >
                                         <a href={'#!'} className='text-xl font-semibold flex items-center justify-between mt-5'>Blog
@@ -688,7 +639,7 @@ const MenuTwo = () => {
                                         </div>
                                     </li>
                                     <li
-                                        className={`${openSubNavMobile === 6 ? 'open' : ''}`}
+                                        className={`hidden ${openSubNavMobile === 6 ? 'open' : ''}`}
                                         onClick={() => handleOpenSubNavMobile(6)}
                                     >
                                         <a href={'#!'} className='text-xl font-semibold flex items-center justify-between mt-5'>Pages

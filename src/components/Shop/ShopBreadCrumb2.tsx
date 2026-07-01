@@ -196,8 +196,8 @@ const ShopBreadCrumb2: React.FC<Props> = ({ data, productPerPage, dataType }) =>
 
     return (
         <>
-            <div className="breadcrumb-block style-img">
-                <div className="breadcrumb-main bg-white overflow-hidden">
+            <div className="breadcrumb-block style-img text-white">
+                <div className="breadcrumb-main bg-[#242626] overflow-hidden">
                     <div className="container lg:pt-[134px] pt-24 relative">
                         <div className="main-content w-full h-full flex flex-col items-center justify-center relative z-[1]">
                             <div className="text-content">

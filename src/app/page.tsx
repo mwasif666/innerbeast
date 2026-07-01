@@ -1,6 +1,7 @@
 import React from 'react'
-import TopNavOne from '@/components/Header/TopNav/TopNavOne'
-import MenuEight from '@/components/Header/Menu/MenuEight'
+import TopNavThree from '@/components/Header/TopNav/TopNavThree'
+import MenuTwo from '@/components/Header/Menu/MenuTwo'
+import BannerTop from '@/components/Home3/BannerTop'
 import SliderNine from '@/components/Slider/SliderNine'
 import WhatNewOne from '@/components/Home1/WhatNewOne'
 import productData from '@/data/Product.json'
@@ -13,14 +14,14 @@ import Testimonial from '@/components/Home1/Testimonial'
 import Instagram from '@/components/Home1/Instagram'
 import Brand from '@/components/Home1/Brand'
 import Footer from '@/components/Footer/Footer'
-import ModalNewsletter from '@/components/Modal/ModalNewsletter'
 
 export default function Home() {
   return (
     <>
-      <TopNavOne props="style-one bg-black" slogan="New customers save 10% with the code GET10" />
+      <TopNavThree props="style-three bg-white" />
       <div id="header" className='relative w-full style-nine'>
-        <MenuEight />
+        <MenuTwo />
+        <BannerTop props="bg-black py-3" textColor='text-white' bgLine='bg-white' />
         <SliderNine />
       </div>
       <WhatNewOne data={productData} start={0} limit={4} />
@@ -32,7 +33,6 @@ export default function Home() {
       <Instagram />
       <Brand />
       <Footer />
-      <ModalNewsletter />
     </>
   )
 }
