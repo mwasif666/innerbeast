@@ -15,6 +15,10 @@ import ModalCompare from "@/components/Modal/ModalCompare";
 import CountdownTimeType from "@/type/CountdownType";
 import { countdownTime } from "@/store/countdownTime";
 
+import "primereact/resources/themes/lara-dark-blue/theme.css";
+import "primereact/resources/primereact.min.css";
+import "primeicons/primeicons.css";
+
 const serverTimeLeft: CountdownTimeType = countdownTime();
 
 const instrument = Instrument_Sans({
