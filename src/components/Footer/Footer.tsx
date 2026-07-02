@@ -130,20 +130,6 @@ const Footer = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="right flex items-center gap-2">
-                                <div className="caption1 text-white/50">Payment:</div>
-                                {[0, 1, 2, 3, 4, 5].map((i) => (
-                                    <div key={i} className="payment-img bg-white rounded p-0.5">
-                                        <Image
-                                            src={`/images/payment/Frame-${i}.png`}
-                                            width={500}
-                                            height={500}
-                                            alt={'payment'}
-                                            className='w-9'
-                                        />
-                                    </div>
-                                ))}
-                            </div>
                         </div>
                     </div>
                 </div>

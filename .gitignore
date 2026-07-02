@@ -16,6 +16,7 @@ npm-debug.log
 
 # next.js
 /.next/
+/.next-dev/
 /out/
 
 # production

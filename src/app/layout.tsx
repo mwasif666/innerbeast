@@ -4,6 +4,7 @@ import "@/styles/styles.scss";
 
 import GlobalProvider from "./GlobalProvider";
 import ReactQueryProvider from "@/providers/ReactQueryProvider";
+import GlobalScrollbar from "@/components/GlobalScrollbar";
 
 import ModalCart from "@/components/Modal/ModalCart";
 import ModalWishlist from "@/components/Modal/ModalWishlist";
@@ -16,7 +17,12 @@ import { countdownTime } from "@/store/countdownTime";
 
 const serverTimeLeft: CountdownTimeType = countdownTime();
 
-const instrument = Instrument_Sans({ subsets: ["latin"] });
+const instrument = Instrument_Sans({
+  subsets: ["latin"],
+  // Next 14.0.3 has no fallback metrics for Instrument Sans.
+  // Disable only the fallback size adjustment; the font still loads normally.
+  adjustFontFallback: false,
+});
 
 export const metadata: Metadata = {
   title: "Inner Beast",
@@ -31,6 +37,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={instrument.className}>
+        <GlobalScrollbar />
         <ReactQueryProvider>
           <GlobalProvider>
             {children}

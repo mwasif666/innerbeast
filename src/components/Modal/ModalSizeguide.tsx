@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import * as Icon from "@phosphor-icons/react/dist/ssr";
 import { ProductType } from '@/type/ProductType'
 // import Slider from 'react-slider'
@@ -14,9 +15,14 @@ interface Props {
 }
 
 const ModalSizeguide: React.FC<Props> = ({ data, isOpen, onClose }) => {
+    const [mounted, setMounted] = useState(false)
     const [activeSize, setActiveSize] = useState<string>('')
     const [heightRange, setHeightRange] = useState<{ min: number; max: number }>({ min: 100, max: 200 });
     const [weightRange, setWeightRange] = useState<{ min: number; max: number }>({ min: 30, max: 90 });
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
 
     const calculateSize = (height: number, weight: number) => {
         if (height > 180 || weight > 70) {
@@ -48,8 +54,10 @@ const ModalSizeguide: React.FC<Props> = ({ data, isOpen, onClose }) => {
         calculateSize(heightRange.max, weightRange.max)
     };
 
-    return (
-        <>
+    if (!mounted) return null
+
+    return createPortal(
+        (
             <div className={`modal-sizeguide-block`} onClick={onClose}>
                 <div
                     className={`modal-sizeguide-main md:p-10 p-6 rounded-[32px] ${isOpen ? 'open' : ''}`}
@@ -63,7 +71,7 @@ const ModalSizeguide: React.FC<Props> = ({ data, isOpen, onClose }) => {
                     </div>
                     <div className="heading3">Size guide</div>
                     <div className="md:mt-8 mt-6 progress">
-                        <div className="flex imd:items-center gap-10 justify-between max-md:flex-col gap-y-5 max-md:pr-3">
+                        <div className="flex md:items-center gap-10 justify-between max-md:flex-col gap-y-5 max-md:pr-3">
                             <div className="flex items-center flex-shrink-0 gap-8">
                                 <span className='flex-shrink-0 md:w-14'>Height</span>
                                 <div className="flex items-center justify-center w-20 gap-1 py-2 border border-line rounded-lg flex-shrink-0">
@@ -157,7 +165,8 @@ const ModalSizeguide: React.FC<Props> = ({ data, isOpen, onClose }) => {
                     </table>
                 </div>
             </div>
-        </>
+        ),
+        document.body
     )
 }
 
