@@ -16,6 +16,7 @@ export interface ProductType {
     rate: number,
     price: number,
     originPrice: number,
+    currency?: string,
     brand: string,
     sold: number,
     quantity: number,

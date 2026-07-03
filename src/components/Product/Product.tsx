@@ -91,6 +91,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
 
     let percentSale = Math.floor(100 - ((data.price / data.originPrice) * 100))
     let percentSold = Math.floor((data.sold / data.quantity) * 100)
+    const currency = data.currency ?? '$'
 
     return (
         <>
@@ -456,10 +457,10 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
                                 </div>
                             )}
                             <div className="product-price-block flex items-center gap-2 flex-wrap mt-1 duration-300 relative z-[1]">
-                                <div className="product-price text-title">${data.price}.00</div>
+                                <div className="product-price text-title">{currency}{data.price.toLocaleString()}</div>
                                 {percentSale > 0 && (
                                     <>
-                                        <div className="product-origin-price caption1 text-secondary2"><del>${data.originPrice}.00</del></div>
+                                        <div className="product-origin-price caption1 text-secondary2"><del>{currency}{data.originPrice.toLocaleString()}</del></div>
                                         <div className="product-sale caption1 font-medium bg-green px-3 py-0.5 inline-block rounded-full">
                                             -{percentSale}%
                                         </div>
@@ -501,7 +502,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
                         <>
                             <div className="product-item list-type">
                                 <div className="product-main cursor-pointer flex lg:items-center sm:justify-between gap-7 max-lg:gap-5">
-                                    <div onClick={() => handleDetailProduct(data.id)} className="product-thumb bg-white relative overflow-hidden rounded-2xl block max-sm:w-1/2">
+                                    <div onClick={() => handleDetailProduct(data.id)} className="product-thumb bg-white relative overflow-hidden rounded-2xl block shrink-0 lg:w-[320px] md:w-[260px] sm:w-[220px] max-sm:w-1/2">
                                         {data.new && (
                                             <div className="product-tag text-button-uppercase bg-green px-3 py-0.5 inline-block rounded-full absolute top-3 left-3 z-[1]">
                                                 New
@@ -559,8 +560,8 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
                                         <div className="product-infor max-sm:w-full">
                                             <div onClick={() => handleDetailProduct(data.id)} className="product-name heading6 inline-block duration-300">{data.name}</div>
                                             <div className="product-price-block flex items-center gap-2 flex-wrap mt-2 duration-300 relative z-[1]">
-                                                <div className="product-price text-title">${data.price}.00</div>
-                                                <div className="product-origin-price caption1 text-secondary2"><del>${data.originPrice}.00</del></div>
+                                                <div className="product-price text-title">{currency}{data.price.toLocaleString()}</div>
+                                                <div className="product-origin-price caption1 text-secondary2"><del>{currency}{data.originPrice.toLocaleString()}</del></div>
                                                 {data.originPrice && (
                                                     <div className="product-sale caption1 font-medium bg-green px-3 py-0.5 inline-block rounded-full">
                                                         -{percentSale}%
@@ -627,7 +628,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
                                             </div>
                                             <div className="list-action-right flex items-center justify-center gap-3 mt-4">
                                                 <div
-                                                    className={`add-wishlist-btn w-[32px] h-[32px] flex items-center justify-center rounded-full border border-white/25 bg-[#1b1d1d] text-white duration-300 relative ${wishlistState.wishlistArray.some(item => item.id === data.id) ? 'active' : ''}`}
+                                                    className={`add-wishlist-btn w-[32px] h-[32px] flex items-center justify-center rounded-full border border-white/40 bg-[#1b1d1d] !text-white duration-300 relative ${wishlistState.wishlistArray.some(item => item.id === data.id) ? 'active' : ''}`}
                                                     onClick={(e) => {
                                                         e.stopPropagation()
                                                         handleAddToWishlist()
@@ -645,7 +646,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
                                                     )}
                                                 </div>
                                                 <div
-                                                    className={`compare-btn w-[32px] h-[32px] flex items-center justify-center rounded-full border border-white/25 bg-[#1b1d1d] text-white duration-300 relative ${compareState.compareArray.some(item => item.id === data.id) ? 'active' : ''}`}
+                                                    className={`compare-btn w-[32px] h-[32px] flex items-center justify-center rounded-full border border-white/40 bg-[#1b1d1d] !text-white duration-300 relative ${compareState.compareArray.some(item => item.id === data.id) ? 'active' : ''}`}
                                                     onClick={(e) => {
                                                         e.stopPropagation()
                                                         handleAddToCompare()
@@ -656,7 +657,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
                                                     <Icon.CheckCircle size={20} className='checked-icon' />
                                                 </div>
                                                 <div
-                                                    className="quick-view-btn-list w-[32px] h-[32px] flex items-center justify-center rounded-full border border-white/25 bg-[#1b1d1d] text-white duration-300 relative"
+                                                    className="quick-view-btn-list w-[32px] h-[32px] flex items-center justify-center rounded-full border border-white/40 bg-[#1b1d1d] !text-white duration-300 relative"
                                                     onClick={(e) => {
                                                         e.stopPropagation()
                                                         handleQuickviewOpen()
@@ -735,7 +736,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
                         <div className="flex gap-0.5 mt-1">
                             <Rate currentRate={data.rate} size={16} />
                         </div>
-                        <span className="text-title inline-block mt-1">${data.price}.00</span>
+                        <span className="text-title inline-block mt-1">{currency}{data.price.toLocaleString()}</span>
                     </div>
                 </div>
             ) : (
