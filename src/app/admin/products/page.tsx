@@ -166,11 +166,17 @@ const buildPayload = (
 
   const colors =
     values.colors
-      ?.filter((color) => color.name?.trim())
-      .map((color) => ({
-        name: color.name?.trim() || "",
-        hex: color.hex?.trim() || "",
-      })) || [];
+      ?.filter((color) => color.name?.trim() || color.hex?.trim())
+      .map((color, index) => {
+        const hex = color.hex?.trim().toLowerCase() || "";
+
+        return {
+          name:
+            color.name?.trim() ||
+            (hex ? hex.toUpperCase() : `Color ${index + 1}`),
+          hex,
+        };
+      }) || [];
 
   const tags = parseCommaValues(values.tagsText).map((tag) =>
     tag.toLowerCase(),
@@ -1081,7 +1087,7 @@ const AdminProductsPage = () => {
                         name={[field.name, "name"]}
                         style={{ marginBottom: 0 }}
                       >
-                        <Input placeholder="Color name e.g. Black" />
+                        <Input placeholder="Color name (optional)" />
                       </Form.Item>
 
                       <Form.Item
