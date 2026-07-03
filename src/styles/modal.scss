@@ -96,6 +96,7 @@
         width: 540px;
         height: calc(100vh - 40px);
         background-color: var(--white);
+        color: var(--black);
         border-radius: 32px;
         overflow: hidden;
         transition: all ease 0.5s;
@@ -403,11 +404,13 @@
 
     .modal-search-main {
         position: absolute;
-        width: calc((1290px / 6) * 5);
+        width: min(680px, calc(100vw - 40px));
+        max-height: calc(100vh - 120px);
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
         background-color: var(--white);
+        color: var(--black);
         transition: all ease 0.5s;
         opacity: 0;
         visibility: hidden;
@@ -418,29 +421,9 @@
             visibility: visible;
         }
 
-        .list-product {
-            .product-item {
-                .list-action {
-                    grid-template-columns: repeat(1, minmax(0, 1fr));
-                    transform: translateY(120px);
-
-                    >div {
-                        width: 100%;
-                    }
-                }
-            }
-        }
-
-        @media (max-width: 1400px) {
-            max-height: calc(100vh - 400px);
-            height: 100%;
-            width: calc(100vw - 200px);
-        }
-
         @media (max-width: 640px) {
-            max-height: calc(100vh - 200px);
-            height: 100%;
-            width: calc(100vw - 80px);
+            max-height: calc(100vh - 80px);
+            width: calc(100vw - 24px);
             border-radius: 16px;
         }
     }

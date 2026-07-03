@@ -47,8 +47,35 @@ const WishlistReducer = (state: WishlistState, action: WishlistAction): Wishlist
     }
 };
 
+const WISHLIST_STORAGE_KEY = 'wishlist';
+
 export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [wishlistState, dispatch] = useReducer(WishlistReducer, { wishlistArray: [] });
+    const [hasHydrated, setHasHydrated] = useState(false);
+
+    // Load persisted wishlist on mount
+    useEffect(() => {
+        try {
+            const stored = localStorage.getItem(WISHLIST_STORAGE_KEY);
+            if (stored) {
+                dispatch({ type: 'LOAD_WISHLIST', payload: JSON.parse(stored) });
+            }
+        } catch {
+            // ignore malformed storage
+        } finally {
+            setHasHydrated(true);
+        }
+    }, []);
+
+    // Persist wishlist whenever it changes (after the initial load)
+    useEffect(() => {
+        if (!hasHydrated) return;
+        try {
+            localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(wishlistState.wishlistArray));
+        } catch {
+            // ignore write errors (e.g. storage full / disabled)
+        }
+    }, [hasHydrated, wishlistState.wishlistArray]);
 
     const addToWishlist = (item: ProductType) => {
         dispatch({ type: 'ADD_TO_WISHLIST', payload: item });

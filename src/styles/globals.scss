@@ -41,6 +41,13 @@ body {
 select {
   appearance: none;
   outline: none;
+  color: var(--black);
+  background-color: var(--white);
+}
+
+select option {
+  color: var(--black);
+  background-color: var(--white);
 }
 
 .select-block {

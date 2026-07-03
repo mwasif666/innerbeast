@@ -1,13 +1,14 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import * as Icon from "@phosphor-icons/react/dist/ssr";
-import productData from '@/data/Product.json'
 import { ProductType } from '@/type/ProductType';
 import { useModalCartContext } from '@/context/ModalCartContext'
 import { useCart } from '@/context/CartContext'
+import { useProducts } from '@/hooks/useProducts'
+import { toStorefrontProduct } from '@/utils/productAdapter'
 import { countdownTime } from '@/store/countdownTime'
 import CountdownTimeType from '@/type/CountdownType';
 
@@ -25,6 +26,15 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
     const [activeTab, setActiveTab] = useState<string | undefined>('')
     const { isModalOpen, closeModalCart } = useModalCartContext();
     const { cartState, addToCart, removeFromCart, updateCart } = useCart()
+
+    const productsQuery = useProducts({ limit: 12, sort: 'newest', isActive: true })
+
+    const suggestedProducts = useMemo(() => {
+        const cartIds = new Set(cartState.cartArray.map((item) => item.id))
+        return (productsQuery.data?.data?.map(toStorefrontProduct) || [])
+            .filter((product) => !cartIds.has(product.id))
+            .slice(0, 4)
+    }, [productsQuery.data, cartState.cartArray])
 
     const handleAddToCart = (productItem: ProductType) => {
         if (!cartState.cartArray.find(item => item.id === productItem.id)) {
@@ -55,7 +65,7 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                     <div className="left w-1/2 border-r border-line py-6 max-md:hidden">
                         <div className="heading5 px-6 pb-3">You May Also Like</div>
                         <div className="list px-6">
-                            {productData.slice(0, 4).map((product) => (
+                            {suggestedProducts.map((product) => (
                                 <div key={product.id} className='item py-5 flex items-center justify-between gap-3 border-b border-line'>
                                     <div className="infor flex items-center gap-5">
                                         <div className="bg-img">
@@ -64,7 +74,7 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                                 width={300}
                                                 height={300}
                                                 alt={product.name}
-                                                className='w-[100px] aspect-square flex-shrink-0 rounded-lg'
+                                                className='w-[100px] aspect-square flex-shrink-0 rounded-lg object-cover'
                                             />
                                         </div>
                                         <div className=''>
@@ -127,7 +137,7 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                                 width={300}
                                                 height={300}
                                                 alt={product.name}
-                                                className='w-full h-full'
+                                                className='w-full h-full object-cover'
                                             />
                                         </div>
                                         <div className='w-full'>

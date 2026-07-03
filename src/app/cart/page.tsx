@@ -103,7 +103,7 @@ const Cart = () => {
                             </div>
                             <div className="list-product w-full sm:mt-7 mt-5">
                                 <div className='w-full'>
-                                    <div className="heading bg-surface bora-4 pt-4 pb-4">
+                                    <div className="heading bg-surface text-black bora-4 pt-4 pb-4">
                                         <div className="flex">
                                             <div className="w-1/2">
                                                 <div className="text-button text-center">Products</div>
@@ -146,7 +146,7 @@ const Cart = () => {
                                                         <div className="text-title text-center">${product.price}.00</div>
                                                     </div>
                                                     <div className="w-1/6 flex items-center justify-center">
-                                                        <div className="quantity-block bg-surface md:p-3 p-2 flex items-center justify-between rounded-lg border border-line md:w-[100px] flex-shrink-0 w-20">
+                                                        <div className="quantity-block bg-surface text-black md:p-3 p-2 flex items-center justify-between rounded-lg border border-line md:w-[100px] flex-shrink-0 w-20">
                                                             <Icon.Minus
                                                                 onClick={() => {
                                                                     if (product.quantity > 1) {
@@ -181,7 +181,7 @@ const Cart = () => {
                             </div>
                             <div className="input-block discount-code w-full h-12 sm:mt-7 mt-5">
                                 <form className='w-full h-full relative'>
-                                    <input type="text" placeholder='Add voucher discount' className='w-full h-full bg-surface pl-4 pr-14 rounded-lg border border-line' required />
+                                    <input type="text" placeholder='Add voucher discount' className='w-full h-full bg-surface text-black pl-4 pr-14 rounded-lg border border-line' required />
                                     <button className='button-main absolute top-1 bottom-1 right-1 px-5 rounded-lg flex items-center justify-center'>Apply Code
                                     </button>
                                 </form>
@@ -250,7 +250,7 @@ const Cart = () => {
                             </div>
                         </div>
                         <div className="xl:w-1/3 xl:pl-12 w-full">
-                            <div className="checkout-block bg-surface p-6 rounded-2xl">
+                            <div className="checkout-block bg-surface text-black p-6 rounded-2xl">
                                 <div className="heading5">Order Summary</div>
                                 <div className="total-block py-5 flex justify-between border-b border-line">
                                     <div className="text-title">Subtotal</div>
