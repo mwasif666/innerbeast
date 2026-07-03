@@ -9,6 +9,7 @@ import {
   Input,
   InputNumber,
   Modal,
+  Radio,
   Select,
   Switch,
   Table,
@@ -58,15 +59,20 @@ const GENDER_OPTIONS = ["Men", "Women", "Unisex"];
 type ProductFormValues = {
   title: string;
   slug?: string;
-  sku: string;
+  sku?: string;
   description: string;
   category: string;
   price: number;
+  discountType?: "fixed" | "percentage";
   discountPrice?: number;
+  discountPercentage?: number;
   stock: number;
   images?: ProductImage[];
   sizes?: string[];
-  colorsText?: string;
+  colors?: {
+    name?: string;
+    hex?: string;
+  }[];
   fitType?: string;
   gender?: string;
   material?: string;
@@ -105,24 +111,84 @@ const parseCommaValues = (value?: string) => {
     .filter(Boolean);
 };
 
-const buildPayload = (values: ProductFormValues): ProductPayload => {
-  const colors = parseCommaValues(values.colorsText).map((color) => ({
-    name: color,
-    hex: "",
-  }));
+const createSlug = (text?: string) => {
+  if (!text) return "";
+
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+};
+
+const generateSku = (title?: string, categoryName?: string) => {
+  const titlePart = createSlug(title)
+    .slice(0, 10)
+    .replace(/-/g, "")
+    .toUpperCase();
+
+  const categoryPart = createSlug(categoryName)
+    .slice(0, 6)
+    .replace(/-/g, "")
+    .toUpperCase();
+
+  const randomPart = Math.random().toString(36).slice(2, 7).toUpperCase();
+
+  return `IB-${categoryPart || "PROD"}-${titlePart || "ITEM"}-${randomPart}`;
+};
+
+const calculateDiscountPrice = (values: ProductFormValues) => {
+  const price = Number(values.price || 0);
+
+  if (!price) return 0;
+
+  if (values.discountType === "percentage") {
+    const percentage = Number(values.discountPercentage || 0);
+
+    if (!percentage) return 0;
+
+    return Math.round(price - (price * percentage) / 100);
+  }
+
+  return Number(values.discountPrice || 0);
+};
+
+const buildPayload = (
+  values: ProductFormValues,
+  categories: { _id: string; name: string }[],
+  editingProduct?: Product | null,
+): ProductPayload => {
+  const selectedCategory = categories.find(
+    (category) => category._id === values.category,
+  );
+
+  const colors =
+    values.colors
+      ?.filter((color) => color.name?.trim())
+      .map((color) => ({
+        name: color.name?.trim() || "",
+        hex: color.hex?.trim() || "",
+      })) || [];
 
   const tags = parseCommaValues(values.tagsText).map((tag) =>
     tag.toLowerCase(),
   );
 
+  const discountPrice = calculateDiscountPrice(values);
+
   return {
     title: values.title,
     slug: values.slug || undefined,
-    sku: values.sku,
+    sku:
+      editingProduct?.sku ||
+      values.sku ||
+      generateSku(values.title, selectedCategory?.name),
     description: values.description,
     category: values.category,
     price: Number(values.price),
-    discountPrice: Number(values.discountPrice || 0),
+    discountPrice,
     stock: Number(values.stock || 0),
     images: values.images || [],
     sizes: values.sizes || [],
@@ -153,7 +219,11 @@ const AdminProductsPage = () => {
   const deleteProductMutation = useDeleteProduct();
   const uploadImagesMutation = useUploadMultipleImages();
 
-  const watchedImages = Form.useWatch("images", form) || [];
+  const watchedImages =
+    (Form.useWatch("images", { form, preserve: true }) as
+      | ProductImage[]
+      | undefined) || [];
+  const watchedDiscountType = Form.useWatch("discountType", form);
 
   const products = productsQuery.data?.data || [];
   const categories = categoriesQuery.data?.data || [];
@@ -176,12 +246,16 @@ const AdminProductsPage = () => {
     setEditingProduct(null);
     form.resetFields();
     form.setFieldsValue({
+      sku: "",
       images: [],
       sizes: [],
+      colors: [{ name: "", hex: "#000000" }],
       fitType: "Regular",
       gender: "Unisex",
       stock: 0,
+      discountType: "fixed",
       discountPrice: 0,
+      discountPercentage: 0,
       isFeatured: false,
       isNewArrival: false,
       isActive: true,
@@ -192,6 +266,13 @@ const AdminProductsPage = () => {
   const openEditModal = (product: Product) => {
     setEditingProduct(product);
 
+    const percentage =
+      product.discountPrice && product.price
+        ? Math.round(
+            ((product.price - product.discountPrice) / product.price) * 100,
+          )
+        : 0;
+
     form.setFieldsValue({
       title: product.title,
       slug: product.slug,
@@ -199,11 +280,19 @@ const AdminProductsPage = () => {
       description: product.description,
       category: product.category?._id,
       price: product.price,
+      discountType: "fixed",
       discountPrice: product.discountPrice || 0,
+      discountPercentage: percentage,
       stock: product.stock || 0,
       images: product.images || [],
       sizes: product.sizes || [],
-      colorsText: product.colors?.map((color) => color.name).join(", ") || "",
+      colors:
+        product.colors && product.colors.length > 0
+          ? product.colors.map((color) => ({
+              name: color.name,
+              hex: color.hex || "#000000",
+            }))
+          : [{ name: "", hex: "#000000" }],
       fitType: product.fitType || "Regular",
       gender: product.gender || "Unisex",
       material: product.material || "",
@@ -223,9 +312,21 @@ const AdminProductsPage = () => {
   };
 
   const handleImagesUpload = async (files: File[]) => {
-    const validImages = files.filter((file) => file.type.startsWith("image/"));
+    const currentImages = form.getFieldValue("images") || [];
 
-    if (validImages.length !== files.length) {
+    if (currentImages.length >= 5) {
+      message.error("You can upload maximum 5 product images.");
+      return;
+    }
+
+    const remainingSlots = 5 - currentImages.length;
+    const selectedFiles = files.slice(0, remainingSlots);
+
+    const validImages = selectedFiles.filter((file) =>
+      file.type.startsWith("image/"),
+    );
+
+    if (validImages.length !== selectedFiles.length) {
       message.error("Only image files are allowed.");
       return;
     }
@@ -242,7 +343,6 @@ const AdminProductsPage = () => {
     try {
       const response = await uploadImagesMutation.mutateAsync(validImages);
 
-      const currentImages = form.getFieldValue("images") || [];
       const uploadedImages = response.data.map((image) => ({
         url: image.url,
         publicId: image.publicId,
@@ -267,10 +367,51 @@ const AdminProductsPage = () => {
     });
   };
 
+  const handleReplaceImage = async (index: number, file: File) => {
+    if (!file.type.startsWith("image/")) {
+      message.error("Only image files are allowed.");
+      return;
+    }
+
+    if (file.size / 1024 / 1024 >= 5) {
+      message.error("Each image must be smaller than 5MB.");
+      return;
+    }
+
+    try {
+      const response = await uploadImagesMutation.mutateAsync([file]);
+      const uploadedImage = response.data[0];
+
+      if (!uploadedImage) {
+        throw new Error("Upload did not return an image.");
+      }
+
+      const currentImages: ProductImage[] =
+        form.getFieldValue("images") || [];
+      const nextImages = [...currentImages];
+
+      nextImages[index] = {
+        url: uploadedImage.url,
+        publicId: uploadedImage.publicId,
+        alt: form.getFieldValue("title") || "",
+      };
+
+      form.setFieldValue("images", nextImages);
+      message.success("Image replaced successfully.");
+    } catch {
+      message.error("Failed to replace image.");
+    }
+  };
+
   const handleSubmit = async () => {
     try {
-      const values = await form.validateFields();
-      const payload = buildPayload(values);
+      const validatedValues = await form.validateFields();
+      const values: ProductFormValues = {
+        ...validatedValues,
+        images:
+          form.getFieldValue("images") || editingProduct?.images || [],
+      };
+      const payload = buildPayload(values, categories, editingProduct);
 
       if (!payload.images || payload.images.length === 0) {
         message.error("Please upload at least one product image.");
@@ -282,6 +423,15 @@ const AdminProductsPage = () => {
         return;
       }
 
+      if (values.discountType === "percentage") {
+        const percentage = Number(values.discountPercentage || 0);
+
+        if (percentage < 0 || percentage > 99) {
+          message.error("Discount percentage must be between 0 and 99.");
+          return;
+        }
+      }
+
       if (editingProduct) {
         await updateProductMutation.mutateAsync({
           id: editingProduct._id,
@@ -291,7 +441,7 @@ const AdminProductsPage = () => {
         message.success("Product updated successfully.");
       } else {
         await createProductMutation.mutateAsync(payload);
-        message.success("Product created successfully.");
+        message.success(`Product created successfully. SKU: ${payload.sku}`);
       }
 
       closeModal();
@@ -409,6 +559,45 @@ const AdminProductsPage = () => {
         >
           {stock || 0}
         </Tag>
+      ),
+    },
+    {
+      title: "Colors",
+      dataIndex: "colors",
+      render: (_, product) => (
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {product.colors && product.colors.length > 0 ? (
+            product.colors.slice(0, 4).map((color) => (
+              <Tag
+                key={`${color.name}-${color.hex}`}
+                title={`${color.name}${color.hex ? ` (${color.hex})` : ""}`}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  margin: 0,
+                  borderRadius: 999,
+                  background: "rgba(255,255,255,0.04)",
+                }}
+              >
+                <span
+                  style={{
+                    width: 12,
+                    height: 12,
+                    borderRadius: "50%",
+                    background: color.hex || "#ffffff",
+                    border: "1px solid rgba(255,255,255,0.35)",
+                    display: "inline-block",
+                    flexShrink: 0,
+                  }}
+                />
+                {color.name}
+              </Tag>
+            ))
+          ) : (
+            <Text type="secondary">-</Text>
+          )}
+        </div>
       ),
     },
     {
@@ -543,7 +732,7 @@ const AdminProductsPage = () => {
           columns={columns}
           dataSource={filteredProducts}
           loading={productsQuery.isLoading}
-          scroll={{ x: 1100 }}
+          scroll={{ x: 1200 }}
           pagination={{
             pageSize: 8,
             showSizeChanger: true,
@@ -568,7 +757,7 @@ const AdminProductsPage = () => {
         onOk={handleSubmit}
         okText={editingProduct ? "Save Changes" : "Create Product"}
         confirmLoading={saving}
-        width={860}
+        width={900}
         destroyOnClose
       >
         <Form
@@ -589,14 +778,14 @@ const AdminProductsPage = () => {
           </Form.Item>
 
           <div
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 14,
+            }}
           >
-            <Form.Item
-              label="SKU"
-              name="sku"
-              rules={[{ required: true, message: "SKU is required" }]}
-            >
-              <Input placeholder="IB-TSHIRT-001" />
+            <Form.Item label="SKU" name="sku">
+              <Input placeholder="Auto generated on create" disabled />
             </Form.Item>
 
             <Form.Item label="Slug" name="slug">
@@ -624,8 +813,10 @@ const AdminProductsPage = () => {
             rules={[{ required: true, message: "Category is required" }]}
           >
             <Select
+              showSearch
               placeholder="Select category"
               loading={categoriesQuery.isLoading}
+              optionFilterProp="label"
               options={categories.map((category) => ({
                 label: category.name,
                 value: category._id,
@@ -648,8 +839,15 @@ const AdminProductsPage = () => {
               <InputNumber min={0} style={{ width: "100%" }} />
             </Form.Item>
 
-            <Form.Item label="Discount Price" name="discountPrice">
-              <InputNumber min={0} style={{ width: "100%" }} />
+            <Form.Item label="Discount Type" name="discountType">
+              <Radio.Group
+                optionType="button"
+                buttonStyle="solid"
+                options={[
+                  { label: "Fixed", value: "fixed" },
+                  { label: "Percentage", value: "percentage" },
+                ]}
+              />
             </Form.Item>
 
             <Form.Item
@@ -661,14 +859,29 @@ const AdminProductsPage = () => {
             </Form.Item>
           </div>
 
+          {watchedDiscountType === "percentage" ? (
+            <Form.Item label="Discount Percentage" name="discountPercentage">
+              <InputNumber
+                min={0}
+                max={99}
+                addonAfter="%"
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
+          ) : (
+            <Form.Item label="Discount Price" name="discountPrice">
+              <InputNumber min={0} style={{ width: "100%" }} />
+            </Form.Item>
+          )}
+
           <Form.Item label="Product Images" required>
             <Upload
               accept="image/*"
               multiple
               maxCount={5}
               showUploadList={false}
-              beforeUpload={(file, fileList) => {
-                handleImagesUpload(fileList as File[]);
+              beforeUpload={(file) => {
+                void handleImagesUpload([file as File]);
                 return Upload.LIST_IGNORE;
               }}
               disabled={uploadImagesMutation.isPending}
@@ -683,10 +896,6 @@ const AdminProductsPage = () => {
               </Button>
             </Upload>
 
-            <Form.Item name="images" hidden>
-              <Input />
-            </Form.Item>
-
             {watchedImages.length > 0 && (
               <div
                 style={{
@@ -696,7 +905,7 @@ const AdminProductsPage = () => {
                   marginTop: 14,
                 }}
               >
-                {watchedImages.map((image) => (
+                {watchedImages.map((image, index) => (
                   <div
                     key={image.url}
                     style={{
@@ -719,15 +928,43 @@ const AdminProductsPage = () => {
                       />
                     </div>
 
-                    <Button
-                      block
-                      danger
-                      type="text"
-                      size="small"
-                      onClick={() => handleRemoveImage(image.url)}
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        borderTop: "1px solid rgba(255,255,255,0.08)",
+                      }}
                     >
-                      Remove
-                    </Button>
+                      <Upload
+                        accept="image/*"
+                        maxCount={1}
+                        showUploadList={false}
+                        beforeUpload={(file) => {
+                          void handleReplaceImage(index, file as File);
+                          return Upload.LIST_IGNORE;
+                        }}
+                        disabled={uploadImagesMutation.isPending}
+                      >
+                        <Button
+                          block
+                          type="text"
+                          size="small"
+                          loading={uploadImagesMutation.isPending}
+                        >
+                          Replace
+                        </Button>
+                      </Upload>
+
+                      <Button
+                        block
+                        danger
+                        type="text"
+                        size="small"
+                        onClick={() => handleRemoveImage(image.url)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -735,7 +972,11 @@ const AdminProductsPage = () => {
           </Form.Item>
 
           <div
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 14,
+            }}
           >
             <Form.Item label="Sizes" name="sizes">
               <Select
@@ -748,14 +989,6 @@ const AdminProductsPage = () => {
               />
             </Form.Item>
 
-            <Form.Item label="Colors" name="colorsText">
-              <Input placeholder="Black, White, Grey" />
-            </Form.Item>
-          </div>
-
-          <div
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}
-          >
             <Form.Item label="Fit Type" name="fitType">
               <Select
                 options={FIT_TYPE_OPTIONS.map((fitType) => ({
@@ -764,7 +997,157 @@ const AdminProductsPage = () => {
                 }))}
               />
             </Form.Item>
+          </div>
 
+          <Form.Item
+            label="Colors"
+            extra="Product images and colors are matched in the same order."
+          >
+            <Form.List name="colors">
+              {(fields, { add, remove }) => (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 10,
+                  }}
+                >
+                  {fields.map((field) => (
+                    <div
+                      key={field.key}
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "64px 1fr 64px 150px 42px",
+                        gap: 10,
+                        alignItems: "center",
+                      }}
+                    >
+                      <div
+                        title={`Image ${field.name + 1}`}
+                        style={{
+                          position: "relative",
+                          width: 64,
+                          height: 42,
+                          overflow: "hidden",
+                          borderRadius: 8,
+                          border: "1px solid rgba(255,255,255,0.14)",
+                          background: "rgba(255,255,255,0.04)",
+                          display: "grid",
+                          placeItems: "center",
+                          color: "rgba(255,255,255,0.45)",
+                          fontSize: 10,
+                        }}
+                      >
+                        {watchedImages[field.name]?.url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={watchedImages[field.name].url}
+                            alt={
+                              watchedImages[field.name].alt ||
+                              `Product image ${field.name + 1}`
+                            }
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                            }}
+                          />
+                        ) : (
+                          "No image"
+                        )}
+
+                        <span
+                          style={{
+                            position: "absolute",
+                            top: 2,
+                            left: 3,
+                            minWidth: 16,
+                            height: 16,
+                            padding: "0 4px",
+                            borderRadius: 999,
+                            background: "rgba(0,0,0,0.72)",
+                            color: "#fff",
+                            fontSize: 10,
+                            lineHeight: "16px",
+                            textAlign: "center",
+                          }}
+                        >
+                          {field.name + 1}
+                        </span>
+                      </div>
+
+                      <Form.Item
+                        {...field}
+                        name={[field.name, "name"]}
+                        style={{ marginBottom: 0 }}
+                      >
+                        <Input placeholder="Color name e.g. Black" />
+                      </Form.Item>
+
+                      <Form.Item
+                        noStyle
+                        shouldUpdate={(previousValues, currentValues) =>
+                          previousValues.colors?.[field.name]?.hex !==
+                          currentValues.colors?.[field.name]?.hex
+                        }
+                      >
+                        {({ getFieldValue }) => (
+                          <Input
+                            type="color"
+                            aria-label="Choose color"
+                            value={
+                              getFieldValue(["colors", field.name, "hex"]) ||
+                              "#000000"
+                            }
+                            onChange={(event) =>
+                              form.setFieldValue(
+                                ["colors", field.name, "hex"],
+                                event.target.value,
+                              )
+                            }
+                            style={{ padding: 4, height: 32 }}
+                          />
+                        )}
+                      </Form.Item>
+
+                      <Form.Item
+                        {...field}
+                        name={[field.name, "hex"]}
+                        rules={[
+                          {
+                            pattern: /^#[0-9a-fA-F]{6}$/,
+                            message: "Use hex format, e.g. #e1e1e3",
+                          },
+                        ]}
+                        style={{ marginBottom: 0 }}
+                      >
+                        <Input placeholder="#e1e1e3" maxLength={7} />
+                      </Form.Item>
+
+                      <Button danger onClick={() => remove(field.name)}>
+                        ×
+                      </Button>
+                    </div>
+                  ))}
+
+                  <Button
+                    type="dashed"
+                    onClick={() => add({ name: "", hex: "#000000" })}
+                  >
+                    Add Color
+                  </Button>
+                </div>
+              )}
+            </Form.List>
+          </Form.Item>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 14,
+            }}
+          >
             <Form.Item label="Gender" name="gender">
               <Select
                 options={GENDER_OPTIONS.map((gender) => ({
@@ -773,11 +1156,11 @@ const AdminProductsPage = () => {
                 }))}
               />
             </Form.Item>
-          </div>
 
-          <Form.Item label="Material" name="material">
-            <Input placeholder="Cotton blend, polyester, etc." />
-          </Form.Item>
+            <Form.Item label="Material" name="material">
+              <Input placeholder="Cotton blend, polyester, etc." />
+            </Form.Item>
+          </div>
 
           <Form.Item label="Tags" name="tagsText">
             <Input placeholder="gym, oversized, workout" />
