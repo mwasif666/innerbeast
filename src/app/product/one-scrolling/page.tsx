@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { Suspense, useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -15,9 +15,9 @@ import { useCart } from '@/context/CartContext'
 import { useModalCartContext } from '@/context/ModalCartContext'
 import { useWishlist } from '@/context/WishlistContext'
 
-const ProductOneScrolling = () => {
+const ProductOneScrollingContent = () => {
     const searchParams = useSearchParams()
-    const productId = searchParams.get('id') || ''
+    const productId = searchParams.get('id')?.trim() ?? ''
     const productQuery = useSingleProduct(productId)
     const { cartState, addToCart, updateCart } = useCart()
     const { openModalCart } = useModalCartContext()
@@ -84,7 +84,21 @@ const ProductOneScrolling = () => {
 
             <main className="bg-[#101212] text-white min-h-[600px]">
                 <div className="container lg:py-16 py-10">
-                    {productQuery.isPending ? (
+                    {!productId ? (
+                        <div className="max-w-xl mx-auto py-20 text-center">
+                            <Icon.WarningCircle size={52} className="mx-auto text-white/50" />
+                            <div className="heading4 mt-5">No product selected</div>
+                            <p className="text-secondary mt-2">
+                                Choose a product from the shop to view its details.
+                            </p>
+                            <Link
+                                href="/shop/sidebar-list"
+                                className="inline-block mt-6 px-7 py-3 rounded-xl bg-white text-black font-semibold"
+                            >
+                                Browse Products
+                            </Link>
+                        </div>
+                    ) : productQuery.isPending ? (
                         <div className="min-h-[480px] flex items-center justify-center text-white/60">
                             Loading product...
                         </div>
@@ -279,5 +293,17 @@ const ProductOneScrolling = () => {
         </>
     )
 }
+
+const ProductOneScrolling = () => (
+    <Suspense
+        fallback={(
+            <main className="bg-[#101212] text-white min-h-screen flex items-center justify-center">
+                <div className="text-white/60">Loading product...</div>
+            </main>
+        )}
+    >
+        <ProductOneScrollingContent />
+    </Suspense>
+)
 
 export default ProductOneScrolling
