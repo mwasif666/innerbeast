@@ -8,11 +8,6 @@ const config: Config = {
   ],
   mode: 'jit',
   jit: true,
-  // The project already has its own reset in globals.scss. Tailwind's
-  // unlayered preflight overrides PrimeReact's layered theme styles.
-  corePlugins: {
-    preflight: false,
-  },
   theme: {
     extend: {
       backgroundImage: {

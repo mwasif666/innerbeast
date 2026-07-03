@@ -20,12 +20,9 @@
 }
 
 /* Reset */
-*:not(.p-component):not(.p-component *) {
+* {
   padding: 0;
   margin: 0;
-}
-
-* {
   box-sizing: border-box;
 }
 
@@ -41,7 +38,7 @@ body {
   scroll-behavior: smooth;
 }
 
-select:not(.p-component) {
+select {
   appearance: none;
   outline: none;
 }
@@ -57,15 +54,15 @@ select:not(.p-component) {
   }
 }
 
-input:not(.p-component),
-textarea:not(.p-component) {
+input,
+textarea {
   outline: none;
   border: 1px solid transparent;
   transition: border-color ease 0.3s;
 }
 
-input:not(.p-component):focus,
-textarea:not(.p-component):focus {
+input:focus,
+textarea:focus {
   border-color: var(--black);
 }
 
