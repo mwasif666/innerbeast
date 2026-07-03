@@ -1,7 +1,8 @@
 'use client'
 
 import Image from 'next/image'
-import { useMemo, useState } from 'react'
+import Link from 'next/link'
+import { Suspense, useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import * as Icon from '@phosphor-icons/react/dist/ssr'
 import TopNavOne from '@/components/Header/TopNav/TopNavOne'
@@ -9,15 +10,20 @@ import MenuOne from '@/components/Header/Menu/MenuOne'
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb'
 import Footer from '@/components/Footer/Footer'
 import { useCart } from '@/context/CartContext'
+import { useCreateOrder } from '@/hooks/useOrders'
+import { CreateOrderPayload } from '@/services/order.service'
 import styles from './checkout.module.scss'
 
 type PaymentMethod = 'credit-card' | 'cash-delivery' | 'paypal'
 
-const Checkout = () => {
+const CheckoutContent = () => {
     const searchParams = useSearchParams()
-    const { cartState } = useCart()
+    const { cartState, clearCart } = useCart()
+    const createOrderMutation = useCreateOrder()
     const [activePayment, setActivePayment] = useState<PaymentMethod>('credit-card')
     const [showLogin, setShowLogin] = useState(false)
+    const [orderError, setOrderError] = useState('')
+    const [placedOrderNumber, setPlacedOrderNumber] = useState('')
 
     const discount = Math.max(0, Number(searchParams.get('discount')) || 0)
     const shipping = Math.max(0, Number(searchParams.get('ship')) || 0)
@@ -27,6 +33,66 @@ const Checkout = () => {
     )
     const total = Math.max(0, subtotal - discount + shipping)
     const formatPrice = (value: number) => `Rs. ${value.toLocaleString('en-PK')}`
+
+    const handlePlaceOrder = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault()
+        setOrderError('')
+
+        if (cartState.cartArray.length === 0) {
+            setOrderError('Your cart is empty. Add a product before placing an order.')
+            return
+        }
+
+        const formData = new FormData(event.currentTarget)
+        const value = (name: string) => String(formData.get(name) || '').trim()
+        const firstName = value('firstName')
+        const lastName = value('lastName')
+        const fullName = `${firstName} ${lastName}`.trim()
+        const email = value('email')
+        const phone = value('phone')
+
+        const paymentMethods: Record<PaymentMethod, CreateOrderPayload['paymentMethod']> = {
+            'credit-card': 'CARD',
+            'cash-delivery': 'COD',
+            paypal: 'ONLINE',
+        }
+
+        const payload: CreateOrderPayload = {
+            items: cartState.cartArray.map((item) => ({
+                id: item.id,
+                quantity: item.quantity,
+                selectedSize: item.selectedSize || item.sizes?.[0] || undefined,
+                selectedColor: item.selectedColor || item.variation?.[0]?.color || undefined,
+            })),
+            shippingAddress: {
+                fullName,
+                phone,
+                email,
+                addressLine1: value('street'),
+                addressLine2: value('apartment') || undefined,
+                city: value('city'),
+                state: value('state') || undefined,
+                postalCode: value('postal') || undefined,
+                country: value('country') || 'Pakistan',
+            },
+            customer: { name: fullName, email, phone },
+            paymentMethod: paymentMethods[activePayment],
+            notes: value('note') || undefined,
+        }
+
+        try {
+            const response = await createOrderMutation.mutateAsync(payload)
+            setPlacedOrderNumber(response.data?.orderNumber || response.data?._id || 'Confirmed')
+            clearCart()
+        } catch (error) {
+            const apiError = error as Error & { status?: number }
+            setOrderError(
+                apiError.status === 401
+                    ? 'Please log in to your account before placing the order.'
+                    : apiError.message || 'We could not place your order. Please try again.',
+            )
+        }
+    }
 
     return (
         <>
@@ -44,6 +110,14 @@ const Checkout = () => {
                         <p>Enter your delivery details and choose how you would like to pay.</p>
                     </div>
 
+                    {placedOrderNumber ? (
+                        <section className={styles.orderSuccess}>
+                            <Icon.CheckCircle size={58} weight="fill" />
+                            <h2>Order placed successfully</h2>
+                            <p>Your reference is <strong>{placedOrderNumber}</strong>. We will contact you with the next update.</p>
+                            <Link href="/shop/sidebar-list">Continue shopping</Link>
+                        </section>
+                    ) : (
                     <div className={styles.layout}>
                         <div className={styles.mainColumn}>
                             <section className={styles.loginSection}>
@@ -74,24 +148,24 @@ const Checkout = () => {
                                 )}
                             </section>
 
-                            <form className={styles.checkoutForm} onSubmit={(event) => event.preventDefault()}>
+                            <form className={styles.checkoutForm} onSubmit={handlePlaceOrder}>
                                 <section className={styles.card}>
                                     <div className={styles.sectionHeading}>
                                         <span className={styles.step}>1</span>
                                         <div><h2>Contact & delivery</h2><p>We will use these details to deliver your order.</p></div>
                                     </div>
                                     <div className={styles.formGrid}>
-                                        <label><span>First name *</span><input id="firstName" type="text" placeholder="Enter first name" autoComplete="given-name" required /></label>
-                                        <label><span>Last name *</span><input id="lastName" type="text" placeholder="Enter last name" autoComplete="family-name" required /></label>
-                                        <label><span>Email address *</span><input id="email" type="email" placeholder="you@example.com" autoComplete="email" required /></label>
-                                        <label><span>Phone number *</span><input id="phoneNumber" type="tel" placeholder="+92 300 0000000" autoComplete="tel" required /></label>
-                                        <label className={styles.fullWidth}><span>Country / region *</span><select id="region" defaultValue="Pakistan" autoComplete="country-name"><option>Pakistan</option><option>United Arab Emirates</option><option>United Kingdom</option><option>United States</option></select></label>
-                                        <label><span>Town / city *</span><input id="city" type="text" placeholder="e.g. Lahore" autoComplete="address-level2" required /></label>
-                                        <label><span>State / province *</span><input id="state" type="text" placeholder="e.g. Punjab" autoComplete="address-level1" required /></label>
-                                        <label className={styles.fullWidth}><span>Street address *</span><input id="street" type="text" placeholder="House number and street name" autoComplete="street-address" required /></label>
-                                        <label><span>Apartment (optional)</span><input id="apartment" type="text" placeholder="Apartment, suite, unit" /></label>
-                                        <label><span>Postal code *</span><input id="postal" type="text" placeholder="Postal code" autoComplete="postal-code" required /></label>
-                                        <label className={styles.fullWidth}><span>Order note (optional)</span><textarea id="note" rows={4} placeholder="Delivery instructions or a note about your order" /></label>
+                                        <label><span>First name *</span><input id="firstName" name="firstName" type="text" placeholder="Enter first name" autoComplete="given-name" required /></label>
+                                        <label><span>Last name *</span><input id="lastName" name="lastName" type="text" placeholder="Enter last name" autoComplete="family-name" required /></label>
+                                        <label><span>Email address *</span><input id="email" name="email" type="email" placeholder="you@example.com" autoComplete="email" required /></label>
+                                        <label><span>Phone number *</span><input id="phoneNumber" name="phone" type="tel" placeholder="+92 300 0000000" autoComplete="tel" required /></label>
+                                        <label className={styles.fullWidth}><span>Country / region *</span><select id="region" name="country" defaultValue="Pakistan" autoComplete="country-name"><option>Pakistan</option><option>United Arab Emirates</option><option>United Kingdom</option><option>United States</option></select></label>
+                                        <label><span>Town / city *</span><input id="city" name="city" type="text" placeholder="e.g. Lahore" autoComplete="address-level2" required /></label>
+                                        <label><span>State / province *</span><input id="state" name="state" type="text" placeholder="e.g. Punjab" autoComplete="address-level1" required /></label>
+                                        <label className={styles.fullWidth}><span>Street address *</span><input id="street" name="street" type="text" placeholder="House number and street name" autoComplete="street-address" required /></label>
+                                        <label><span>Apartment (optional)</span><input id="apartment" name="apartment" type="text" placeholder="Apartment, suite, unit" /></label>
+                                        <label><span>Postal code *</span><input id="postal" name="postal" type="text" placeholder="Postal code" autoComplete="postal-code" required /></label>
+                                        <label className={styles.fullWidth}><span>Order note (optional)</span><textarea id="note" name="note" rows={4} placeholder="Delivery instructions or a note about your order" /></label>
                                     </div>
                                 </section>
 
@@ -113,9 +187,14 @@ const Checkout = () => {
                                     </div>
                                 </section>
 
-                                <button type="submit" className={styles.placeOrder} disabled={cartState.cartArray.length === 0}>
+                                {orderError && <div className={styles.orderError} role="alert">{orderError}</div>}
+                                <button type="submit" className={styles.placeOrder} disabled={cartState.cartArray.length === 0 || createOrderMutation.isPending}>
                                     <Icon.LockKey size={19} weight="bold" />
-                                    {cartState.cartArray.length === 0 ? 'Your cart is empty' : `Place order · ${formatPrice(total)}`}
+                                    {cartState.cartArray.length === 0
+                                        ? 'Your cart is empty'
+                                        : createOrderMutation.isPending
+                                            ? 'Placing order...'
+                                            : `Place order · ${formatPrice(total)}`}
                                 </button>
                                 <p className={styles.privacy}><Icon.ShieldCheck size={18} /> Your personal and payment information is protected.</p>
                             </form>
@@ -149,12 +228,21 @@ const Checkout = () => {
                             <div className={styles.summaryNote}><Icon.Truck size={22} /><div><strong>Fast, tracked delivery</strong><span>We will send tracking details after dispatch.</span></div></div>
                         </aside>
                     </div>
+                    )}
                 </div>
             </main>
             <Footer />
         </>
     )
 }
+
+const Checkout = () => (
+    <Suspense
+        fallback={<main className={styles.checkoutPage}><div className={styles.container}>Loading checkout...</div></main>}
+    >
+        <CheckoutContent />
+    </Suspense>
+)
 
 type PaymentOptionProps = {
     id: PaymentMethod

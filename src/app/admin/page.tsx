@@ -12,7 +12,9 @@ import {
 import type { ReactNode } from "react";
 
 import { useCurrentUser } from "@/hooks/useAuth";
+import { useAdminOrders } from "@/hooks/useOrders";
 import { useCustomers } from "@/hooks/useUsers";
+import { getOrdersCount } from "@/services/order.service";
 
 type StatCard = {
   label: string;
@@ -60,6 +62,7 @@ const AdminPage = () => {
   const router = useRouter();
   const currentUserQuery = useCurrentUser();
   const customersQuery = useCustomers();
+  const ordersQuery = useAdminOrders();
 
   const user = currentUserQuery.data?.data;
   const firstName = user?.name ? user.name.split(" ")[0] : "";
@@ -88,7 +91,7 @@ const AdminPage = () => {
     },
     {
       label: "Orders",
-      value: 342,
+      value: ordersQuery.isLoading ? "..." : getOrdersCount(ordersQuery.data),
       icon: <ShoppingCartOutlined />,
       accent: "#f59e0b",
       href: "/admin/orders",

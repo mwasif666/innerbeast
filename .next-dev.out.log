@@ -1,0 +1,22 @@
+
+> anvogue@0.1.0 dev
+> next dev -p 3000
+
+   ▲ Next.js 14.0.3
+   - Local:        http://localhost:3000
+   - Environments: .env.local, .env
+
+ ✓ Ready in 4.1s
+ ○ Compiling /not-found ...
+ ✓ Compiled /not-found in 21.9s (5770 modules)
+ ✓ Compiled in 1649ms (2879 modules)
+ ○ Compiling /admin/products ...
+ ✓ Compiled /admin/products in 7.5s (7776 modules)
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 693ms (3938 modules)
+ ○ Compiling /test-auth ...
+ ✓ Compiled /test-auth in 3s (7810 modules)
+ ○ Compiling /admin/orders ...
+ ✓ Compiled /admin/orders in 1771ms (7841 modules)
+ ○ Compiling /checkout ...
+ ✓ Compiled /checkout in 3.5s (7850 modules)
