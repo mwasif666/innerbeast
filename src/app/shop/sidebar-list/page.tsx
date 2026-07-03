@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { Suspense, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation';
 import TopNavOne from '@/components/Header/TopNav/TopNavOne'
 import MenuOne from '@/components/Header/Menu/MenuOne'
@@ -9,7 +9,7 @@ import Footer from '@/components/Footer/Footer'
 import { useProducts } from '@/hooks/useProducts'
 import { toStorefrontProduct } from '@/utils/productAdapter'
 
-export default function SidebarList() {
+function SidebarListContent() {
     const searchParams = useSearchParams()
     const type = searchParams.get('type')
     const category = searchParams.get('category')
@@ -46,5 +46,13 @@ export default function SidebarList() {
             )}
             <Footer />
         </>
+    )
+}
+
+export default function SidebarList() {
+    return (
+        <Suspense fallback={null}>
+            <SidebarListContent />
+        </Suspense>
     )
 }
