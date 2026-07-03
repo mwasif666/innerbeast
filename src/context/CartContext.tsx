@@ -33,6 +33,8 @@ interface CartContextProps {
 
 const CartContext = createContext<CartContextProps | undefined>(undefined);
 
+const CART_STORAGE_KEY = 'innerbeast-cart';
+
 const cartReducer = (state: CartState, action: CartAction): CartState => {
     switch (action.type) {
         case 'ADD_TO_CART':
@@ -72,6 +74,36 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [cartState, dispatch] = useReducer(cartReducer, { cartArray: [] });
+    const [hasHydrated, setHasHydrated] = useState(false);
+
+    // Restore the complete cart (items, quantities and selected variants) once
+    // the app is running in the browser.
+    useEffect(() => {
+        try {
+            const storedCart = localStorage.getItem(CART_STORAGE_KEY);
+            if (storedCart) {
+                const parsedCart: unknown = JSON.parse(storedCart);
+                if (Array.isArray(parsedCart)) {
+                    dispatch({ type: 'LOAD_CART', payload: parsedCart as CartItem[] });
+                }
+            }
+        } catch {
+            // Ignore malformed or unavailable browser storage.
+        } finally {
+            setHasHydrated(true);
+        }
+    }, []);
+
+    // Do not write the initial empty state before the saved cart is restored.
+    useEffect(() => {
+        if (!hasHydrated) return;
+
+        try {
+            localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartState.cartArray));
+        } catch {
+            // Ignore storage quota and privacy-mode errors.
+        }
+    }, [cartState.cartArray, hasHydrated]);
 
     const addToCart = (item: ProductType) => {
         dispatch({ type: 'ADD_TO_CART', payload: item });
