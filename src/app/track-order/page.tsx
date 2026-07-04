@@ -70,11 +70,14 @@ const TrackOrderPage = () => {
     const formData = new FormData(event.currentTarget);
     const orderNumber = String(formData.get("orderNumber") || "").trim();
     const contact = String(formData.get("contact") || "").trim();
+    const isEmail = contact.includes("@");
 
     try {
       const response = await trackMutation.mutateAsync({
         orderNumber,
-        contact,
+        ...(isEmail
+          ? { email: contact.toLowerCase() }
+          : { phone: contact }),
       });
 
       setOrder(response.data);
@@ -128,6 +131,9 @@ const TrackOrderPage = () => {
                   <span className="text-sm font-semibold">Email or phone</span>
                   <input
                     name="contact"
+                    type="text"
+                    autoCapitalize="none"
+                    autoCorrect="off"
                     className="h-12 rounded-lg bg-[#191c1c] border border-[#373d3d] px-4 text-white"
                     placeholder="you@example.com or 03001234567"
                     required
