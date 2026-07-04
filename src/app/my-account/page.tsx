@@ -29,6 +29,7 @@ const MyAccount = () => {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("dashboard");
   const [notice, setNotice] = useState<{ text: string; error?: boolean } | null>(null);
+  const [cancelTarget, setCancelTarget] = useState<Order | null>(null);
   const userQuery = useCurrentUser();
   const user = userQuery.data?.data;
   const ordersQuery = useMyOrders(Boolean(user));
@@ -67,25 +68,32 @@ const MyAccount = () => {
     catch (error) { showNotice((error as Error).message || "Password change failed.", true); }
   };
 
-  const cancelCustomerOrder = async (order: Order) => {
-    if (!order._id) return;
-
-    const confirmed = window.confirm(
-      `Cancel order ${order.orderNumber || order._id}? Stock will be restored.`,
-    );
-
-    if (!confirmed) return;
+  const cancelCustomerOrder = async () => {
+    if (!cancelTarget?._id) return;
 
     try {
       await cancelMutation.mutateAsync({
-        id: order._id,
+        id: cancelTarget._id,
         payload: { reason: "Cancelled from customer account" },
       });
+      setCancelTarget(null);
       showNotice("Order cancelled successfully.");
     } catch (error) {
+      setCancelTarget(null);
       showNotice((error as Error).message || "Order cancellation failed.", true);
     }
   };
+
+  useEffect(() => {
+    if (!cancelTarget) return;
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !cancelMutation.isPending) setCancelTarget(null);
+    };
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [cancelTarget, cancelMutation.isPending]);
 
   const logout = async () => { await logoutMutation.mutateAsync(); router.replace("/login"); };
 
@@ -103,7 +111,7 @@ const MyAccount = () => {
         <div className="mx-5 mb-5 pt-4 border-t border-[#292e2e] flex justify-end">
           <button
             type="button"
-            onClick={() => cancelCustomerOrder(order)}
+            onClick={() => setCancelTarget(order)}
             disabled={cancelMutation.isPending}
             className="h-11 px-5 rounded-lg border border-red/40 text-red font-semibold hover:bg-red/10 disabled:opacity-60"
           >
@@ -128,7 +136,61 @@ const MyAccount = () => {
         {tab === 'address' && <><header className={styles.heading}><div className={styles.eyebrow}>DELIVERY DETAILS</div><h1>My address</h1><p>Keep your default delivery information up to date.</p></header><div className={styles.panel}><form onSubmit={saveAddress}><div className={styles.formGrid}><label className={styles.field}><span>Full name</span><input name="fullName" defaultValue={latestAddress?.fullName || user.name} required /></label><label className={styles.field}><span>Phone</span><input name="phone" defaultValue={latestAddress?.phone || user.phone || ''} required /></label><label className={`${styles.field} ${styles.full}`}><span>Address</span><input name="addressLine1" defaultValue={latestAddress?.addressLine1 || ''} required /></label><label className={`${styles.field} ${styles.full}`}><span>Apartment / landmark</span><input name="addressLine2" defaultValue={latestAddress?.addressLine2 || ''} /></label><label className={styles.field}><span>City</span><input name="city" defaultValue={latestAddress?.city || ''} required /></label><label className={styles.field}><span>State</span><input name="state" defaultValue={latestAddress?.state || ''} /></label><label className={styles.field}><span>Postal code</span><input name="postalCode" defaultValue={latestAddress?.postalCode || ''} /></label><label className={styles.field}><span>Country</span><input name="country" defaultValue={latestAddress?.country || 'Pakistan'} required /></label></div><button className={styles.submit} disabled={updateMutation.isPending}>Save address</button></form></div></>}
         {tab === 'settings' && <><header className={styles.heading}><div className={styles.eyebrow}>ACCOUNT SETTINGS</div><h1>Profile & security</h1><p>Update your personal details or password.</p></header><div className={styles.panel}><div className={styles.panelHeader}><h2>Profile information</h2></div><form onSubmit={saveProfile}><div className={styles.formGrid}><label className={styles.field}><span>Full name</span><input name="name" defaultValue={user.name} required /></label><label className={styles.field}><span>Phone</span><input name="phone" defaultValue={user.phone || ''} /></label><label className={`${styles.field} ${styles.full}`}><span>Email</span><input name="email" type="email" defaultValue={user.email} required /></label></div><button className={styles.submit} disabled={updateMutation.isPending}>Save profile</button></form></div><div className={styles.panel}><div className={styles.panelHeader}><h2>Change password</h2></div><form onSubmit={changePassword}><div className={styles.formGrid}><label className={`${styles.field} ${styles.full}`}><span>Current password</span><input name="currentPassword" type="password" required /></label><label className={styles.field}><span>New password</span><input name="newPassword" type="password" minLength={6} required /></label><label className={styles.field}><span>Confirm new password</span><input name="confirmPassword" type="password" minLength={6} required /></label></div><button className={styles.submit} disabled={passwordMutation.isPending}>Update password</button></form></div></>}
       </section>
-    </div></div></main><Footer />
+    </div></div></main>
+
+    {cancelTarget && (
+      <div
+        className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4"
+        onClick={() => { if (!cancelMutation.isPending) setCancelTarget(null); }}
+      >
+        <div
+          className="w-full max-w-md rounded-2xl border border-[#292e2e] bg-[#111414] md:p-8 p-6 text-white shadow-[0_24px_80px_rgba(0,0,0,0.65)]"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="cancel-order-title"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red/10 text-red">
+            <Icon.WarningCircle size={30} weight="fill" />
+          </div>
+
+          <h3 id="cancel-order-title" className="heading5 mt-5">
+            Cancel this order?
+          </h3>
+
+          <p className="mt-2 text-secondary leading-relaxed">
+            Order{" "}
+            <span className="font-semibold text-white">
+              {cancelTarget.orderNumber || `#${cancelTarget._id.slice(-8)}`}
+            </span>{" "}
+            will be cancelled and the reserved stock will be restored. This
+            action can&apos;t be undone.
+          </p>
+
+          <div className="mt-7 grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setCancelTarget(null)}
+              disabled={cancelMutation.isPending}
+              className="h-12 rounded-lg border border-[#373d3d] font-semibold hover:bg-white/5 disabled:opacity-60"
+            >
+              Keep order
+            </button>
+
+            <button
+              type="button"
+              onClick={cancelCustomerOrder}
+              disabled={cancelMutation.isPending}
+              className="h-12 rounded-lg bg-red font-semibold text-white hover:bg-red/85 disabled:opacity-60"
+            >
+              {cancelMutation.isPending ? "Cancelling..." : "Yes, cancel"}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    <Footer />
   </>;
 };
 
