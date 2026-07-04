@@ -71,7 +71,7 @@ const MenuTwo = () => {
                             <i className="icon-category text-2xl"></i>
                         </div>
                         <Link href={'/'} className='flex items-center'>
-                            <Image src={'/innerbeast-logo.png'} width={420} height={141} alt='InnerBeast' priority className='w-[140px] h-auto' />
+                            <Image src={'/innerbeast-logo.png'} width={420} height={141} alt='InnerBeast' priority className='w-[120px] h-auto' />
                         </Link>
                         <div className="menu-main h-full max-lg:hidden">
                             <ul className='flex items-center gap-8 h-full'>
@@ -343,7 +343,7 @@ const MenuTwo = () => {
                                     <Icon.X size={14} />
                                 </div>
                                 <Link href={'/'} className='flex items-center justify-center'>
-                                    <Image src={'/innerbeast-logo.png'} width={420} height={141} alt='InnerBeast' priority className='w-[130px] h-auto' />
+                                    <Image src={'/innerbeast-logo.png'} width={420} height={141} alt='InnerBeast' priority className='w-[110px] h-auto' />
                                 </Link>
                             </div>
                             <div className="form-search relative mt-2">

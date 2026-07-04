@@ -3,12 +3,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
+  cancelOrder,
   createOrder,
   getAdminOrders,
   getOrderById,
   getMyOrders,
   trackOrder,
   updateOrderStatus,
+  CancelOrderPayload,
   CreateOrderPayload,
   TrackOrderPayload,
   UpdateOrderPayload,
@@ -30,6 +32,25 @@ export const useCreateOrder = () => {
 export const useTrackOrder = () => {
   return useMutation({
     mutationFn: (payload: TrackOrderPayload) => trackOrder(payload),
+  });
+};
+
+export const useCancelOrder = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload?: CancelOrderPayload;
+    }) => cancelOrder(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["orders"],
+      });
+    },
   });
 };
 

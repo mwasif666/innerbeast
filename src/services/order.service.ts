@@ -130,6 +130,10 @@ export type TrackOrderPayload = {
   phone?: string;
 };
 
+export type CancelOrderPayload = {
+  reason?: string;
+};
+
 export const createOrder = async (payload: CreateOrderPayload) => {
   return api<OrderResponse>("/orders", {
     method: "POST",
@@ -144,8 +148,6 @@ export const trackOrder = async (payload: TrackOrderPayload) => {
       body: payload,
     });
   } catch (trackError) {
-    // A signed-in customer can always view an order attached to their account,
-    // even when an older order has no matching guest-checkout contact value.
     try {
       const myOrders = await api<OrdersResponse>("/orders/my");
       const normalizedOrderNumber = payload.orderNumber.toLowerCase();
@@ -154,7 +156,10 @@ export const trackOrder = async (payload: TrackOrderPayload) => {
       );
 
       if (order) {
-        return { success: true, data: order };
+        return {
+          success: true,
+          data: order,
+        };
       }
     } catch {
       // Preserve the public tracking error for guests and unrelated orders.
@@ -162,6 +167,16 @@ export const trackOrder = async (payload: TrackOrderPayload) => {
 
     throw trackError;
   }
+};
+
+export const cancelOrder = async (
+  id: string,
+  payload: CancelOrderPayload = {},
+) => {
+  return api<OrderResponse>(`/orders/${id}/cancel`, {
+    method: "PATCH",
+    body: payload,
+  });
 };
 
 export const getMyOrders = async () => {

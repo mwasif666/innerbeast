@@ -10,17 +10,20 @@ import MenuOne from "@/components/Header/Menu/MenuOne";
 import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
 import Footer from "@/components/Footer/Footer";
 import { useChangePassword, useCurrentUser, useLogout, useUpdateMe } from "@/hooks/useAuth";
-import { useMyOrders } from "@/hooks/useOrders";
-import { extractOrders, OrderItem } from "@/services/order.service";
+import { useCancelOrder, useMyOrders } from "@/hooks/useOrders";
+import { extractOrders, OrderItem, Order } from "@/services/order.service";
 import styles from "./account.module.scss";
 
 type Tab = "dashboard" | "orders" | "address" | "settings";
+
+const CANCELLABLE_STATUSES = ["pending", "confirmed", "processing"];
 
 const money = (value?: number) => `Rs. ${Number(value || 0).toLocaleString("en-PK")}`;
 const date = (value?: string) => value ? new Intl.DateTimeFormat("en-PK", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(value)) : "-";
 const itemName = (item: OrderItem) => item.title || item.name || (typeof item.product === "object" ? item.product.title || item.product.name : "") || "Product";
 const itemImage = (item: OrderItem) => typeof item.image === "string" ? item.image : item.image?.url || (typeof item.product === "object" ? (typeof item.product.images?.[0] === "string" ? item.product.images[0] : item.product.images?.[0]?.url) : "") || "";
 const itemColor = (item: OrderItem) => { const color = item.color || item.selectedColor; return typeof color === "object" ? color.name : color || ""; };
+const canCancelOrder = (order: Order) => CANCELLABLE_STATUSES.includes(String(order.orderStatus || "pending"));
 
 const MyAccount = () => {
   const router = useRouter();
@@ -32,6 +35,7 @@ const MyAccount = () => {
   const updateMutation = useUpdateMe();
   const passwordMutation = useChangePassword();
   const logoutMutation = useLogout();
+  const cancelMutation = useCancelOrder();
   const orders = useMemo(() => extractOrders(ordersQuery.data), [ordersQuery.data]);
 
   useEffect(() => { if (userQuery.isError) router.replace("/login?redirect=/my-account"); }, [router, userQuery.isError]);
@@ -63,6 +67,26 @@ const MyAccount = () => {
     catch (error) { showNotice((error as Error).message || "Password change failed.", true); }
   };
 
+  const cancelCustomerOrder = async (order: Order) => {
+    if (!order._id) return;
+
+    const confirmed = window.confirm(
+      `Cancel order ${order.orderNumber || order._id}? Stock will be restored.`,
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await cancelMutation.mutateAsync({
+        id: order._id,
+        payload: { reason: "Cancelled from customer account" },
+      });
+      showNotice("Order cancelled successfully.");
+    } catch (error) {
+      showNotice((error as Error).message || "Order cancellation failed.", true);
+    }
+  };
+
   const logout = async () => { await logoutMutation.mutateAsync(); router.replace("/login"); };
 
   if (userQuery.isLoading || (!user && !userQuery.isError)) return <><TopNavOne props="style-one bg-black" slogan="New customers save 10% with the code GET10" /><div className={styles.page}><div className={styles.loading}>Loading your account...</div></div></>;
@@ -75,6 +99,18 @@ const MyAccount = () => {
     return <div className={styles.orders}>{visible.map((order) => <details className={styles.order} key={order._id}>
       <summary><div><div className={styles.orderNumber}>{order.orderNumber || `#${order._id.slice(-8)}`}</div><div className={styles.muted}>{date(order.createdAt || order.placedAt)}</div></div><div>{order.totalItems || order.items.reduce((sum, item) => sum + Number(item.quantity || 0), 0)} items</div><span className={styles.status} data-status={order.orderStatus}>{order.orderStatus || "pending"}</span><strong>{money(order.grandTotal || order.total)}</strong></summary>
       <div className={styles.orderBody}>{order.items.map((item, index) => { const image = itemImage(item); return <div className={styles.product} key={`${item.sku || index}`}><div className={styles.thumb} style={image ? { backgroundImage: `url("${image.replace(/"/g, "%22")}")` } : undefined} /><div><h3>{itemName(item)}</h3><p>Qty {item.quantity}{item.size || item.selectedSize ? ` · Size ${item.size || item.selectedSize}` : ""}{itemColor(item) ? ` · ${itemColor(item)}` : ""}</p></div><strong>{money(item.lineTotal || Number(item.price) * item.quantity)}</strong></div>; })}</div>
+      {canCancelOrder(order) && (
+        <div className="mx-5 mb-5 pt-4 border-t border-[#292e2e] flex justify-end">
+          <button
+            type="button"
+            onClick={() => cancelCustomerOrder(order)}
+            disabled={cancelMutation.isPending}
+            className="h-11 px-5 rounded-lg border border-red/40 text-red font-semibold hover:bg-red/10 disabled:opacity-60"
+          >
+            {cancelMutation.isPending ? "Cancelling..." : "Cancel order"}
+          </button>
+        </div>
+      )}
     </details>)}</div>;
   };
 
