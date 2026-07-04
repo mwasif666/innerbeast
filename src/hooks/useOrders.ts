@@ -22,11 +22,12 @@ export const useCreateOrder = () => {
   });
 };
 
-export const useMyOrders = () =>
+export const useMyOrders = (enabled = true) =>
   useQuery({
     queryKey: ["orders", "mine"],
     queryFn: getMyOrders,
     retry: false,
+    enabled,
   });
 
 export const useAdminOrders = () =>
