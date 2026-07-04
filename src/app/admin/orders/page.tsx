@@ -72,6 +72,9 @@ const formatDate = (value?: string) => {
 const getStatus = (order: AdminOrder) =>
   String(order.orderStatus || order.status || "pending").toLowerCase();
 
+const isOrderCancelled = (order?: AdminOrder | null) =>
+  Boolean(order && getStatus(order) === "cancelled");
+
 const statusColor = (status: string) => {
   if (status === "delivered" || status === "paid") return "success";
   if (["cancelled", "failed", "returned"].includes(status)) return "error";
@@ -165,6 +168,7 @@ const AdminOrdersPage = () => {
   const orderQuery = useAdminOrder(selectedOrder?._id || "");
   const updateMutation = useUpdateOrderStatus();
   const detailOrder = orderQuery.data?.data || selectedOrder;
+  const cancelledDetailOrder = isOrderCancelled(detailOrder);
 
   const orders = useMemo(() => extractOrders(ordersQuery.data), [ordersQuery.data]);
   const filteredOrders = useMemo(() => {
@@ -193,6 +197,18 @@ const AdminOrdersPage = () => {
   const handleUpdateOrder = async () => {
     if (!detailOrder) return;
     try {
+      if (isOrderCancelled(detailOrder)) {
+        const response = await updateMutation.mutateAsync({
+          id: detailOrder._id,
+          payload: { adminNotes },
+        });
+        setSelectedOrder(response.data);
+        message.success(
+          "Admin note updated. Cancelled order status cannot be modified.",
+        );
+        return;
+      }
+
       const response = await updateMutation.mutateAsync({
         id: detailOrder._id,
         payload: {
@@ -303,9 +319,24 @@ const AdminOrdersPage = () => {
         ) : detailOrder ? (
           <Space direction="vertical" size={24} style={{ width: "100%" }}>
             <Card size="small" title="Fulfilment" style={{ borderColor: "rgba(255,255,255,.1)" }}>
+              {cancelledDetailOrder && (
+                <div
+                  style={{
+                    padding: 12,
+                    borderRadius: 10,
+                    marginBottom: 14,
+                    border: "1px solid rgba(239,68,68,.35)",
+                    background: "rgba(239,68,68,.1)",
+                    color: "#fecaca",
+                  }}
+                >
+                  This order is cancelled. Status and payment cannot be modified anymore.
+                  You can only update internal admin notes.
+                </div>
+              )}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 14 }}>
-                <label><Text type="secondary">Order status</Text><Select value={editStatus} onChange={setEditStatus} style={{ width: "100%", marginTop: 6 }} options={ORDER_STATUSES.map((value) => ({ value, label: value[0].toUpperCase() + value.slice(1) }))} /></label>
-                <label><Text type="secondary">Payment status</Text><Select value={editPaymentStatus} onChange={setEditPaymentStatus} style={{ width: "100%", marginTop: 6 }} options={PAYMENT_STATUSES.map((value) => ({ value, label: value[0].toUpperCase() + value.slice(1) }))} /></label>
+                <label><Text type="secondary">Order status</Text><Select disabled={cancelledDetailOrder} value={editStatus} onChange={setEditStatus} style={{ width: "100%", marginTop: 6 }} options={ORDER_STATUSES.map((value) => ({ value, label: value[0].toUpperCase() + value.slice(1) }))} /></label>
+                <label><Text type="secondary">Payment status</Text><Select disabled={cancelledDetailOrder} value={editPaymentStatus} onChange={setEditPaymentStatus} style={{ width: "100%", marginTop: 6 }} options={PAYMENT_STATUSES.map((value) => ({ value, label: value[0].toUpperCase() + value.slice(1) }))} /></label>
                 <label style={{ gridColumn: "1 / -1" }}><Text type="secondary">Admin notes</Text><TextArea value={adminNotes} onChange={(event) => setAdminNotes(event.target.value)} rows={3} maxLength={1000} placeholder="Internal fulfilment note..." style={{ marginTop: 6 }} /></label>
               </div>
               <Button type="primary" icon={<CheckCircleOutlined />} loading={updateMutation.isPending} onClick={handleUpdateOrder} style={{ marginTop: 14 }}>Save updates</Button>

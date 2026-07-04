@@ -30,6 +30,7 @@ const MyAccount = () => {
   const [tab, setTab] = useState<Tab>("dashboard");
   const [notice, setNotice] = useState<{ text: string; error?: boolean } | null>(null);
   const [cancelTarget, setCancelTarget] = useState<Order | null>(null);
+  const [cancelReason, setCancelReason] = useState("");
   const userQuery = useCurrentUser();
   const user = userQuery.data?.data;
   const ordersQuery = useMyOrders(Boolean(user));
@@ -70,16 +71,22 @@ const MyAccount = () => {
 
   const cancelCustomerOrder = async () => {
     if (!cancelTarget?._id) return;
+    if (cancelReason.trim().length < 5) {
+      showNotice("Please enter a cancellation reason.", true);
+      return;
+    }
 
     try {
       await cancelMutation.mutateAsync({
         id: cancelTarget._id,
-        payload: { reason: "Cancelled from customer account" },
+        payload: { reason: cancelReason.trim() },
       });
       setCancelTarget(null);
+      setCancelReason("");
       showNotice("Order cancelled successfully.");
     } catch (error) {
       setCancelTarget(null);
+      setCancelReason("");
       showNotice((error as Error).message || "Order cancellation failed.", true);
     }
   };
@@ -88,7 +95,10 @@ const MyAccount = () => {
     if (!cancelTarget) return;
 
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !cancelMutation.isPending) setCancelTarget(null);
+      if (event.key === "Escape" && !cancelMutation.isPending) {
+        setCancelTarget(null);
+        setCancelReason("");
+      }
     };
 
     window.addEventListener("keydown", onKey);
@@ -111,7 +121,7 @@ const MyAccount = () => {
         <div className="mx-5 mb-5 pt-4 border-t border-[#292e2e] flex justify-end">
           <button
             type="button"
-            onClick={() => setCancelTarget(order)}
+            onClick={() => { setCancelReason(""); setCancelTarget(order); }}
             disabled={cancelMutation.isPending}
             className="h-11 px-5 rounded-lg border border-red/40 text-red font-semibold hover:bg-red/10 disabled:opacity-60"
           >
@@ -141,7 +151,7 @@ const MyAccount = () => {
     {cancelTarget && (
       <div
         className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4"
-        onClick={() => { if (!cancelMutation.isPending) setCancelTarget(null); }}
+        onClick={() => { if (!cancelMutation.isPending) { setCancelTarget(null); setCancelReason(""); } }}
       >
         <div
           className="w-full max-w-md rounded-2xl border border-[#292e2e] bg-[#111414] md:p-8 p-6 text-white shadow-[0_24px_80px_rgba(0,0,0,0.65)]"
@@ -167,10 +177,25 @@ const MyAccount = () => {
             action can&apos;t be undone.
           </p>
 
+          <label className="block mt-5">
+            <span className="block text-sm font-semibold text-white mb-2">
+              Reason for cancellation
+            </span>
+            <textarea
+              value={cancelReason}
+              onChange={(event) => setCancelReason(event.target.value)}
+              rows={4}
+              required
+              minLength={5}
+              placeholder="Please tell us why you want to cancel this order..."
+              className="w-full rounded-lg border border-[#373d3d] bg-[#191c1c] px-4 py-3 text-white outline-none focus:border-red"
+            />
+          </label>
+
           <div className="mt-7 grid grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={() => setCancelTarget(null)}
+              onClick={() => { setCancelTarget(null); setCancelReason(""); }}
               disabled={cancelMutation.isPending}
               className="h-12 rounded-lg border border-[#373d3d] font-semibold hover:bg-white/5 disabled:opacity-60"
             >
@@ -180,7 +205,7 @@ const MyAccount = () => {
             <button
               type="button"
               onClick={cancelCustomerOrder}
-              disabled={cancelMutation.isPending}
+              disabled={cancelMutation.isPending || cancelReason.trim().length < 5}
               className="h-12 rounded-lg bg-red font-semibold text-white hover:bg-red/85 disabled:opacity-60"
             >
               {cancelMutation.isPending ? "Cancelling..." : "Yes, cancel"}

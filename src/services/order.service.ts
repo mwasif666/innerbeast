@@ -131,7 +131,7 @@ export type TrackOrderPayload = {
 };
 
 export type CancelOrderPayload = {
-  reason?: string;
+  reason: string;
 };
 
 export const createOrder = async (payload: CreateOrderPayload) => {
@@ -171,7 +171,7 @@ export const trackOrder = async (payload: TrackOrderPayload) => {
 
 export const cancelOrder = async (
   id: string,
-  payload: CancelOrderPayload = {},
+  payload: CancelOrderPayload,
 ) => {
   return api<OrderResponse>(`/orders/${id}/cancel`, {
     method: "PATCH",

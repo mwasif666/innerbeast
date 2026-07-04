@@ -44,7 +44,7 @@ export const useCancelOrder = () => {
       payload,
     }: {
       id: string;
-      payload?: CancelOrderPayload;
+      payload: CancelOrderPayload;
     }) => cancelOrder(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({
