@@ -19,7 +19,7 @@ const Collection: React.FC<Props> = ({ categories, products }) => {
     const router = useRouter()
 
     const handleCategoryClick = (slug: string) => {
-        router.push(`/shop/sidebar-list?type=${slug}`)
+        router.push(`/shop?type=${slug}`)
     }
 
     const getCategoryImage = (category: Category) => {

@@ -62,11 +62,11 @@ const Footer = () => {
                             {/* Link columns */}
                             <div className="item flex flex-col col-span-2 max-md:col-span-6">
                                 <div className="text-button-uppercase pb-4 text-white">Infomation</div>
-                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit' href={'/pages/contact'}>Contact us</Link>
-                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'#!'}>Career</Link>
+                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit' href={'/contact-us'}>Contact us</Link>
+                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/about-us'}>About Us</Link>
                                 <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/my-account'}>My Account</Link>
                                 <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/order-tracking'}>Order &amp; Returns</Link>
-                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/pages/faqs'}>FAQs</Link>
+                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/faqs'}>FAQs</Link>
                             </div>
                             <div className="item flex flex-col col-span-2 max-md:col-span-6">
                                 <div className="text-button-uppercase pb-4 text-white">Quick Shop</div>
@@ -78,10 +78,10 @@ const Footer = () => {
                             </div>
                             <div className="item flex flex-col col-span-2 max-md:col-span-6">
                                 <div className="text-button-uppercase pb-4 text-white">Services</div>
-                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit' href={'/pages/faqs'}>Orders FAQs</Link>
-                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/pages/faqs'}>Shipping</Link>
-                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/pages/faqs'}>Privacy Policy</Link>
-                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/order-tracking'}>Return &amp; Refund</Link>
+                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit' href={'/shipping-policy'}>Shipping</Link>
+                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/returns'}>Returns &amp; Refunds</Link>
+                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/privacy-policy'}>Privacy Policy</Link>
+                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/terms-and-conditions'}>Terms &amp; Conditions</Link>
                             </div>
 
                             {/* Socials column */}

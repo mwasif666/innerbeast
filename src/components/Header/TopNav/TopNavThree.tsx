@@ -22,12 +22,12 @@ const TopNavThree: React.FC<Props> = ({ props }) => {
                         <div className="left-content flex items-center">
                             <ul className='flex items-center gap-5'>
                                 <li>
-                                    <Link href={'/pages/about'} className='caption2 hover:underline'>
+                                    <Link href={'/about-us'} className='caption2 hover:underline'>
                                         About
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link href={'/pages/contact'} className='caption2 hover:underline'>
+                                    <Link href={'/contact-us'} className='caption2 hover:underline'>
                                         Contact
                                     </Link>
                                 </li>
@@ -37,7 +37,7 @@ const TopNavThree: React.FC<Props> = ({ props }) => {
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link href={'/pages/faqs'} className='caption2 hover:underline'>
+                                    <Link href={'/faqs'} className='caption2 hover:underline'>
                                         Help
                                     </Link>
                                 </li>

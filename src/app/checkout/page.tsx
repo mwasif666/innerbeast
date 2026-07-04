@@ -115,7 +115,7 @@ const CheckoutContent = () => {
                             <Icon.CheckCircle size={58} weight="fill" />
                             <h2>Order placed successfully</h2>
                             <p>Your reference is <strong>{placedOrderNumber}</strong>. We will contact you with the next update.</p>
-                            <Link href="/shop/sidebar-list">Continue shopping</Link>
+                            <Link href="/shop">Continue shopping</Link>
                         </section>
                     ) : (
                     <div className={styles.layout}>
@@ -204,7 +204,7 @@ const CheckoutContent = () => {
                             <div className={styles.summaryTitle}><h2>Your order</h2><span>{cartState.cartArray.length} {cartState.cartArray.length === 1 ? 'item' : 'items'}</span></div>
                             <div className={styles.productList}>
                                 {cartState.cartArray.length === 0 ? (
-                                    <div className={styles.emptyCart}><Icon.ShoppingBagOpen size={36} /><p>Your cart is empty</p><a href="/shop/sidebar-list">Continue shopping</a></div>
+                                    <div className={styles.emptyCart}><Icon.ShoppingBagOpen size={36} /><p>Your cart is empty</p><a href="/shop">Continue shopping</a></div>
                                 ) : cartState.cartArray.map((product) => (
                                     <div className={styles.product} key={`${product.id}-${product.selectedSize}-${product.selectedColor}`}>
                                         <div className={styles.productImage}>

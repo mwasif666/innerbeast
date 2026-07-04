@@ -33,7 +33,7 @@ body {
   color: var(--white);
   background-color: var(--dark);
   font-weight: 400;
-  overflow-x: hidden;
+  overflow-x: clip;
   user-select: none;
   scroll-behavior: smooth;
 }

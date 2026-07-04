@@ -82,7 +82,7 @@ const MenuTwo = () => {
                                     </Link>
                                 </li>
                                 <li className='h-full'>
-                                    <Link href="/shop/sidebar-list" className={`text-button-uppercase duration-300 h-full flex items-center justify-center ${pathname.startsWith('/shop') ? 'active' : ''}`}>
+                                    <Link href="/shop" className={`text-button-uppercase duration-300 h-full flex items-center justify-center ${pathname.startsWith('/shop') ? 'active' : ''}`}>
                                         Shop
                                     </Link>
                                     <div className="mega-menu hidden absolute top-[74px] left-0 bg-white w-screen">
@@ -155,8 +155,8 @@ const MenuTwo = () => {
                                                             </li>
                                                             <li>
                                                                 <Link
-                                                                    href={'/shop/sidebar-list'}
-                                                                    className={`link text-secondary duration-300 ${pathname === '/shop/sidebar-list' ? 'active' : ''}`}
+                                                                    href={'/shop'}
+                                                                    className={`link text-secondary duration-300 ${pathname === '/shop' ? 'active' : ''}`}
                                                                 >
                                                                     Shop Sidebar List
                                                                 </Link>
@@ -299,12 +299,12 @@ const MenuTwo = () => {
                                     </div>
                                 </li>
                                 <li className='h-full'>
-                                    <Link href="/pages/about" className={`text-button-uppercase duration-300 h-full flex items-center justify-center ${pathname === '/pages/about' ? 'active' : ''}`}>
+                                    <Link href="/about-us" className={`text-button-uppercase duration-300 h-full flex items-center justify-center ${pathname === '/about-us' ? 'active' : ''}`}>
                                         About Us
                                     </Link>
                                 </li>
                                 <li className='h-full'>
-                                    <Link href="/pages/contact" className={`text-button-uppercase duration-300 h-full flex items-center justify-center ${pathname === '/pages/contact' ? 'active' : ''}`}>
+                                    <Link href="/contact-us" className={`text-button-uppercase duration-300 h-full flex items-center justify-center ${pathname === '/contact-us' ? 'active' : ''}`}>
                                         Contact Us
                                     </Link>
                                 </li>
@@ -369,13 +369,13 @@ const MenuTwo = () => {
                                         <Link href="/" className='text-xl font-semibold flex items-center justify-between mt-5'>Home</Link>
                                     </li>
                                     <li>
-                                        <Link href="/shop/sidebar-list" className='text-xl font-semibold flex items-center justify-between mt-5'>Shop</Link>
+                                        <Link href="/shop" className='text-xl font-semibold flex items-center justify-between mt-5'>Shop</Link>
                                     </li>
                                     <li>
-                                        <Link href="/pages/about" className='text-xl font-semibold flex items-center justify-between mt-5'>About Us</Link>
+                                        <Link href="/about-us" className='text-xl font-semibold flex items-center justify-between mt-5'>About Us</Link>
                                     </li>
                                     <li>
-                                        <Link href="/pages/contact" className='text-xl font-semibold flex items-center justify-between mt-5'>Contact Us</Link>
+                                        <Link href="/contact-us" className='text-xl font-semibold flex items-center justify-between mt-5'>Contact Us</Link>
                                     </li>
                                     <li
                                         className={`hidden ${openSubNavMobile === 3 ? 'open' : ''}`}
@@ -463,8 +463,8 @@ const MenuTwo = () => {
                                                                 </li>
                                                                 <li>
                                                                     <Link
-                                                                        href={'/shop/sidebar-list'}
-                                                                        className={`text-secondary duration-300 ${pathname === '/shop/sidebar-list' ? 'active' : ''}`}
+                                                                        href={'/shop'}
+                                                                        className={`text-secondary duration-300 ${pathname === '/shop' ? 'active' : ''}`}
                                                                     >
                                                                         Shop Sidebar List
                                                                     </Link>
@@ -658,12 +658,12 @@ const MenuTwo = () => {
                                             <div className="list-nav-item w-full pt-2 pb-6">
                                                 <ul className='w-full'>
                                                     <li>
-                                                        <Link href="/pages/about" className={`text-secondary duration-300 ${pathname === '/pages/about' ? 'active' : ''}`}>
+                                                        <Link href="/about-us" className={`text-secondary duration-300 ${pathname === '/about-us' ? 'active' : ''}`}>
                                                             About Us
                                                         </Link>
                                                     </li>
                                                     <li>
-                                                        <Link href="/pages/contact" className={`text-secondary duration-300 ${pathname === '/pages/contact' ? 'active' : ''}`}>
+                                                        <Link href="/contact-us" className={`text-secondary duration-300 ${pathname === '/contact-us' ? 'active' : ''}`}>
                                                             Contact Us
                                                         </Link>
                                                     </li>
@@ -678,7 +678,7 @@ const MenuTwo = () => {
                                                         </Link>
                                                     </li>
                                                     <li>
-                                                        <Link href="/pages/faqs" className={`text-secondary duration-300 ${pathname === '/pages/faqs' ? 'active' : ''}`}>
+                                                        <Link href="/faqs" className={`text-secondary duration-300 ${pathname === '/faqs' ? 'active' : ''}`}>
                                                             FAQs
                                                         </Link>
                                                     </li>

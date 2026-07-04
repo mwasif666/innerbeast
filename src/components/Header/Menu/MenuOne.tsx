@@ -91,7 +91,7 @@ const MenuOne: React.FC<Props> = ({ props }) => {
                                     </li>
                                     <li className='h-full'>
                                         <Link
-                                            href="/shop/sidebar-list"
+                                            href="/shop"
                                             className={`text-button-uppercase duration-300 h-full flex items-center justify-center ${pathname.includes('/shop/') ? 'active' : ''}`}
                                         >
                                             Shop
@@ -166,8 +166,8 @@ const MenuOne: React.FC<Props> = ({ props }) => {
                                                                 </li>
                                                                 <li>
                                                                     <Link
-                                                                        href={'/shop/sidebar-list'}
-                                                                        className={`link text-secondary duration-300 ${pathname === '/shop/sidebar-list' ? 'active' : ''}`}
+                                                                        href={'/shop'}
+                                                                        className={`link text-secondary duration-300 ${pathname === '/shop' ? 'active' : ''}`}
                                                                     >
                                                                         Shop Sidebar List
                                                                     </Link>
@@ -310,12 +310,12 @@ const MenuOne: React.FC<Props> = ({ props }) => {
                                         </div>
                                     </li>
                                     <li className='h-full relative'>
-                                        <Link href="/pages/about" className={`text-button-uppercase duration-300 h-full flex items-center justify-center ${pathname === '/pages/about' ? 'active' : ''}`}>
+                                        <Link href="/about-us" className={`text-button-uppercase duration-300 h-full flex items-center justify-center ${pathname === '/about-us' ? 'active' : ''}`}>
                                             About Us
                                         </Link>
                                     </li>
                                     <li className='h-full relative'>
-                                        <Link href="/pages/contact" className={`text-button-uppercase duration-300 h-full flex items-center justify-center ${pathname === '/pages/contact' ? 'active' : ''}`}>
+                                        <Link href="/contact-us" className={`text-button-uppercase duration-300 h-full flex items-center justify-center ${pathname === '/contact-us' ? 'active' : ''}`}>
                                             Contact Us
                                         </Link>
                                     </li>
@@ -381,7 +381,7 @@ const MenuOne: React.FC<Props> = ({ props }) => {
                                         <Link href="/" className='text-xl font-semibold flex items-center justify-between mt-5'>Home</Link>
                                     </li>
                                     <li>
-                                        <Link href="/shop/sidebar-list" className='text-xl font-semibold flex items-center justify-between mt-5'>Shop</Link>
+                                        <Link href="/shop" className='text-xl font-semibold flex items-center justify-between mt-5'>Shop</Link>
                                     </li>
                                     <li
                                         className={`hidden ${openSubNavMobile === 3 ? 'open' : ''}`}
@@ -469,8 +469,8 @@ const MenuOne: React.FC<Props> = ({ props }) => {
                                                                 </li>
                                                                 <li>
                                                                     <Link
-                                                                        href={'/shop/sidebar-list'}
-                                                                        className={`link text-secondary duration-300 ${pathname === '/shop/sidebar-list' ? 'active' : ''}`}
+                                                                        href={'/shop'}
+                                                                        className={`link text-secondary duration-300 ${pathname === '/shop' ? 'active' : ''}`}
                                                                     >
                                                                         Shop Sidebar List
                                                                     </Link>
@@ -616,10 +616,10 @@ const MenuOne: React.FC<Props> = ({ props }) => {
                                         <Link href="/blog/grid" className='text-xl font-semibold flex items-center justify-between mt-5'>Blog</Link>
                                     </li>
                                     <li>
-                                        <Link href="/pages/about" className='text-xl font-semibold flex items-center justify-between mt-5'>About Us</Link>
+                                        <Link href="/about-us" className='text-xl font-semibold flex items-center justify-between mt-5'>About Us</Link>
                                     </li>
                                     <li>
-                                        <Link href="/pages/contact" className='text-xl font-semibold flex items-center justify-between mt-5'>Contact Us</Link>
+                                        <Link href="/contact-us" className='text-xl font-semibold flex items-center justify-between mt-5'>Contact Us</Link>
                                     </li>
                                 </ul>
                             </div>

@@ -3,7 +3,7 @@
 import React, { Suspense, useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import * as Icon from '@phosphor-icons/react/dist/ssr'
 
 import TopNavOne from '@/components/Header/TopNav/TopNavOne'
@@ -17,7 +17,8 @@ import { useWishlist } from '@/context/WishlistContext'
 
 const ProductOneScrollingContent = () => {
     const searchParams = useSearchParams()
-    const productId = searchParams.get('id')?.trim() ?? ''
+    const params = useParams<{ slug?: string }>()
+    const productId = searchParams.get('id')?.trim() || params.slug?.trim() || ''
     const productQuery = useSingleProduct(productId)
     const { cartState, addToCart, updateCart } = useCart()
     const { openModalCart } = useModalCartContext()
@@ -92,7 +93,7 @@ const ProductOneScrollingContent = () => {
                                 Choose a product from the shop to view its details.
                             </p>
                             <Link
-                                href="/shop/sidebar-list"
+                                href="/shop"
                                 className="inline-block mt-6 px-7 py-3 rounded-xl bg-white text-black font-semibold"
                             >
                                 Browse Products
@@ -110,7 +111,7 @@ const ProductOneScrollingContent = () => {
                                 This product may have been removed or is unavailable.
                             </p>
                             <Link
-                                href="/shop/sidebar-list"
+                                href="/shop"
                                 className="inline-block mt-6 px-7 py-3 rounded-xl bg-white text-black font-semibold"
                             >
                                 Back to Shop
@@ -121,7 +122,7 @@ const ProductOneScrollingContent = () => {
                             <div className="flex items-center gap-2 caption1 text-white/60 pt-6 mb-8">
                                 <Link href="/">Home</Link>
                                 <Icon.CaretRight size={14} />
-                                <Link href="/shop/sidebar-list">Shop</Link>
+                                <Link href="/shop">Shop</Link>
                                 <Icon.CaretRight size={14} />
                                 <span className="text-white truncate">{product.name}</span>
                             </div>

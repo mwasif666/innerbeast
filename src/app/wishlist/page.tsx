@@ -242,7 +242,7 @@ const Wishlist = () => {
                                         </button>
                                     )}
                                     <a
-                                        href="/shop/sidebar-list"
+                                        href="/shop"
                                         className="px-6 py-3 rounded-xl bg-white text-black font-semibold hover:bg-green"
                                     >
                                         Explore Products

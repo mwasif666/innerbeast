@@ -84,9 +84,8 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
         openQuickview(data)
     }
 
-    const handleDetailProduct = (productId: string) => {
-        // redirect to shop with category selected
-        router.push(`/product/one-scrolling?id=${productId}`);
+    const handleDetailProduct = () => {
+        router.push(`/products/${encodeURIComponent(data.slug || data.id)}`);
     };
 
     let percentSale = Math.floor(100 - ((data.price / data.originPrice) * 100))
@@ -97,7 +96,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
         <>
             {type === "grid" ? (
                 <div className={`product-item grid-type ${style}`}>
-                    <div onClick={() => handleDetailProduct(data.id)} className="product-main cursor-pointer block">
+                    <div onClick={handleDetailProduct} className="product-main cursor-pointer block">
                         <div className="product-thumb bg-white relative overflow-hidden rounded-2xl">
                             {data.new && (
                                 <div className="product-tag text-button-uppercase bg-green px-3 py-0.5 inline-block rounded-full absolute top-3 left-3 z-[1]">
@@ -502,7 +501,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
                         <>
                             <div className="product-item list-type">
                                 <div className="product-main cursor-pointer flex lg:items-center sm:justify-between gap-7 max-lg:gap-5">
-                                    <div onClick={() => handleDetailProduct(data.id)} className="product-thumb bg-white relative overflow-hidden rounded-2xl block shrink-0 lg:w-[320px] md:w-[260px] sm:w-[220px] max-sm:w-1/2">
+                                    <div onClick={handleDetailProduct} className="product-thumb bg-white relative overflow-hidden rounded-2xl block shrink-0 lg:w-[320px] md:w-[260px] sm:w-[220px] max-sm:w-1/2">
                                         {data.new && (
                                             <div className="product-tag text-button-uppercase bg-green px-3 py-0.5 inline-block rounded-full absolute top-3 left-3 z-[1]">
                                                 New
@@ -558,7 +557,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
                                     </div>
                                     <div className='flex sm:items-center gap-7 max-lg:gap-4 max-lg:flex-wrap max-lg:w-full max-sm:flex-col max-sm:w-1/2'>
                                         <div className="product-infor max-sm:w-full">
-                                            <div onClick={() => handleDetailProduct(data.id)} className="product-name heading6 inline-block duration-300">{data.name}</div>
+                                            <div onClick={handleDetailProduct} className="product-name heading6 inline-block duration-300">{data.name}</div>
                                             <div className="product-price-block flex items-center gap-2 flex-wrap mt-2 duration-300 relative z-[1]">
                                                 <div className="product-price text-title">{currency}{data.price.toLocaleString()}</div>
                                                 <div className="product-origin-price caption1 text-secondary2"><del>{currency}{data.originPrice.toLocaleString()}</del></div>
@@ -680,7 +679,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
             }
 
             {type === 'marketplace' ? (
-                <div className="product-item style-marketplace p-4 border border-line rounded-2xl" onClick={() => handleDetailProduct(data.id)}>
+                <div className="product-item style-marketplace p-4 border border-line rounded-2xl" onClick={handleDetailProduct}>
                     <div className="bg-img relative w-full">
                         <Image className='w-full aspect-square' width={5000} height={5000} src={data.thumbImage[0]} alt="img" />
                         <div className="list-action flex flex-col gap-1 absolute top-0 right-0">

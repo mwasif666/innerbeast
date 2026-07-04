@@ -337,7 +337,7 @@ const AdminOrdersPage = () => {
                     <div key={`${item.sku || getItemName(item)}-${index}`} style={{ display: "grid", gridTemplateColumns: "72px minmax(0,1fr) auto", gap: 14, alignItems: "center", padding: 12, border: "1px solid rgba(255,255,255,.09)", borderRadius: 12, background: "rgba(255,255,255,.025)" }}>
                       <ProductThumb item={item} size={72} />
                       <div style={{ minWidth: 0 }}>
-                        {productId ? <a href={`/product/one-scrolling?id=${productId}`} target="_blank" rel="noreferrer" style={{ color: "#fff", fontWeight: 600 }}>{getItemName(item)}</a> : <div style={{ color: "#fff", fontWeight: 600 }}>{getItemName(item)}</div>}
+                        {productId ? <a href={`/products/${item.slug || productId}`} target="_blank" rel="noreferrer" style={{ color: "#fff", fontWeight: 600 }}>{getItemName(item)}</a> : <div style={{ color: "#fff", fontWeight: 600 }}>{getItemName(item)}</div>}
                         <Text type="secondary" style={{ display: "block", fontSize: 12, marginTop: 3 }}>SKU: {item.sku || "-"}</Text>
                         <Space size={8} wrap style={{ marginTop: 7 }}>
                           <Tag>Qty {item.quantity || 1}</Tag>
