@@ -50,11 +50,11 @@ const getItemImage = (item: OrderItem) => {
 };
 
 const statusSteps = [
-  "pending",
-  "confirmed",
-  "processing",
-  "shipped",
-  "delivered",
+  { key: "pending", label: "Pending", icon: Icon.Hourglass },
+  { key: "confirmed", label: "Confirmed", icon: Icon.SealCheck },
+  { key: "processing", label: "Processing", icon: Icon.Gear },
+  { key: "shipped", label: "Shipped", icon: Icon.Truck },
+  { key: "delivered", label: "Delivered", icon: Icon.Package },
 ];
 
 const TrackOrderPage = () => {
@@ -87,7 +87,10 @@ const TrackOrderPage = () => {
   };
 
   const currentStatus = String(order?.orderStatus || "pending");
-  const activeIndex = Math.max(statusSteps.indexOf(currentStatus), 0);
+  const activeIndex = Math.max(
+    statusSteps.findIndex((step) => step.key === currentStatus),
+    0,
+  );
 
   return (
     <>
@@ -188,22 +191,71 @@ const TrackOrderPage = () => {
                     </span>
                   </div>
 
-                  <div className="grid sm:grid-cols-5 gap-3 mt-8">
-                    {statusSteps.map((status, index) => (
+                  <div className="mt-10 rounded-2xl border border-[#292e2e] bg-[#0d1010] md:px-6 px-3 md:py-7 py-5">
+                    <div className="relative">
+                      <div className="absolute left-[10%] right-[10%] md:top-[22px] top-[18px] h-[3px] -translate-y-1/2 rounded-full bg-[#292e2e]" />
+
                       <div
-                        key={status}
-                        className={`rounded-xl border p-4 ${
-                          index <= activeIndex
-                            ? "border-red bg-red/10 text-white"
-                            : "border-[#292e2e] text-secondary"
-                        }`}
-                      >
-                        <Icon.CheckCircle size={20} />
-                        <div className="capitalize text-sm font-semibold mt-2">
-                          {status}
-                        </div>
+                        className="absolute left-[10%] md:top-[22px] top-[18px] h-[3px] -translate-y-1/2 rounded-full bg-red transition-all duration-700"
+                        style={{
+                          width: `${
+                            (activeIndex / (statusSteps.length - 1)) * 80
+                          }%`,
+                        }}
+                      />
+
+                      <div className="relative grid grid-cols-5">
+                        {statusSteps.map((step, index) => {
+                          const isDone = index < activeIndex;
+                          const isCurrent = index === activeIndex;
+                          const StepIcon = step.icon;
+
+                          return (
+                            <div
+                              key={step.key}
+                              className="flex flex-col items-center gap-2.5"
+                            >
+                              <div
+                                className={`flex md:h-11 md:w-11 h-9 w-9 items-center justify-center rounded-full border-2 transition-colors duration-500 ${
+                                  isDone
+                                    ? "border-red bg-red text-white"
+                                    : isCurrent
+                                      ? "border-red bg-[#111414] text-red shadow-[0_0_0_6px_rgba(219,68,68,0.15)]"
+                                      : "border-[#2f3535] bg-[#161a1a] text-[#5c6363]"
+                                }`}
+                              >
+                                {isDone ? (
+                                  <Icon.Check size={18} weight="bold" />
+                                ) : (
+                                  <StepIcon
+                                    size={18}
+                                    weight={isCurrent ? "fill" : "regular"}
+                                  />
+                                )}
+                              </div>
+
+                              <span
+                                className={`text-center text-[11px] sm:text-sm font-semibold ${
+                                  isCurrent
+                                    ? "text-white"
+                                    : isDone
+                                      ? "text-white/70"
+                                      : "text-[#5c6363]"
+                                }`}
+                              >
+                                {step.label}
+                              </span>
+
+                              {isCurrent && (
+                                <span className="hidden sm:block text-[11px] uppercase tracking-[0.14em] text-red -mt-1">
+                                  Current
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
-                    ))}
+                    </div>
                   </div>
 
                   <div className="mt-8 border-t border-[#292e2e] pt-6">
