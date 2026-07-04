@@ -8,8 +8,12 @@ import {
   loginUser,
   logoutUser,
   registerUser,
+  updateMe,
+  changePassword,
   LoginPayload,
   RegisterPayload,
+  UpdateProfilePayload,
+  ChangePasswordPayload,
 } from "../services/auth.service";
 
 export const useCurrentUser = () => {
@@ -51,6 +55,25 @@ export const useRegister = () => {
         queryKey: ["auth", "me"],
       });
     },
+  });
+};
+
+export const useUpdateMe = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: UpdateProfilePayload) => updateMe(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["auth", "me"],
+      });
+    },
+  });
+};
+
+export const useChangePassword = () => {
+  return useMutation({
+    mutationFn: (payload: ChangePasswordPayload) => changePassword(payload),
   });
 };
 

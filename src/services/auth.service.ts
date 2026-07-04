@@ -2,23 +2,55 @@ import api from "./api";
 
 export type UserRole = "user" | "admin" | "superAdmin";
 
+export type UserAddress = {
+  _id?: string;
+  label?: string;
+  fullName?: string;
+  phone?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+  isDefault?: boolean;
+};
+
 export type User = {
-  _id: string;
+  _id?: string;
+  id?: string;
   name: string;
   email: string;
+  phone?: string;
   role: UserRole;
   isActive?: boolean;
+  addresses?: UserAddress[];
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type RegisterPayload = {
   name: string;
   email: string;
   password: string;
+  phone?: string;
 };
 
 export type LoginPayload = {
   email: string;
   password: string;
+};
+
+export type UpdateProfilePayload = {
+  name?: string;
+  email?: string;
+  phone?: string;
+  addresses?: UserAddress[];
+};
+
+export type ChangePasswordPayload = {
+  currentPassword: string;
+  newPassword: string;
 };
 
 export type AuthResponse = {
@@ -55,6 +87,23 @@ export const logoutUser = async () => {
 
 export const getMe = async () => {
   return await api<MeResponse>("/auth/me");
+};
+
+export const updateMe = async (payload: UpdateProfilePayload) => {
+  return await api<AuthResponse>("/auth/me", {
+    method: "PATCH",
+    body: payload,
+  });
+};
+
+export const changePassword = async (payload: ChangePasswordPayload) => {
+  return await api<{ success: boolean; message?: string }>(
+    "/auth/change-password",
+    {
+      method: "PATCH",
+      body: payload,
+    },
+  );
 };
 
 export const adminCheck = async () => {
