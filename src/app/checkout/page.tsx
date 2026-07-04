@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import * as Icon from '@phosphor-icons/react/dist/ssr'
 import TopNavOne from '@/components/Header/TopNav/TopNavOne'
 import MenuOne from '@/components/Header/Menu/MenuOne'
@@ -19,6 +19,7 @@ type PaymentMethod = 'credit-card' | 'cash-delivery' | 'paypal'
 
 const CheckoutContent = () => {
     const searchParams = useSearchParams()
+    const router = useRouter()
     const { cartState, clearCart } = useCart()
     const currentUserQuery = useCurrentUser()
     const currentUser = currentUserQuery.data?.data
@@ -117,8 +118,9 @@ const CheckoutContent = () => {
 
         try {
             const response = await createOrderMutation.mutateAsync(payload)
-            setPlacedOrderNumber(response.data?.orderNumber || response.data?._id || 'Confirmed')
+            const orderNumber = response.data?.orderNumber || response.data?._id || 'Confirmed'
             clearCart()
+            router.replace(`/order-success?order=${encodeURIComponent(orderNumber)}`)
         } catch (error) {
             const apiError = error as Error & { status?: number }
             setOrderError(
@@ -238,7 +240,12 @@ const CheckoutContent = () => {
                                 ) : cartState.cartArray.map((product) => (
                                     <div className={styles.product} key={`${product.id}-${product.selectedSize}-${product.selectedColor}`}>
                                         <div className={styles.productImage}>
-                                            <Image src={product.thumbImage[0]} width={88} height={88} alt={product.name} />
+                                            <Image
+                                                src={product.thumbImage?.[0] || product.images?.[0] || '/images/product/pf-1.jpg'}
+                                                width={88}
+                                                height={88}
+                                                alt={product.name || 'Product image'}
+                                            />
                                             <span>{product.quantity}</span>
                                         </div>
                                         <div className={styles.productInfo}>

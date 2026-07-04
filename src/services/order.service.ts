@@ -39,6 +39,7 @@ export type OrderStatus =
   | "shipped"
   | "delivered"
   | "cancelled"
+  | "returned"
   | string;
 
 export type OrderProduct = {
@@ -68,7 +69,11 @@ export type OrderItem = {
 export type Order = {
   _id: string;
   orderNumber?: string;
-  customer?: { name?: string; email?: string; phone?: string };
+  customer?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+  };
   user?: { _id?: string; name?: string; email?: string } | string;
   items: OrderItem[];
   shippingAddress?: CheckoutAddress;
@@ -113,8 +118,28 @@ export type OrdersResponse = {
   data: Order[] | { orders?: Order[]; count?: number; total?: number };
 };
 
+export type UpdateOrderPayload = {
+  orderStatus?: OrderStatus;
+  paymentStatus?: "pending" | "paid" | "failed" | "refunded";
+  adminNotes?: string;
+};
+
+export type TrackOrderPayload = {
+  orderNumber: string;
+  email?: string;
+  phone?: string;
+  contact?: string;
+};
+
 export const createOrder = async (payload: CreateOrderPayload) => {
   return api<OrderResponse>("/orders", {
+    method: "POST",
+    body: payload,
+  });
+};
+
+export const trackOrder = async (payload: TrackOrderPayload) => {
+  return api<OrderResponse>("/orders/track", {
     method: "POST",
     body: payload,
   });
@@ -132,12 +157,6 @@ export const getOrderById = async (id: string) => {
   return api<OrderResponse>(`/orders/${id}`);
 };
 
-export type UpdateOrderPayload = {
-  orderStatus?: OrderStatus;
-  paymentStatus?: "pending" | "paid" | "failed" | "refunded";
-  adminNotes?: string;
-};
-
 export const updateOrderStatus = async (
   id: string,
   payload: UpdateOrderPayload,
@@ -151,6 +170,7 @@ export const updateOrderStatus = async (
 export const extractOrders = (response?: OrdersResponse): Order[] => {
   if (!response) return [];
   if (Array.isArray(response.data)) return response.data;
+
   return response.data?.orders || [];
 };
 
@@ -158,9 +178,11 @@ export const getOrdersCount = (response?: OrdersResponse) => {
   if (!response) return 0;
   if (typeof response.count === "number") return response.count;
   if (typeof response.total === "number") return response.total;
+
   if (!Array.isArray(response.data)) {
     if (typeof response.data?.count === "number") return response.data.count;
     if (typeof response.data?.total === "number") return response.data.total;
   }
+
   return extractOrders(response).length;
 };
