@@ -14,17 +14,25 @@ const TestAuthPage = () => {
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    await loginMutation.mutateAsync({
-      email,
-      password,
-    });
+    try {
+      await loginMutation.mutateAsync({
+        email,
+        password,
+      });
 
-    currentUserQuery.refetch();
+      await currentUserQuery.refetch();
+    } catch {
+      // React Query exposes the request error through loginMutation.error.
+    }
   };
 
   const handleLogout = async () => {
-    await logoutMutation.mutateAsync();
-    currentUserQuery.refetch();
+    try {
+      await logoutMutation.mutateAsync();
+      await currentUserQuery.refetch();
+    } catch {
+      // Keep request failures in mutation state instead of rejecting the event.
+    }
   };
 
   const user = currentUserQuery.data?.data;

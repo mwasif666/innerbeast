@@ -7,7 +7,7 @@ import * as Icon from "@phosphor-icons/react/dist/ssr";
 import { usePathname } from 'next/navigation';
 import Product from '@/components/Product/Product';
 import productData from '@/data/Product.json'
-import useLoginPopup from '@/store/useLoginPopup';
+import AccountLink from '@/components/Header/AccountLink';
 import useMenuMobile from '@/store/useMenuMobile';
 import { useModalCartContext } from '@/context/ModalCartContext';
 import { useModalWishlistContext } from '@/context/ModalWishlistContext';
@@ -23,7 +23,6 @@ const MenuOne: React.FC<Props> = ({ props }) => {
     const router = useRouter()
     const pathname = usePathname()
     let [selectedType, setSelectedType] = useState<string | null>()
-    const { openLoginPopup, handleLoginPopup } = useLoginPopup()
     const { openMenuMobile, handleMenuMobile } = useMenuMobile()
     const [openSubNavMobile, setOpenSubNavMobile] = useState<number | null>(null)
     const { openModalCart } = useModalCartContext()
@@ -328,21 +327,9 @@ const MenuOne: React.FC<Props> = ({ props }) => {
                                 <div className="line absolute bg-line w-px h-6 -right-6"></div>
                             </div>
                             <div className="list-action flex items-center gap-4">
-                                <div className="user-icon flex items-center justify-center cursor-pointer">
-                                    <Icon.User size={24} color='black' onClick={handleLoginPopup} />
-                                    <div
-                                        className={`login-popup absolute top-[74px] w-[320px] p-7 rounded-xl bg-white box-shadow-sm 
-                                            ${openLoginPopup ? 'open' : ''}`}
-                                    >
-                                        <Link href={'/login'} className="button-main w-full text-center">Login</Link>
-                                        <div className="text-secondary text-center mt-3 pb-4">Don’t have an account?
-                                            <Link href={'/register'} className='text-black pl-1 hover:underline'>Register</Link>
-                                        </div>
-                                        <Link href={'/my-account'} className="button-main bg-white text-black border border-black w-full text-center">Dashboard</Link>
-                                        <div className="bottom mt-4 pt-4 border-t border-line"></div>
-                                        <Link href={'#!'} className='body1 hover:underline'>Support</Link>
-                                    </div>
-                                </div>
+                                <AccountLink className="user-icon flex items-center justify-center cursor-pointer">
+                                    <Icon.User size={24} color='black' />
+                                </AccountLink>
                                 <div className="max-md:hidden wishlist-icon flex items-center cursor-pointer" onClick={openModalWishlist}>
                                     <Icon.Heart size={24} color='black' />
                                 </div>
