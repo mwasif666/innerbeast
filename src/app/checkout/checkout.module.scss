@@ -25,8 +25,12 @@
 }
 .loginSection { margin-bottom: 20px; overflow: hidden; }
 .loginToggle { width: 100%; padding: 19px 22px; color: #fff; display: flex; align-items: center; justify-content: space-between; text-align: left; }
+.loginToggle:hover { color: #fff; background: rgba(255,255,255,.025); }
 .loginText { display: flex; align-items: center; gap: 12px; font-weight: 600; }
 .loginText small { display: inline; color: var(--checkout-muted); font-size: inherit; font-weight: 400; margin-right: 4px; }
+.accountSynced { width: 100%; padding: 19px 22px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.accountSynced svg { color: #4ade80; flex: 0 0 auto; }
+.accountSynced a { flex: 0 0 auto; color: #ff7070; font-size: 13px; font-weight: 700; }
 .rotate { transform: rotate(180deg); }
 .loginForm { border-top: 1px solid var(--checkout-line); padding: 20px 22px; display: grid; grid-template-columns: 1fr 1fr auto; gap: 14px; align-items: end; }
 .checkoutForm { display: grid; gap: 20px; }
@@ -110,6 +114,7 @@
     .pageIntro { margin-bottom: 26px; }
     .pageIntro h1 { font-size: 31px; }
     .loginText small { display: block; }
+    .accountSynced { align-items: flex-start; flex-direction: column; }
     .loginForm, .formGrid, .cardFields { grid-template-columns: 1fr; }
     .loginForm .secondaryButton { width: 100%; }
     .card, .summary { padding: 20px 16px; border-radius: 14px; }

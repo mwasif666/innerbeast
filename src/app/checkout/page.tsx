@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Suspense, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import * as Icon from '@phosphor-icons/react/dist/ssr'
 import TopNavOne from '@/components/Header/TopNav/TopNavOne'
@@ -10,6 +10,7 @@ import MenuOne from '@/components/Header/Menu/MenuOne'
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb'
 import Footer from '@/components/Footer/Footer'
 import { useCart } from '@/context/CartContext'
+import { useCurrentUser } from '@/hooks/useAuth'
 import { useCreateOrder } from '@/hooks/useOrders'
 import { CreateOrderPayload } from '@/services/order.service'
 import styles from './checkout.module.scss'
@@ -19,11 +20,17 @@ type PaymentMethod = 'credit-card' | 'cash-delivery' | 'paypal'
 const CheckoutContent = () => {
     const searchParams = useSearchParams()
     const { cartState, clearCart } = useCart()
+    const currentUserQuery = useCurrentUser()
+    const currentUser = currentUserQuery.data?.data
     const createOrderMutation = useCreateOrder()
     const [activePayment, setActivePayment] = useState<PaymentMethod>('credit-card')
-    const [showLogin, setShowLogin] = useState(false)
     const [orderError, setOrderError] = useState('')
     const [placedOrderNumber, setPlacedOrderNumber] = useState('')
+    const syncedAccount = useRef('')
+    const [checkoutDetails, setCheckoutDetails] = useState({
+        firstName: '', lastName: '', email: '', phone: '', country: 'Pakistan',
+        city: '', state: '', street: '', apartment: '', postal: '',
+    })
 
     const discount = Math.max(0, Number(searchParams.get('discount')) || 0)
     const shipping = Math.max(0, Number(searchParams.get('ship')) || 0)
@@ -33,6 +40,34 @@ const CheckoutContent = () => {
     )
     const total = Math.max(0, subtotal - discount + shipping)
     const formatPrice = (value: number) => `Rs. ${value.toLocaleString('en-PK')}`
+
+    useEffect(() => {
+        if (!currentUser) return
+
+        const accountKey = currentUser._id || currentUser.id || currentUser.email
+        if (syncedAccount.current === accountKey) return
+
+        const address = currentUser.addresses?.find((item) => item.isDefault) || currentUser.addresses?.[0]
+        const nameParts = (address?.fullName || currentUser.name || '').trim().split(/\s+/)
+        setCheckoutDetails({
+            firstName: nameParts.shift() || '',
+            lastName: nameParts.join(' '),
+            email: currentUser.email || '',
+            phone: address?.phone || currentUser.phone || '',
+            country: address?.country || 'Pakistan',
+            city: address?.city || '',
+            state: address?.state || '',
+            street: address?.addressLine1 || '',
+            apartment: address?.addressLine2 || '',
+            postal: address?.postalCode || '',
+        })
+        syncedAccount.current = accountKey
+    }, [currentUser])
+
+    const updateCheckoutDetail = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = event.target
+        setCheckoutDetails((current) => ({ ...current, [name]: value }))
+    }
 
     const handlePlaceOrder = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
@@ -121,30 +156,25 @@ const CheckoutContent = () => {
                     <div className={styles.layout}>
                         <div className={styles.mainColumn}>
                             <section className={styles.loginSection}>
-                                <button
-                                    type="button"
+                                {currentUser ? (
+                                    <div className={styles.accountSynced}>
+                                        <span className={styles.loginText}>
+                                            <Icon.CheckCircle size={22} weight="fill" />
+                                            <span><small>Signed in as {currentUser.email}</small> Delivery details synced from your account</span>
+                                        </span>
+                                        <Link href="/my-account">Manage account</Link>
+                                    </div>
+                                ) : (
+                                <Link
                                     className={styles.loginToggle}
-                                    onClick={() => setShowLogin((current) => !current)}
-                                    aria-expanded={showLogin}
+                                    href={`/login?redirect=${encodeURIComponent(`/checkout${searchParams.toString() ? `?${searchParams.toString()}` : ''}`)}`}
                                 >
                                     <span className={styles.loginText}>
                                         <Icon.UserCircle size={22} />
                                         <span><small>Already have an account?</small> Log in for a faster checkout</span>
                                     </span>
-                                    <Icon.CaretDown size={18} className={showLogin ? styles.rotate : ''} />
-                                </button>
-                                {showLogin && (
-                                    <form className={styles.loginForm} onSubmit={(event) => event.preventDefault()}>
-                                        <label>
-                                            <span>Email address</span>
-                                            <input type="email" placeholder="you@example.com" autoComplete="email" required />
-                                        </label>
-                                        <label>
-                                            <span>Password</span>
-                                            <input type="password" placeholder="Enter your password" autoComplete="current-password" required />
-                                        </label>
-                                        <button type="submit" className={styles.secondaryButton}>Log in</button>
-                                    </form>
+                                    <Icon.ArrowRight size={18} />
+                                </Link>
                                 )}
                             </section>
 
@@ -155,16 +185,16 @@ const CheckoutContent = () => {
                                         <div><h2>Contact & delivery</h2><p>We will use these details to deliver your order.</p></div>
                                     </div>
                                     <div className={styles.formGrid}>
-                                        <label><span>First name *</span><input id="firstName" name="firstName" type="text" placeholder="Enter first name" autoComplete="given-name" required /></label>
-                                        <label><span>Last name *</span><input id="lastName" name="lastName" type="text" placeholder="Enter last name" autoComplete="family-name" required /></label>
-                                        <label><span>Email address *</span><input id="email" name="email" type="email" placeholder="you@example.com" autoComplete="email" required /></label>
-                                        <label><span>Phone number *</span><input id="phoneNumber" name="phone" type="tel" placeholder="+92 300 0000000" autoComplete="tel" required /></label>
-                                        <label className={styles.fullWidth}><span>Country / region *</span><select id="region" name="country" defaultValue="Pakistan" autoComplete="country-name"><option>Pakistan</option><option>United Arab Emirates</option><option>United Kingdom</option><option>United States</option></select></label>
-                                        <label><span>Town / city *</span><input id="city" name="city" type="text" placeholder="e.g. Lahore" autoComplete="address-level2" required /></label>
-                                        <label><span>State / province *</span><input id="state" name="state" type="text" placeholder="e.g. Punjab" autoComplete="address-level1" required /></label>
-                                        <label className={styles.fullWidth}><span>Street address *</span><input id="street" name="street" type="text" placeholder="House number and street name" autoComplete="street-address" required /></label>
-                                        <label><span>Apartment (optional)</span><input id="apartment" name="apartment" type="text" placeholder="Apartment, suite, unit" /></label>
-                                        <label><span>Postal code *</span><input id="postal" name="postal" type="text" placeholder="Postal code" autoComplete="postal-code" required /></label>
+                                        <label><span>First name *</span><input id="firstName" name="firstName" value={checkoutDetails.firstName} onChange={updateCheckoutDetail} type="text" placeholder="Enter first name" autoComplete="given-name" required /></label>
+                                        <label><span>Last name *</span><input id="lastName" name="lastName" value={checkoutDetails.lastName} onChange={updateCheckoutDetail} type="text" placeholder="Enter last name" autoComplete="family-name" required /></label>
+                                        <label><span>Email address *</span><input id="email" name="email" value={checkoutDetails.email} onChange={updateCheckoutDetail} type="email" placeholder="you@example.com" autoComplete="email" required /></label>
+                                        <label><span>Phone number *</span><input id="phoneNumber" name="phone" value={checkoutDetails.phone} onChange={updateCheckoutDetail} type="tel" placeholder="+92 300 0000000" autoComplete="tel" required /></label>
+                                        <label className={styles.fullWidth}><span>Country / region *</span><select id="region" name="country" value={checkoutDetails.country} onChange={updateCheckoutDetail} autoComplete="country-name"><option>Pakistan</option><option>United Arab Emirates</option><option>United Kingdom</option><option>United States</option></select></label>
+                                        <label><span>Town / city *</span><input id="city" name="city" value={checkoutDetails.city} onChange={updateCheckoutDetail} type="text" placeholder="e.g. Lahore" autoComplete="address-level2" required /></label>
+                                        <label><span>State / province *</span><input id="state" name="state" value={checkoutDetails.state} onChange={updateCheckoutDetail} type="text" placeholder="e.g. Punjab" autoComplete="address-level1" required /></label>
+                                        <label className={styles.fullWidth}><span>Street address *</span><input id="street" name="street" value={checkoutDetails.street} onChange={updateCheckoutDetail} type="text" placeholder="House number and street name" autoComplete="street-address" required /></label>
+                                        <label><span>Apartment (optional)</span><input id="apartment" name="apartment" value={checkoutDetails.apartment} onChange={updateCheckoutDetail} type="text" placeholder="Apartment, suite, unit" /></label>
+                                        <label><span>Postal code *</span><input id="postal" name="postal" value={checkoutDetails.postal} onChange={updateCheckoutDetail} type="text" placeholder="Postal code" autoComplete="postal-code" required /></label>
                                         <label className={styles.fullWidth}><span>Order note (optional)</span><textarea id="note" name="note" rows={4} placeholder="Delivery instructions or a note about your order" /></label>
                                     </div>
                                 </section>
