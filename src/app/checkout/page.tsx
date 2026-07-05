@@ -13,8 +13,10 @@ import { useCart } from '@/context/CartContext'
 import { useCurrentUser } from '@/hooks/useAuth'
 import { useCreateOrder } from '@/hooks/useOrders'
 import { useApplyCoupon } from '@/hooks/useCoupons'
+import { useCalculateShipping } from '@/hooks/useShipping'
 import { getAppliedDiscount } from '@/services/coupon.service'
 import { CreateOrderPayload } from '@/services/order.service'
+import { COUNTRIES } from '@/data/countries'
 import styles from './checkout.module.scss'
 
 type PaymentMethod = 'credit-card' | 'cash-delivery' | 'paypal'
@@ -26,6 +28,7 @@ const CheckoutContent = () => {
     const currentUserQuery = useCurrentUser()
     const currentUser = currentUserQuery.data?.data
     const createOrderMutation = useCreateOrder()
+    const calculateShippingMutation = useCalculateShipping()
     const [activePayment, setActivePayment] = useState<PaymentMethod>('credit-card')
     const [orderError, setOrderError] = useState('')
     const applyCouponMutation = useApplyCoupon()
@@ -34,8 +37,11 @@ const CheckoutContent = () => {
     const [appliedCouponDiscount, setAppliedCouponDiscount] = useState(0)
     const [couponError, setCouponError] = useState('')
     const [couponSuccess, setCouponSuccess] = useState('')
+    const [shipping, setShipping] = useState<number | null>(null)
+    const [shippingError, setShippingError] = useState('')
     const [placedOrderNumber, setPlacedOrderNumber] = useState('')
     const syncedAccount = useRef('')
+    const shippingRequest = useRef(0)
     const [checkoutDetails, setCheckoutDetails] = useState({
         firstName: '', lastName: '', email: '', phone: '', country: 'United Kingdom',
         city: '', state: '', street: '', apartment: '', postal: '',
@@ -45,12 +51,11 @@ const CheckoutContent = () => {
     const queryCouponCode = String(searchParams.get('coupon') || '').trim().toUpperCase()
     const discount = Math.max(queryDiscount, appliedCouponDiscount)
     const couponCode = appliedCouponCode || queryCouponCode
-    const shipping = Math.max(0, Number(searchParams.get('ship')) || 0)
     const subtotal = useMemo(
         () => cartState.cartArray.reduce((total, item) => total + item.price * item.quantity, 0),
         [cartState.cartArray]
     )
-    const total = Math.max(0, subtotal - discount + shipping)
+    const total = Math.max(0, subtotal - discount + (shipping || 0))
     const formatPrice = (value: number) => new Intl.NumberFormat('en-GB', {
         style: 'currency', currency: 'GBP', minimumFractionDigits: 2,
     }).format(value)
@@ -77,6 +82,43 @@ const CheckoutContent = () => {
         })
         syncedAccount.current = accountKey
     }, [currentUser])
+
+    useEffect(() => {
+        const country = checkoutDetails.country.trim()
+        const city = checkoutDetails.city.trim()
+        const requestId = ++shippingRequest.current
+
+        setShippingError('')
+
+        if (!country || !city || subtotal <= 0) {
+            setShipping(null)
+            return
+        }
+
+        setShipping(null)
+        const timer = window.setTimeout(async () => {
+            try {
+                const response = await calculateShippingMutation.mutateAsync({
+                    country,
+                    city,
+                    subtotal,
+                })
+
+                if (shippingRequest.current !== requestId) return
+                setShipping(Math.max(0, Number(response.data.shippingFee) || 0))
+            } catch (error) {
+                if (shippingRequest.current !== requestId) return
+                setShipping(null)
+                setShippingError(
+                    (error as Error).message || 'Shipping is not available for this location.',
+                )
+            }
+        }, 450)
+
+        return () => window.clearTimeout(timer)
+        // mutateAsync is stable; address and cart values are the quote inputs.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [checkoutDetails.country, checkoutDetails.city, subtotal])
 
     const updateCheckoutDetail = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = event.target
@@ -269,7 +311,7 @@ const CheckoutContent = () => {
                                         <label><span>Last name *</span><input id="lastName" name="lastName" value={checkoutDetails.lastName} onChange={updateCheckoutDetail} type="text" placeholder="Enter last name" autoComplete="family-name" required /></label>
                                         <label><span>Email address *</span><input id="email" name="email" value={checkoutDetails.email} onChange={updateCheckoutDetail} type="email" placeholder="you@example.com" autoComplete="email" required /></label>
                                         <label><span>Phone number *</span><input id="phoneNumber" name="phone" value={checkoutDetails.phone} onChange={updateCheckoutDetail} type="tel" placeholder="+44 7700 900000" autoComplete="tel" required /></label>
-                                        <label className={styles.fullWidth}><span>Country / region *</span><select id="region" name="country" value={checkoutDetails.country} onChange={updateCheckoutDetail} autoComplete="country-name"><option>United Kingdom</option><option>Ireland</option><option>France</option><option>Germany</option><option>United States</option></select></label>
+                                        <label className={styles.fullWidth}><span>Country / region *</span><select id="region" name="country" value={checkoutDetails.country} onChange={updateCheckoutDetail} autoComplete="country-name" required>{COUNTRIES.map((country) => <option key={country.code} value={country.name}>{country.name}</option>)}</select></label>
                                         <label><span>Town / city *</span><input id="city" name="city" value={checkoutDetails.city} onChange={updateCheckoutDetail} type="text" placeholder="e.g. London" autoComplete="address-level2" required /></label>
                                         <label><span>County *</span><input id="state" name="state" value={checkoutDetails.state} onChange={updateCheckoutDetail} type="text" placeholder="e.g. Greater London" autoComplete="address-level1" required /></label>
                                         <label className={styles.fullWidth}><span>Street address *</span><input id="street" name="street" value={checkoutDetails.street} onChange={updateCheckoutDetail} type="text" placeholder="House number and street name" autoComplete="street-address" required /></label>
@@ -298,13 +340,15 @@ const CheckoutContent = () => {
                                 </section>
 
                                 {orderError && <div className={styles.orderError} role="alert">{orderError}</div>}
-                                <button type="submit" className={styles.placeOrder} disabled={cartState.cartArray.length === 0 || createOrderMutation.isPending}>
+                                <button type="submit" className={styles.placeOrder} disabled={cartState.cartArray.length === 0 || createOrderMutation.isPending || calculateShippingMutation.isPending || shipping === null}>
                                     <Icon.LockKey size={19} weight="bold" />
                                     {cartState.cartArray.length === 0
                                         ? 'Your cart is empty'
                                         : createOrderMutation.isPending
                                             ? 'Placing order...'
-                                            : `Place order · ${formatPrice(total)}`}
+                                            : calculateShippingMutation.isPending
+                                                ? 'Calculating shipping...'
+                                                : `Place order · ${formatPrice(total)}`}
                                 </button>
                                 <p className={styles.privacy}><Icon.ShieldCheck size={18} /> Your personal and payment information is protected.</p>
                             </form>
@@ -372,7 +416,8 @@ const CheckoutContent = () => {
                             <div className={styles.totals}>
                                 <div><span>Subtotal</span><strong>{formatPrice(subtotal)}</strong></div>
                                 <div><span>{couponCode ? `Coupon (${couponCode})` : 'Discount'}</span><strong className={discount > 0 ? styles.saving : ''}>{discount > 0 ? `−${formatPrice(discount)}` : formatPrice(0)}</strong></div>
-                                <div><span>Shipping</span><strong>{shipping === 0 ? 'Free' : formatPrice(shipping)}</strong></div>
+                                <div><span>Shipping</span><strong>{calculateShippingMutation.isPending ? 'Calculating...' : shippingError ? 'Unavailable' : shipping === null ? 'Enter city' : shipping === 0 ? 'Free' : formatPrice(shipping)}</strong></div>
+                                {shippingError && <p className={styles.shippingError}>{shippingError}</p>}
                                 <div className={styles.grandTotal}><span>Total</span><strong>{formatPrice(total)}</strong></div>
                             </div>
                             <div className={styles.summaryNote}><Icon.Truck size={22} /><div><strong>Fast, tracked delivery</strong><span>We will send tracking details after dispatch.</span></div></div>

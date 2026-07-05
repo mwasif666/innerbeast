@@ -9,6 +9,7 @@ import {
   Input,
   InputNumber,
   Modal,
+  Select,
   Space,
   Switch,
   Table,
@@ -28,6 +29,7 @@ import type {
   ShippingRule,
   ShippingRulePayload,
 } from "@/services/shipping.service";
+import { COUNTRIES } from "@/data/countries";
 
 const { Title, Text } = Typography;
 
@@ -298,7 +300,16 @@ const AdminShippingPage = () => {
               <InputNumber min={0} precision={2} prefix="£" style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item label="Country" name="country">
-              <Input placeholder="United Kingdom" />
+              <Select
+                allowClear
+                showSearch
+                placeholder="All countries"
+                optionFilterProp="label"
+                options={COUNTRIES.map((country) => ({
+                  value: country.name,
+                  label: country.name,
+                }))}
+              />
             </Form.Item>
             <Form.Item label="City (optional)" name="city">
               <Input placeholder="London" />

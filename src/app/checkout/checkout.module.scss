@@ -110,6 +110,7 @@
 .totals > div { display: flex; justify-content: space-between; gap: 20px; color: var(--checkout-muted); font-size: 14px; }
 .totals strong { color: #fff; font-weight: 600; }
 .totals .saving { color: #68d391; }
+.totals .shippingError { display: block; color: #fca5a5; font-size: 12px; line-height: 1.45; }
 .totals .grandTotal { margin-top: 3px; padding-top: 18px; border-top: 1px solid var(--checkout-line); color: #fff; font-size: 18px; align-items: baseline; }
 .grandTotal strong { font-size: 25px; }
 .summaryNote { display: flex; gap: 11px; align-items: flex-start; margin-top: 22px; padding: 15px; border-radius: 11px; background: #191d1d; color: #e9ecec; }
