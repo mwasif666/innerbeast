@@ -85,6 +85,10 @@ export type Order = {
   subtotal?: number;
   discount?: number;
   discountTotal?: number;
+  coupon?: {
+    code?: string;
+    discountAmount?: number;
+  };
   shippingFee?: number;
   shipping?: number;
   taxTotal?: number;

@@ -91,6 +91,21 @@
 .emptyCart { padding: 38px 0 30px; display: flex; flex-direction: column; align-items: center; color: #808989; text-align: center; }
 .emptyCart p { color: #fff; margin-top: 9px; font-weight: 600; }
 .emptyCart a { color: #ff6666; font-size: 13px; margin-top: 6px; text-decoration: underline; text-underline-offset: 3px; }
+.couponBox { padding: 18px 0; border-bottom: 1px solid var(--checkout-line); }
+.couponBox > label { display: block; color: #e8ebeb; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.couponInputRow { display: flex; gap: 10px; }
+.couponInputRow input { flex: 1 1 auto; min-width: 0; text-transform: uppercase; }
+.couponInputRow input:disabled { opacity: .65; cursor: not-allowed; }
+.couponInputRow button {
+    flex: 0 0 auto; min-height: 50px; padding: 0 20px; border-radius: 10px;
+    background: #fff; color: #0d0f0f; font-size: 14px; font-weight: 700;
+    transition: opacity .2s, background .2s;
+}
+.couponInputRow button:hover { opacity: .88; }
+.couponInputRow button:disabled { opacity: .55; cursor: not-allowed; }
+.couponSuccess { margin-top: 10px; color: #68d391; font-size: 13px; line-height: 1.5; }
+.couponError { margin-top: 10px; color: #fca5a5; font-size: 13px; line-height: 1.5; }
+
 .totals { padding-top: 18px; display: grid; gap: 14px; }
 .totals > div { display: flex; justify-content: space-between; gap: 20px; color: var(--checkout-muted); font-size: 14px; }
 .totals strong { color: #fff; font-weight: 600; }
