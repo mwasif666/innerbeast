@@ -10,8 +10,6 @@ import Footer from '@/components/Footer/Footer'
 import * as Icon from "@phosphor-icons/react/dist/ssr";
 import { useCart } from '@/context/CartContext'
 import { countdownTime } from '@/store/countdownTime'
-import { useApplyCoupon } from '@/hooks/useCoupons'
-import { getAppliedCouponDetails, getAppliedDiscount } from '@/services/coupon.service'
 
 const formatGBP = (value: number) => new Intl.NumberFormat('en-GB', {
     style: 'currency', currency: 'GBP', minimumFractionDigits: 2,
@@ -29,11 +27,11 @@ const Cart = () => {
         return () => clearInterval(timer);
     }, []);
 
-    const { cartState, updateCart, removeFromCart, appliedCoupon, setAppliedCoupon } = useCart();
-    const applyCouponMutation = useApplyCoupon()
+    const { cartState, updateCart, removeFromCart, appliedCoupon, applyCouponToCart } = useCart();
     const [couponCode, setCouponCode] = useState('')
     const [couponMessage, setCouponMessage] = useState('')
     const [couponError, setCouponError] = useState('')
+    const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
 
     const handleQuantityChange = (productId: string, newQuantity: number) => {
         // Tìm sản phẩm trong giỏ hàng
@@ -48,7 +46,7 @@ const Cart = () => {
 
     let moneyForFreeship = 150;
     const totalCart = cartState.cartArray.reduce((total, item) => total + item.price * item.quantity, 0)
-    const discountCart = appliedCoupon?.subtotal === totalCart ? appliedCoupon.discountAmount : 0
+    const discountCart = Number(appliedCoupon?.discountAmount || 0)
     let [shipCart, setShipCart] = useState<number>(30)
 
     const handleApplyCode = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -57,29 +55,23 @@ const Cart = () => {
         setCouponMessage('')
         if (!cartState.cartArray.length) return setCouponError('Add products before applying a coupon.')
 
+        const code = couponCode.trim().toUpperCase()
+        if (!code) return setCouponError('Enter a coupon code.')
+
+        setIsApplyingCoupon(true)
         try {
-            const response = await applyCouponMutation.mutateAsync({
-                code: couponCode,
-                items: cartState.cartArray.map((item) => ({
-                    product: item.id,
-                    productId: item.id,
-                    id: item.id,
-                    quantity: item.quantity,
-                })),
-            })
-            const discountAmount = getAppliedDiscount(response)
-            const couponDetails = getAppliedCouponDetails(response)
+            const coupon = await applyCouponToCart(code)
+            const discountAmount = Number(coupon?.discountAmount || 0)
             if (discountAmount <= 0) throw new Error('This coupon did not return a discount.')
-            const code = couponCode.trim().toUpperCase()
-            setAppliedCoupon({ code, discountAmount, subtotal: totalCart, ...couponDetails })
             setCouponCode(code)
-            const offer = couponDetails.discountType === 'percentage' && couponDetails.discountValue
-                ? `${couponDetails.discountValue}% off`
+            const offer = coupon?.discountType === 'percentage' && coupon.discountValue
+                ? `${coupon.discountValue}% off`
                 : `${formatGBP(discountAmount)} off`
             setCouponMessage(`${code} applied — ${offer}. You saved ${formatGBP(discountAmount)}.`)
         } catch (error) {
-            setAppliedCoupon(null)
             setCouponError((error as Error).message || 'Coupon could not be applied.')
+        } finally {
+            setIsApplyingCoupon(false)
         }
     }
 
@@ -92,9 +84,7 @@ const Cart = () => {
     }
 
     const redirectToCheckout = () => {
-        const params = new URLSearchParams({ discount: String(discountCart), ship: String(shipCart) })
-        if (appliedCoupon?.code && discountCart > 0) params.set('coupon', appliedCoupon.code)
-        router.push(`/checkout?${params.toString()}`)
+        router.push('/checkout')
     }
 
     return (
@@ -209,7 +199,7 @@ const Cart = () => {
                             <div className="input-block discount-code w-full h-12 sm:mt-7 mt-5">
                                 <form className='w-full h-full relative' onSubmit={handleApplyCode}>
                                     <input type="text" value={couponCode} onChange={(event) => setCouponCode(event.target.value)} placeholder='Add voucher discount' className='w-full h-full bg-surface text-black pl-4 pr-32 rounded-lg border border-line uppercase' required />
-                                    <button disabled={applyCouponMutation.isPending} className='button-main bg-[#ef4444] absolute top-1 bottom-1 right-1 px-5 rounded-lg flex items-center justify-center disabled:opacity-60'>{applyCouponMutation.isPending ? 'Applying...' : 'Apply Code'}
+                                    <button disabled={isApplyingCoupon} className='button-main bg-[#ef4444] absolute top-1 bottom-1 right-1 px-5 rounded-lg flex items-center justify-center disabled:opacity-60'>{isApplyingCoupon ? 'Applying...' : 'Apply Code'}
                                     </button>
                                 </form>
                             </div>

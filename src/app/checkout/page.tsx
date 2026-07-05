@@ -61,6 +61,10 @@ const CheckoutContent = () => {
     }).format(value)
 
     useEffect(() => {
+        setCouponInput(couponCode)
+    }, [couponCode])
+
+    useEffect(() => {
         if (!currentUser) return
 
         const accountKey = currentUser._id || currentUser.id || currentUser.email
