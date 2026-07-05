@@ -75,6 +75,43 @@ const getStatus = (order: AdminOrder) =>
 const isOrderCancelled = (order?: AdminOrder | null) =>
   Boolean(order && getStatus(order) === "cancelled");
 
+const CUSTOMER_CANCELLATION_PREFIX = "Cancelled by customer:";
+const ADMIN_NOTE_SEPARATOR = "Admin note:";
+
+const getSeparatedNotes = (order?: AdminOrder | null) => {
+  if (!order) return { cancellationReason: "", adminNote: "" };
+
+  const explicitReason = order.cancellationReason || order.cancelReason || "";
+  const storedAdminNotes = order.adminNotes || "";
+  const prefixedCancellation = storedAdminNotes.match(
+    /^Cancelled by customer:\s*([\s\S]*?)(?:\r?\nAdmin note:\s*([\s\S]*))?$/i,
+  );
+
+  if (prefixedCancellation) {
+    return {
+      cancellationReason: explicitReason || prefixedCancellation[1].trim(),
+      adminNote: (prefixedCancellation[2] || "").trim(),
+    };
+  }
+
+  return {
+    cancellationReason: explicitReason,
+    adminNote: storedAdminNotes,
+  };
+};
+
+const serializeCancelledOrderNotes = (
+  cancellationReason: string,
+  adminNote: string,
+) => {
+  const customerNote = `${CUSTOMER_CANCELLATION_PREFIX} ${cancellationReason.trim()}`;
+  const internalNote = adminNote.trim();
+
+  return internalNote
+    ? `${customerNote}\n${ADMIN_NOTE_SEPARATOR} ${internalNote}`
+    : customerNote;
+};
+
 const statusColor = (status: string) => {
   if (status === "delivered" || status === "paid") return "success";
   if (["cancelled", "failed", "returned"].includes(status)) return "error";
@@ -169,6 +206,7 @@ const AdminOrdersPage = () => {
   const updateMutation = useUpdateOrderStatus();
   const detailOrder = orderQuery.data?.data || selectedOrder;
   const cancelledDetailOrder = isOrderCancelled(detailOrder);
+  const detailNotes = getSeparatedNotes(detailOrder);
 
   const orders = useMemo(() => extractOrders(ordersQuery.data), [ordersQuery.data]);
   const filteredOrders = useMemo(() => {
@@ -191,7 +229,7 @@ const AdminOrdersPage = () => {
     setSelectedOrder(order);
     setEditStatus(getStatus(order));
     setEditPaymentStatus(order.paymentStatus || "pending");
-    setAdminNotes(order.adminNotes || "");
+    setAdminNotes(getSeparatedNotes(order).adminNote);
   };
 
   const handleUpdateOrder = async () => {
@@ -200,7 +238,14 @@ const AdminOrdersPage = () => {
       if (isOrderCancelled(detailOrder)) {
         const response = await updateMutation.mutateAsync({
           id: detailOrder._id,
-          payload: { adminNotes },
+          payload: {
+            adminNotes: detailNotes.cancellationReason
+              ? serializeCancelledOrderNotes(
+                  detailNotes.cancellationReason,
+                  adminNotes,
+                )
+              : adminNotes,
+          },
         });
         setSelectedOrder(response.data);
         message.success(
@@ -395,9 +440,10 @@ const AdminOrdersPage = () => {
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: 20 }}><strong>Grand total</strong><strong>{formatCurrency(getOrderTotal(detailOrder))}</strong></div>
             </Card>
 
-            {(detailOrder.notes || detailOrder.adminNotes) && <Descriptions title="Notes" column={1} size="small" bordered items={[
+            {(detailOrder.notes || detailNotes.cancellationReason || detailNotes.adminNote) && <Descriptions title="Notes" column={1} size="small" bordered items={[
               { key: "customerNote", label: "Customer note", children: detailOrder.notes || "-" },
-              { key: "adminNote", label: "Admin note", children: detailOrder.adminNotes || "-" },
+              ...(detailNotes.cancellationReason ? [{ key: "cancellationReason", label: "Customer cancellation note", children: detailNotes.cancellationReason }] : []),
+              { key: "adminNote", label: "Admin note", children: detailNotes.adminNote || "-" },
             ]} />}
 
             <div>

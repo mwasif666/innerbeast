@@ -93,6 +93,8 @@ export type Order = {
   totalItems?: number;
   notes?: string;
   adminNotes?: string;
+  cancellationReason?: string;
+  cancelReason?: string;
   placedAt?: string;
   confirmedAt?: string;
   shippedAt?: string;
