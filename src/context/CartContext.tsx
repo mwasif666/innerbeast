@@ -3,11 +3,26 @@
 import React, {
   createContext,
   useContext,
-  useReducer,
   useEffect,
+  useReducer,
+  useRef,
   useState,
 } from "react";
 import { ProductType } from "@/type/ProductType";
+import { useCurrentUser } from "@/hooks/useAuth";
+import {
+  addRemoteCartItem,
+  applyRemoteCartCoupon,
+  clearRemoteCart,
+  getRemoteAppliedCoupon,
+  getRemoteCart,
+  mapRemoteCartItems,
+  removeRemoteCartCoupon,
+  removeRemoteCartItem,
+  syncRemoteCart,
+  updateRemoteCartItem,
+  AppliedCoupon,
+} from "@/services/cart.service";
 
 interface CartItem extends ProductType {
   quantity: number;
@@ -18,14 +33,6 @@ interface CartItem extends ProductType {
 interface CartState {
   cartArray: CartItem[];
 }
-
-export type AppliedCoupon = {
-  code: string;
-  discountAmount: number;
-  subtotal: number;
-  discountType?: "percentage" | "fixed";
-  discountValue?: number;
-};
 
 type CartAction =
   | { type: "ADD_TO_CART"; payload: ProductType }
@@ -55,6 +62,9 @@ interface CartContextProps {
   clearCart: () => void;
   appliedCoupon: AppliedCoupon | null;
   setAppliedCoupon: (coupon: AppliedCoupon | null) => void;
+  applyCouponToCart: (code: string) => Promise<AppliedCoupon | null>;
+  removeCouponFromCart: () => Promise<void>;
+  isCartSyncing: boolean;
 }
 
 const CART_STORAGE_KEY = "innerbeast-cart";
@@ -134,12 +144,23 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
   }
 };
 
+const getProductId = (item: ProductType) => item.id;
+
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [cartState, dispatch] = useReducer(cartReducer, { cartArray: [] });
   const [isLoaded, setIsLoaded] = useState(false);
-  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(
+    null,
+  );
+  const [isCartSyncing, setIsCartSyncing] = useState(false);
+
+  const currentUserQuery = useCurrentUser();
+  const currentUser = currentUserQuery.data?.data;
+  const accountKey =
+    currentUser?._id || currentUser?.id || currentUser?.email || "";
+  const syncedAccount = useRef("");
 
   useEffect(() => {
     try {
@@ -163,33 +184,100 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         window.localStorage.removeItem(CART_STORAGE_KEY);
         window.localStorage.removeItem(LEGACY_CART_STORAGE_KEY);
-      } catch {
-        // Storage may be unavailable in strict privacy mode.
-      }
+      } catch {}
     } finally {
       setIsLoaded(true);
     }
   }, []);
 
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!isLoaded || accountKey) return;
 
     try {
       window.localStorage.setItem(
         CART_STORAGE_KEY,
         JSON.stringify(cartState.cartArray),
       );
-    } catch {
-      // Ignore storage quota and privacy-mode errors.
-    }
-  }, [cartState.cartArray, isLoaded]);
+    } catch {}
+  }, [cartState.cartArray, isLoaded, accountKey]);
+
+  useEffect(() => {
+    if (!isLoaded || !accountKey || syncedAccount.current === accountKey)
+      return;
+
+    const syncAccountCart = async () => {
+      setIsCartSyncing(true);
+
+      try {
+        const hasLocalCart = cartState.cartArray.length > 0;
+
+        const response = hasLocalCart
+          ? await syncRemoteCart({
+              items: cartState.cartArray.map((item) => ({
+                productId: getProductId(item),
+                quantity: item.quantity,
+                selectedSize: item.selectedSize,
+                selectedColor: item.selectedColor,
+              })),
+            })
+          : await getRemoteCart();
+
+        dispatch({
+          type: "LOAD_CART",
+          payload: mapRemoteCartItems(response) as CartItem[],
+        });
+
+        setAppliedCoupon(getRemoteAppliedCoupon(response));
+        syncedAccount.current = accountKey;
+
+        try {
+          window.localStorage.removeItem(CART_STORAGE_KEY);
+          window.localStorage.removeItem(LEGACY_CART_STORAGE_KEY);
+        } catch {}
+      } catch {
+        syncedAccount.current = accountKey;
+      } finally {
+        setIsCartSyncing(false);
+      }
+    };
+
+    syncAccountCart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accountKey, isLoaded]);
+
+  const loadRemoteResponse = (
+    response: Awaited<ReturnType<typeof getRemoteCart>>,
+  ) => {
+    dispatch({
+      type: "LOAD_CART",
+      payload: mapRemoteCartItems(response) as CartItem[],
+    });
+    setAppliedCoupon(getRemoteAppliedCoupon(response));
+  };
 
   const addToCart = (item: ProductType) => {
     dispatch({ type: "ADD_TO_CART", payload: item });
+
+    if (!accountKey) return;
+
+    addRemoteCartItem({
+      productId: getProductId(item),
+      quantity: item.quantityPurchase || 1,
+      selectedSize: "",
+      selectedColor: "",
+    })
+      .then(loadRemoteResponse)
+      .catch(() => {});
   };
 
   const removeFromCart = (itemId: string) => {
     dispatch({ type: "REMOVE_FROM_CART", payload: itemId });
+
+    if (!accountKey) return;
+
+    removeRemoteCartItem(itemId)
+      .then(loadRemoteResponse)
+      .catch(() => {});
   };
 
   const updateCart = (
@@ -202,17 +290,52 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       type: "UPDATE_CART",
       payload: { itemId, quantity, selectedSize, selectedColor },
     });
+
+    if (!accountKey) return;
+
+    updateRemoteCartItem(itemId, {
+      quantity,
+      selectedSize,
+      selectedColor,
+    })
+      .then(loadRemoteResponse)
+      .catch(() => {});
   };
 
   const clearCart = () => {
     dispatch({ type: "CLEAR_CART" });
     setAppliedCoupon(null);
+
     try {
       window.localStorage.removeItem(CART_STORAGE_KEY);
       window.localStorage.removeItem(LEGACY_CART_STORAGE_KEY);
-    } catch {
-      // The reducer still clears the in-memory cart when storage is blocked.
+    } catch {}
+
+    if (!accountKey) return;
+
+    clearRemoteCart()
+      .then(loadRemoteResponse)
+      .catch(() => {});
+  };
+
+  const applyCouponToCart = async (code: string) => {
+    if (!accountKey) {
+      throw new Error("Please log in to use a coupon.");
     }
+
+    const response = await applyRemoteCartCoupon(code);
+    loadRemoteResponse(response);
+
+    return getRemoteAppliedCoupon(response);
+  };
+
+  const removeCouponFromCart = async () => {
+    setAppliedCoupon(null);
+
+    if (!accountKey) return;
+
+    const response = await removeRemoteCartCoupon();
+    loadRemoteResponse(response);
   };
 
   return (
@@ -225,6 +348,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         clearCart,
         appliedCoupon,
         setAppliedCoupon,
+        applyCouponToCart,
+        removeCouponFromCart,
+        isCartSyncing,
       }}
     >
       {children}

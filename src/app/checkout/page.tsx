@@ -12,9 +12,7 @@ import Footer from '@/components/Footer/Footer'
 import { useCart } from '@/context/CartContext'
 import { useCurrentUser } from '@/hooks/useAuth'
 import { useCreateOrder } from '@/hooks/useOrders'
-import { useApplyCoupon } from '@/hooks/useCoupons'
 import { useCalculateShipping } from '@/hooks/useShipping'
-import { getAppliedDiscount } from '@/services/coupon.service'
 import { CreateOrderPayload } from '@/services/order.service'
 import { COUNTRIES } from '@/data/countries'
 import styles from './checkout.module.scss'
@@ -24,17 +22,21 @@ type PaymentMethod = 'credit-card' | 'cash-delivery' | 'paypal'
 const CheckoutContent = () => {
     const searchParams = useSearchParams()
     const router = useRouter()
-    const { cartState, clearCart } = useCart()
+    const {
+        cartState,
+        clearCart,
+        appliedCoupon,
+        applyCouponToCart,
+        removeCouponFromCart,
+        isCartSyncing,
+    } = useCart()
     const currentUserQuery = useCurrentUser()
     const currentUser = currentUserQuery.data?.data
     const createOrderMutation = useCreateOrder()
     const calculateShippingMutation = useCalculateShipping()
     const [activePayment, setActivePayment] = useState<PaymentMethod>('credit-card')
     const [orderError, setOrderError] = useState('')
-    const applyCouponMutation = useApplyCoupon()
     const [couponInput, setCouponInput] = useState('')
-    const [appliedCouponCode, setAppliedCouponCode] = useState('')
-    const [appliedCouponDiscount, setAppliedCouponDiscount] = useState(0)
     const [couponError, setCouponError] = useState('')
     const [couponSuccess, setCouponSuccess] = useState('')
     const [shipping, setShipping] = useState<number | null>(null)
@@ -47,10 +49,8 @@ const CheckoutContent = () => {
         city: '', street: '', apartment: '', postal: '',
     })
 
-    const queryDiscount = Math.max(0, Number(searchParams.get('discount')) || 0)
-    const queryCouponCode = String(searchParams.get('coupon') || '').trim().toUpperCase()
-    const discount = Math.max(queryDiscount, appliedCouponDiscount)
-    const couponCode = appliedCouponCode || queryCouponCode
+    const discount = Number(appliedCoupon?.discountAmount || 0)
+    const couponCode = appliedCoupon?.code || ''
     const subtotal = useMemo(
         () => cartState.cartArray.reduce((total, item) => total + item.price * item.quantity, 0),
         [cartState.cartArray]
@@ -124,20 +124,14 @@ const CheckoutContent = () => {
         setCheckoutDetails((current) => ({ ...current, [name]: value }))
     }
 
-    const couponItems = useMemo(
-        () =>
-            cartState.cartArray.map((item) => ({
-                product: item.id,
-                productId: item.id,
-                id: item.id,
-                quantity: item.quantity,
-            })),
-        [cartState.cartArray],
-    )
-
     const handleApplyCoupon = async () => {
         setCouponError('')
         setCouponSuccess('')
+
+        if (!currentUser) {
+            setCouponError('Please log in to use a coupon.')
+            return
+        }
 
         if (cartState.cartArray.length === 0) {
             setCouponError('Your cart is empty.')
@@ -152,37 +146,31 @@ const CheckoutContent = () => {
         }
 
         try {
-            const response = await applyCouponMutation.mutateAsync({
-                code,
-                items: couponItems,
-            })
-
-            const discountAmount = getAppliedDiscount(response)
+            const coupon = await applyCouponToCart(code)
+            const discountAmount = Number(coupon?.discountAmount || 0)
 
             if (discountAmount <= 0) {
                 setCouponError('This coupon did not apply any discount.')
-                setAppliedCouponCode('')
-                setAppliedCouponDiscount(0)
                 return
             }
 
-            setAppliedCouponCode(code)
-            setAppliedCouponDiscount(discountAmount)
             setCouponInput(code)
             setCouponSuccess(`${code} applied. You saved ${formatPrice(discountAmount)}.`)
         } catch (error) {
-            setAppliedCouponCode('')
-            setAppliedCouponDiscount(0)
             setCouponError((error as Error).message || 'Coupon could not be applied.')
         }
     }
 
-    const handleRemoveCoupon = () => {
+    const handleRemoveCoupon = async () => {
         setCouponInput('')
-        setAppliedCouponCode('')
-        setAppliedCouponDiscount(0)
         setCouponError('')
         setCouponSuccess('')
+
+        try {
+            await removeCouponFromCart()
+        } catch {
+            // Local state already resets from the cart context if needed.
+        }
     }
 
     const handlePlaceOrder = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -338,7 +326,7 @@ const CheckoutContent = () => {
                                 </section>
 
                                 {orderError && <div className={styles.orderError} role="alert">{orderError}</div>}
-                                <button type="submit" className={styles.placeOrder} disabled={cartState.cartArray.length === 0 || createOrderMutation.isPending || calculateShippingMutation.isPending || shipping === null}>
+                                <button type="submit" className={styles.placeOrder} disabled={cartState.cartArray.length === 0 || createOrderMutation.isPending || calculateShippingMutation.isPending || shipping === null || isCartSyncing}>
                                     <Icon.LockKey size={19} weight="bold" />
                                     {cartState.cartArray.length === 0
                                         ? 'Your cart is empty'
@@ -390,20 +378,16 @@ const CheckoutContent = () => {
                                             setCouponSuccess('')
                                         }}
                                         placeholder="Enter coupon code"
-                                        disabled={applyCouponMutation.isPending || Boolean(appliedCouponCode)}
+                                        disabled={Boolean(couponCode)}
                                     />
 
-                                    {appliedCouponCode ? (
+                                    {couponCode ? (
                                         <button type="button" onClick={handleRemoveCoupon}>
                                             Remove
                                         </button>
                                     ) : (
-                                        <button
-                                            type="button"
-                                            onClick={handleApplyCoupon}
-                                            disabled={applyCouponMutation.isPending}
-                                        >
-                                            {applyCouponMutation.isPending ? 'Checking...' : 'Apply'}
+                                        <button type="button" onClick={handleApplyCoupon}>
+                                            Apply
                                         </button>
                                     )}
                                 </div>
