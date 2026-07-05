@@ -174,11 +174,11 @@ const ProductOneScrollingContent = () => {
                                     <h1 className="heading2 mt-2">{product.name}</h1>
 
                                     <div className="flex items-center gap-3 mt-5">
-                                        <span className="heading5">Rs. {product.price.toLocaleString()}</span>
+                                        <span className="heading5">£{product.price.toLocaleString("en-GB")}</span>
                                         {product.sale && (
                                             <>
                                                 <del className="text-secondary2">
-                                                    Rs. {product.originPrice.toLocaleString()}
+                                                    £{product.originPrice.toLocaleString("en-GB")}
                                                 </del>
                                                 <span className="caption1 bg-green text-black px-3 py-1 rounded-full">
                                                     -{salePercent}%

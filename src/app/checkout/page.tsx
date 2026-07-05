@@ -29,7 +29,7 @@ const CheckoutContent = () => {
     const [placedOrderNumber, setPlacedOrderNumber] = useState('')
     const syncedAccount = useRef('')
     const [checkoutDetails, setCheckoutDetails] = useState({
-        firstName: '', lastName: '', email: '', phone: '', country: 'Pakistan',
+        firstName: '', lastName: '', email: '', phone: '', country: 'United Kingdom',
         city: '', state: '', street: '', apartment: '', postal: '',
     })
 
@@ -41,7 +41,9 @@ const CheckoutContent = () => {
         [cartState.cartArray]
     )
     const total = Math.max(0, subtotal - discount + shipping)
-    const formatPrice = (value: number) => `Rs. ${value.toLocaleString('en-PK')}`
+    const formatPrice = (value: number) => new Intl.NumberFormat('en-GB', {
+        style: 'currency', currency: 'GBP', minimumFractionDigits: 2,
+    }).format(value)
 
     useEffect(() => {
         if (!currentUser) return
@@ -56,7 +58,7 @@ const CheckoutContent = () => {
             lastName: nameParts.join(' '),
             email: currentUser.email || '',
             phone: address?.phone || currentUser.phone || '',
-            country: address?.country || 'Pakistan',
+            country: address?.country || 'United Kingdom',
             city: address?.city || '',
             state: address?.state || '',
             street: address?.addressLine1 || '',
@@ -110,7 +112,7 @@ const CheckoutContent = () => {
                 city: value('city'),
                 state: value('state') || undefined,
                 postalCode: value('postal') || undefined,
-                country: value('country') || 'Pakistan',
+                country: value('country') || 'United Kingdom',
             },
             customer: { name: fullName, email, phone },
             paymentMethod: paymentMethods[activePayment],
@@ -192,13 +194,13 @@ const CheckoutContent = () => {
                                         <label><span>First name *</span><input id="firstName" name="firstName" value={checkoutDetails.firstName} onChange={updateCheckoutDetail} type="text" placeholder="Enter first name" autoComplete="given-name" required /></label>
                                         <label><span>Last name *</span><input id="lastName" name="lastName" value={checkoutDetails.lastName} onChange={updateCheckoutDetail} type="text" placeholder="Enter last name" autoComplete="family-name" required /></label>
                                         <label><span>Email address *</span><input id="email" name="email" value={checkoutDetails.email} onChange={updateCheckoutDetail} type="email" placeholder="you@example.com" autoComplete="email" required /></label>
-                                        <label><span>Phone number *</span><input id="phoneNumber" name="phone" value={checkoutDetails.phone} onChange={updateCheckoutDetail} type="tel" placeholder="+92 300 0000000" autoComplete="tel" required /></label>
-                                        <label className={styles.fullWidth}><span>Country / region *</span><select id="region" name="country" value={checkoutDetails.country} onChange={updateCheckoutDetail} autoComplete="country-name"><option>Pakistan</option><option>United Arab Emirates</option><option>United Kingdom</option><option>United States</option></select></label>
-                                        <label><span>Town / city *</span><input id="city" name="city" value={checkoutDetails.city} onChange={updateCheckoutDetail} type="text" placeholder="e.g. Lahore" autoComplete="address-level2" required /></label>
-                                        <label><span>State / province *</span><input id="state" name="state" value={checkoutDetails.state} onChange={updateCheckoutDetail} type="text" placeholder="e.g. Punjab" autoComplete="address-level1" required /></label>
+                                        <label><span>Phone number *</span><input id="phoneNumber" name="phone" value={checkoutDetails.phone} onChange={updateCheckoutDetail} type="tel" placeholder="+44 7700 900000" autoComplete="tel" required /></label>
+                                        <label className={styles.fullWidth}><span>Country / region *</span><select id="region" name="country" value={checkoutDetails.country} onChange={updateCheckoutDetail} autoComplete="country-name"><option>United Kingdom</option><option>Ireland</option><option>France</option><option>Germany</option><option>United States</option></select></label>
+                                        <label><span>Town / city *</span><input id="city" name="city" value={checkoutDetails.city} onChange={updateCheckoutDetail} type="text" placeholder="e.g. London" autoComplete="address-level2" required /></label>
+                                        <label><span>County *</span><input id="state" name="state" value={checkoutDetails.state} onChange={updateCheckoutDetail} type="text" placeholder="e.g. Greater London" autoComplete="address-level1" required /></label>
                                         <label className={styles.fullWidth}><span>Street address *</span><input id="street" name="street" value={checkoutDetails.street} onChange={updateCheckoutDetail} type="text" placeholder="House number and street name" autoComplete="street-address" required /></label>
                                         <label><span>Apartment (optional)</span><input id="apartment" name="apartment" value={checkoutDetails.apartment} onChange={updateCheckoutDetail} type="text" placeholder="Apartment, suite, unit" /></label>
-                                        <label><span>Postal code *</span><input id="postal" name="postal" value={checkoutDetails.postal} onChange={updateCheckoutDetail} type="text" placeholder="Postal code" autoComplete="postal-code" required /></label>
+                                        <label><span>Postcode *</span><input id="postal" name="postal" value={checkoutDetails.postal} onChange={updateCheckoutDetail} type="text" placeholder="e.g. SW1A 1AA" autoComplete="postal-code" required /></label>
                                         <label className={styles.fullWidth}><span>Order note (optional)</span><textarea id="note" name="note" rows={4} placeholder="Delivery instructions or a note about your order" /></label>
                                     </div>
                                 </section>

@@ -36,6 +36,8 @@ import {
 } from "@/services/coupon.service";
 
 const { Title, Text } = Typography;
+const formatGBP = (value: number) =>
+  new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(value);
 
 type CouponForm = Omit<CouponPayload, "expiresAt"> & { expiresAt?: string };
 
@@ -141,11 +143,11 @@ const AdminCouponsPage = () => {
       render: (_, coupon) =>
         getCouponType(coupon) === "percentage"
           ? `${getCouponValue(coupon)}%`
-          : `Rs. ${getCouponValue(coupon).toLocaleString("en-PK")}`,
+          : formatGBP(getCouponValue(coupon)),
     },
     {
       title: "Minimum order",
-      render: (_, coupon) => `Rs. ${getCouponMinimum(coupon).toLocaleString("en-PK")}`,
+      render: (_, coupon) => formatGBP(getCouponMinimum(coupon)),
     },
     {
       title: "Usage",

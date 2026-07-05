@@ -55,7 +55,7 @@ const RegisterContent = () => {
                 {error && <div className={styles.error} role="alert">{error}</div>}
                 <label className={styles.field}><span>Full name</span><input name="name" type="text" autoComplete="name" placeholder="Your full name" required /></label>
                 <label className={styles.field}><span>Email address</span><input name="email" type="email" autoComplete="email" placeholder="you@example.com" required /></label>
-                <label className={styles.field}><span>Phone number</span><input name="phone" type="tel" autoComplete="tel" placeholder="+92 300 0000000" /></label>
+                <label className={styles.field}><span>Phone number</span><input name="phone" type="tel" autoComplete="tel" placeholder="+44 7700 900000" /></label>
                 <label className={styles.field}><span>Password</span><input name="password" type="password" autoComplete="new-password" placeholder="At least 6 characters" minLength={6} required /></label>
                 <label className={styles.field}><span>Confirm password</span><input name="confirmPassword" type="password" autoComplete="new-password" placeholder="Repeat your password" minLength={6} required /></label>
                 <label className={styles.terms}><input type="checkbox" name="terms" /><span>I agree to the <Link href="/terms-and-conditions">Terms & Conditions</Link> and <Link href="/privacy-policy">Privacy Policy</Link>.</span></label>

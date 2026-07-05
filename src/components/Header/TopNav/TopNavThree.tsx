@@ -12,7 +12,7 @@ const TopNavThree: React.FC<Props> = ({ props }) => {
     const [isOpenLanguage, setIsOpenLanguage] = useState(false)
     const [isOpenCurrence, setIsOpenCurrence] = useState(false)
     const [language, setLanguage] = useState('English')
-    const [currence, setCurrence] = useState('USD')
+    const [currence, setCurrence] = useState('GBP')
 
     return (
         <>
@@ -74,7 +74,7 @@ const TopNavThree: React.FC<Props> = ({ props }) => {
                                     <p className="selected caption2">{currence}</p>
                                     <ul className={`list-option bg-white ${isOpenCurrence ? 'open' : ''}`}>
                                         {
-                                            ['USD', 'EUR', 'GBP'].map((item, index) => (
+                                            ['GBP', 'EUR', 'USD'].map((item, index) => (
                                                 <li key={index} className="caption2" onClick={() => setCurrence(item)}>{item}</li>
                                             ))
                                         }

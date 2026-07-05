@@ -12,7 +12,11 @@ import { toStorefrontProduct } from '@/utils/productAdapter'
 import { countdownTime } from '@/store/countdownTime'
 import CountdownTimeType from '@/type/CountdownType';
 import { useApplyCoupon } from '@/hooks/useCoupons';
-import { getAppliedDiscount } from '@/services/coupon.service';
+import { getAppliedCouponDetails, getAppliedDiscount } from '@/services/coupon.service';
+
+const formatGBP = (value: number) => new Intl.NumberFormat('en-GB', {
+    style: 'currency', currency: 'GBP', minimumFractionDigits: 2,
+}).format(value)
 
 const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) => {
     const [timeLeft, setTimeLeft] = useState(serverTimeLeft);
@@ -76,8 +80,9 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                 })),
             })
             const discountAmount = getAppliedDiscount(response)
+            const couponDetails = getAppliedCouponDetails(response)
             if (discountAmount <= 0) throw new Error('This coupon did not return a discount.')
-            setAppliedCoupon({ code: couponCode.trim().toUpperCase(), discountAmount, subtotal: totalCart })
+            setAppliedCoupon({ code: couponCode.trim().toUpperCase(), discountAmount, subtotal: totalCart, ...couponDetails })
             setActiveTab('')
         } catch (error) {
             setAppliedCoupon(null)
@@ -110,8 +115,8 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                         <div className=''>
                                             <div className="name text-button">{product.name}</div>
                                             <div className="flex items-center gap-2 mt-2">
-                                                <div className="product-price text-title">${product.price}.00</div>
-                                                <div className="product-origin-price text-title text-secondary2"><del>${product.originPrice}.00</del></div>
+                                            <div className="product-price text-title">{formatGBP(product.price)}</div>
+                                            <div className="product-origin-price text-title text-secondary2"><del>{formatGBP(product.originPrice)}</del></div>
                                             </div>
                                         </div>
                                     </div>
@@ -147,7 +152,7 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                             </div>
                         </div>
                         <div className="heading banner mt-3 px-6">
-                            <div className="text">Buy <span className="text-button"> $<span className="more-price">{moneyForFreeship - totalCart > 0 ? (<>{moneyForFreeship - totalCart}</>) : (0)}</span>.00 </span>
+                            <div className="text">Buy <span className="text-button text-red"> {formatGBP(Math.max(0, moneyForFreeship - totalCart))} </span>
                                 <span>more to get </span>
                                 <span className="text-button">freeship</span></div>
                             <div className="tow-bar-block mt-3">
@@ -184,7 +189,7 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                                 <div className="flex items-center text-secondary2 capitalize">
                                                     {product.selectedSize || product.sizes[0]}/{product.selectedColor || product.variation[0].color}
                                                 </div>
-                                                <div className="product-price text-title">${product.price}.00</div>
+                                                <div className="product-price text-title">{formatGBP(product.price)}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -217,9 +222,9 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                             </div>
                             <div className="flex items-center justify-between pt-6 px-6">
                                 <div className="heading5">Subtotal</div>
-                                <div className="heading5">${totalCart}.00</div>
+                                <div className="heading5">{formatGBP(totalCart)}</div>
                             </div>
-                            {modalDiscount > 0 && <div className="flex items-center justify-between pt-2 px-6 text-green"><div>Coupon ({appliedCoupon?.code})</div><div>-Rs. {modalDiscount.toLocaleString('en-PK')}</div></div>}
+                            {modalDiscount > 0 && <div className="flex items-center justify-between pt-2 px-6 text-[#ef4444]"><div>Coupon ({appliedCoupon?.code}){appliedCoupon?.discountType === 'percentage' && appliedCoupon.discountValue ? ` · ${appliedCoupon.discountValue}% off` : ''}</div><div>−{formatGBP(modalDiscount)} saved</div></div>}
                             <div className="block-button text-center p-6">
                                 <div className="flex items-center gap-4">
                                     <Link
@@ -323,7 +328,7 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                     </div>
                                 </div>
                                 <div className="block-button text-center pt-4 px-6 pb-6">
-                                    <button type="button" disabled={applyCouponMutation.isPending || !couponCode.trim()} className='button-main w-full text-center disabled:opacity-60' onClick={handleApplyCoupon}>{applyCouponMutation.isPending ? 'Applying...' : 'Apply'}</button>
+                                    <button type="button" disabled={applyCouponMutation.isPending || !couponCode.trim()} className='button-main bg-[#ef4444] w-full text-center disabled:opacity-60' onClick={handleApplyCoupon}>{applyCouponMutation.isPending ? 'Applying...' : 'Apply'}</button>
                                     <div onClick={() => setActiveTab('')} className="text-button-uppercase mt-4 text-center has-line-before cursor-pointer inline-block">Cancel</div>
                                 </div>
                             </div>

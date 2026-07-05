@@ -54,7 +54,7 @@ const ORDER_STATUSES = [
 const PAYMENT_STATUSES = ["pending", "paid", "failed", "refunded"];
 
 const formatCurrency = (value?: number) =>
-  `Rs. ${Number(value || 0).toLocaleString("en-PK")}`;
+  new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(Number(value || 0));
 
 const formatDate = (value?: string) => {
   if (!value) return "-";

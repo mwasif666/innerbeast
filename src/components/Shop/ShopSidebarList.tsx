@@ -276,13 +276,13 @@ const ShopSidebarList: React.FC<Props> = ({ data, productPerPage, dataType }) =>
                                 <div className="price-block flex flex-col items-start gap-1 mt-4">
                                     <div className="min flex items-center gap-1">
                                         <div>Min price:</div>
-                                        <div className='price-min'>Rs. 
+                                        <div className='price-min'>£
                                             <span>{priceRange.min.toLocaleString()}</span>
                                         </div>
                                     </div>
                                     <div className="min flex items-center gap-1">
                                         <div>Max price:</div>
-                                        <div className='price-max'>Rs. 
+                                        <div className='price-max'>£
                                             <span>{priceRange.max.toLocaleString()}</span>
                                         </div>
                                     </div>

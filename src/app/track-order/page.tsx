@@ -12,7 +12,7 @@ import { useTrackOrder } from "@/hooks/useOrders";
 import { Order, OrderItem } from "@/services/order.service";
 
 const money = (value?: number) =>
-  `Rs. ${Number(value || 0).toLocaleString("en-PK")}`;
+  new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(Number(value || 0));
 
 const date = (value?: string) => {
   if (!value) return "-";
@@ -138,7 +138,7 @@ const TrackOrderPage = () => {
                     autoCapitalize="none"
                     autoCorrect="off"
                     className="h-12 rounded-lg bg-[#191c1c] border border-[#373d3d] px-4 text-white"
-                    placeholder="you@example.com or 03001234567"
+                    placeholder="you@example.com or +44 7700 900000"
                     required
                   />
                 </label>

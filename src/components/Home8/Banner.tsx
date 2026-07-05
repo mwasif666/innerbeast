@@ -15,10 +15,10 @@ const Banner = () => {
                             alt='banner1'
                             className='object-cover object-center duration-1000 hover:scale-105'
                         />
-                        <div className="absolute inset-0 bg-black/30"></div>
+                        <div className="absolute inset-0 bg-[#ef4444]/30"></div>
                         <div className="banner-content absolute inset-0 flex flex-col items-center justify-center">
                             <div className="heading4 text-white text-center">Women{String.raw`'s`} Activewear <br />Collection</div>
-                            <div className="text-button text-white relative inline-block pb-1 border-b-2 border-white duration-500 mt-2">Shop Now</div>
+                            <div className="text-button text-white relative inline-block px-5 py-2 rounded-lg bg-[#ef4444] duration-500 mt-3">Shop Now</div>
                         </div>
                     </Link>
                     <Link href={'/shop'} className="banner-item relative block overflow-hidden rounded-2xl duration-500 aspect-[3/2]">
@@ -29,10 +29,10 @@ const Banner = () => {
                             alt='banner2'
                             className='object-cover object-center duration-1000 hover:scale-105'
                         />
-                        <div className="absolute inset-0 bg-black/30"></div>
+                        <div className="absolute inset-0 bg-[#ef4444]/30"></div>
                         <div className="banner-content absolute inset-0 flex flex-col items-center justify-center">
                             <div className="heading4 text-white text-center">Men{String.raw`'s`} Performance <br />Gear</div>
-                            <div className="text-button text-white relative inline-block pb-1 border-b-2 border-white duration-500 mt-2">Shop Now</div>
+                            <div className="text-button text-white relative inline-block px-5 py-2 rounded-lg bg-[#ef4444] duration-500 mt-3">Shop Now</div>
                         </div>
                     </Link>
                 </div>

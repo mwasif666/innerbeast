@@ -30,7 +30,7 @@ const slides = [
 ]
 
 const benefits = [
-    { icon: Icon.Truck, title: 'Free Shipping', text: 'On orders over $75' },
+    { icon: Icon.Truck, title: 'Free Shipping', text: 'On orders over £75' },
     { icon: Icon.ShieldCheck, title: 'Secure Payment', text: '100% secure checkout' },
     { icon: Icon.ArrowClockwise, title: 'Easy Returns', text: '30 day return policy' },
     { icon: Icon.Headphones, title: '24/7 Support', text: "We're here to help" },

@@ -23,6 +23,8 @@ export type AppliedCoupon = {
   code: string;
   discountAmount: number;
   subtotal: number;
+  discountType?: "percentage" | "fixed";
+  discountValue?: number;
 };
 
 type CartAction =

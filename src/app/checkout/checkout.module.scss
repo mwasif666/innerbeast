@@ -4,7 +4,7 @@
     --checkout-field: #181b1b;
     --checkout-line: #2b3030;
     --checkout-muted: #a8b0b0;
-    --checkout-accent: #e63b3b;
+    --checkout-accent: #ef4444;
     background: var(--checkout-bg);
     color: #fff;
     padding: 72px 0 96px;
@@ -49,12 +49,12 @@
 .checkoutPage textarea { resize: vertical; }
 .checkoutPage input::placeholder, .checkoutPage textarea::placeholder { color: #7f8989; opacity: 1; }
 .checkoutPage select { color-scheme: dark; }
-.checkoutPage input:focus, .checkoutPage select:focus, .checkoutPage textarea:focus { border-color: #ef5555; box-shadow: 0 0 0 3px rgba(230,59,59,.14); }
+.checkoutPage input:focus, .checkoutPage select:focus, .checkoutPage textarea:focus { border-color: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,.14); }
 .secondaryButton { height: 50px; padding: 0 25px; border-radius: 10px; background: #fff; color: #0d0f0f; font-weight: 700; }
 
 .paymentList { display: grid; gap: 12px; }
 .paymentOption { border: 1px solid var(--checkout-line); border-radius: 12px; overflow: hidden; transition: border-color .2s, background .2s; }
-.selectedPayment { border-color: #e54a4a; background: rgba(229,74,74,.04); }
+.selectedPayment { border-color: #ef4444; background: rgba(239,68,68,.04); }
 .paymentHeader { padding: 17px 18px; display: grid; grid-template-columns: auto auto 1fr auto; gap: 13px; align-items: center; cursor: pointer; }
 .paymentHeader > input { position: absolute; opacity: 0; pointer-events: none; }
 .paymentIcon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 9px; background: #222626; color: #fff; }

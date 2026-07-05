@@ -11,7 +11,11 @@ import * as Icon from "@phosphor-icons/react/dist/ssr";
 import { useCart } from '@/context/CartContext'
 import { countdownTime } from '@/store/countdownTime'
 import { useApplyCoupon } from '@/hooks/useCoupons'
-import { getAppliedDiscount } from '@/services/coupon.service'
+import { getAppliedCouponDetails, getAppliedDiscount } from '@/services/coupon.service'
+
+const formatGBP = (value: number) => new Intl.NumberFormat('en-GB', {
+    style: 'currency', currency: 'GBP', minimumFractionDigits: 2,
+}).format(value)
 
 const Cart = () => {
     const [timeLeft, setTimeLeft] = useState(countdownTime());
@@ -64,11 +68,15 @@ const Cart = () => {
                 })),
             })
             const discountAmount = getAppliedDiscount(response)
+            const couponDetails = getAppliedCouponDetails(response)
             if (discountAmount <= 0) throw new Error('This coupon did not return a discount.')
             const code = couponCode.trim().toUpperCase()
-            setAppliedCoupon({ code, discountAmount, subtotal: totalCart })
+            setAppliedCoupon({ code, discountAmount, subtotal: totalCart, ...couponDetails })
             setCouponCode(code)
-            setCouponMessage(response.message || `${code} applied successfully.`)
+            const offer = couponDetails.discountType === 'percentage' && couponDetails.discountValue
+                ? `${couponDetails.discountValue}% off`
+                : `${formatGBP(discountAmount)} off`
+            setCouponMessage(`${code} applied — ${offer}. You saved ${formatGBP(discountAmount)}.`)
         } catch (error) {
             setAppliedCoupon(null)
             setCouponError((error as Error).message || 'Coupon could not be applied.')
@@ -100,16 +108,16 @@ const Cart = () => {
                 <div className="container">
                     <div className="content-main flex justify-between max-xl:flex-col gap-y-8">
                         <div className="xl:w-2/3 xl:pr-3 w-full">
-                            <div className="time bg-green py-3 px-5 flex items-center rounded-lg">
+                            <div className="time bg-[#ef4444] text-white py-3 px-5 flex items-center rounded-lg">
                                 <div className="heding5">🔥</div>
                                 <div className="caption1 pl-2">Your cart will expire in
-                                    <span className="min text-red text-button fw-700"> {timeLeft.minutes}:{timeLeft.seconds < 10 ? `0${timeLeft.seconds}` : timeLeft.seconds}</span>
+                                    <span className="min text-white text-button fw-700"> {timeLeft.minutes}:{timeLeft.seconds < 10 ? `0${timeLeft.seconds}` : timeLeft.seconds}</span>
                                     <span> minutes! Please checkout now before your items sell out!</span>
                                 </div>
                             </div>
                             <div className="heading banner mt-5">
                                 <div className="text">Buy
-                                    <span className="text-button"> $<span className="more-price">{moneyForFreeship - totalCart > 0 ? (<>{moneyForFreeship - totalCart}</>) : (0)}</span>.00 </span>
+                                    <span className="text-button text-red"> {formatGBP(Math.max(0, moneyForFreeship - totalCart))} </span>
                                     <span>more to get </span>
                                     <span className="text-button">freeship</span>
                                 </div>
@@ -162,7 +170,7 @@ const Cart = () => {
                                                         </div>
                                                     </div>
                                                     <div className="w-1/12 price flex items-center justify-center">
-                                                        <div className="text-title text-center">${product.price}.00</div>
+                                                        <div className="text-title text-center">{formatGBP(product.price)}</div>
                                                     </div>
                                                     <div className="w-1/6 flex items-center justify-center">
                                                         <div className="quantity-block bg-surface text-black md:p-3 p-2 flex items-center justify-between rounded-lg border border-line md:w-[100px] flex-shrink-0 w-20">
@@ -182,7 +190,7 @@ const Cart = () => {
                                                         </div>
                                                     </div>
                                                     <div className="w-1/6 flex total-price items-center justify-center">
-                                                        <div className="text-title text-center">${product.quantity * product.price}.00</div>
+                                                        <div className="text-title text-center">{formatGBP(product.quantity * product.price)}</div>
                                                     </div>
                                                     <div className="w-1/12 flex items-center justify-center">
                                                         <Icon.XCircle
@@ -201,11 +209,11 @@ const Cart = () => {
                             <div className="input-block discount-code w-full h-12 sm:mt-7 mt-5">
                                 <form className='w-full h-full relative' onSubmit={handleApplyCode}>
                                     <input type="text" value={couponCode} onChange={(event) => setCouponCode(event.target.value)} placeholder='Add voucher discount' className='w-full h-full bg-surface text-black pl-4 pr-32 rounded-lg border border-line uppercase' required />
-                                    <button disabled={applyCouponMutation.isPending} className='button-main absolute top-1 bottom-1 right-1 px-5 rounded-lg flex items-center justify-center disabled:opacity-60'>{applyCouponMutation.isPending ? 'Applying...' : 'Apply Code'}
+                                    <button disabled={applyCouponMutation.isPending} className='button-main bg-[#ef4444] absolute top-1 bottom-1 right-1 px-5 rounded-lg flex items-center justify-center disabled:opacity-60'>{applyCouponMutation.isPending ? 'Applying...' : 'Apply Code'}
                                     </button>
                                 </form>
                             </div>
-                            {couponMessage && <div className="sm:mt-4 mt-3 rounded-lg bg-green/20 px-4 py-3 text-green">{couponMessage}</div>}
+                            {couponMessage && <div className="sm:mt-4 mt-3 rounded-lg border border-[#ef4444]/40 bg-[#ef4444]/10 px-4 py-3 text-[#ef4444]">{couponMessage}</div>}
                             {couponError && <div className="sm:mt-4 mt-3 rounded-lg bg-red/10 px-4 py-3 text-red">{couponError}</div>}
                         </div>
                         <div className="xl:w-1/3 xl:pl-12 w-full">
@@ -213,11 +221,11 @@ const Cart = () => {
                                 <div className="heading5">Order Summary</div>
                                 <div className="total-block py-5 flex justify-between border-b border-line">
                                     <div className="text-title">Subtotal</div>
-                                    <div className="text-title">$<span className="total-product">{totalCart}</span><span>.00</span></div>
+                                    <div className="text-title">{formatGBP(totalCart)}</div>
                                 </div>
                                 <div className="discount-block py-5 flex justify-between border-b border-line">
                                     <div className="text-title">Discounts</div>
-                                    <div className="text-title"> <span>-$</span><span className="discount">{discountCart}</span><span>.00</span></div>
+                                    <div className="text-title text-red">−{formatGBP(discountCart)}</div>
                                 </div>
                                 <div className="ship-block py-5 flex justify-between border-b border-line">
                                     <div className="text-title">Shipping</div>
@@ -267,20 +275,18 @@ const Cart = () => {
                                             </div>
                                         </div>
                                         <div className="right">
-                                            <div className="ship">$0.00</div>
-                                            <div className="local text-on-surface-variant1 mt-1">$30.00</div>
-                                            <div className="flat text-on-surface-variant1 mt-1">$40.00</div>
+                                            <div className="ship">{formatGBP(0)}</div>
+                                            <div className="local text-on-surface-variant1 mt-1">{formatGBP(30)}</div>
+                                            <div className="flat text-on-surface-variant1 mt-1">{formatGBP(40)}</div>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="total-cart-block pt-4 pb-4 flex justify-between">
                                     <div className="heading5">Total</div>
-                                    <div className="heading5">$
-                                        <span className="total-cart heading5">{totalCart - discountCart + shipCart}</span>
-                                        <span className='heading5'>.00</span></div>
+                                    <div className="heading5 text-red">{formatGBP(totalCart - discountCart + shipCart)}</div>
                                 </div>
                                 <div className="block-button flex flex-col items-center gap-y-4 mt-5">
-                                    <div className="checkout-btn button-main text-center w-full" onClick={redirectToCheckout}>Process To Checkout</div>
+                                    <div className="checkout-btn button-main bg-[#ef4444] text-center w-full" onClick={redirectToCheckout}>Process To Checkout</div>
                                     <Link className="text-button hover-underline" href={"/shop/breadcrumb1"}>Continue shopping</Link>
                                 </div>
                             </div>

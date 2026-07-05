@@ -57,10 +57,15 @@ export type ApplyCouponResponse = {
   message?: string;
   discountAmount?: number;
   discount?: number;
+  coupon?: Coupon;
   finalTotal?: number;
   data?: {
     code?: string;
     coupon?: Coupon;
+    discountType?: CouponDiscountType;
+    type?: CouponDiscountType;
+    value?: number;
+    discountValue?: number;
     discountAmount?: number;
     discount?: number;
     finalTotal?: number;
@@ -109,6 +114,19 @@ export const getAppliedDiscount = (response: ApplyCouponResponse) =>
         0,
     ),
   );
+
+export const getAppliedCouponDetails = (response: ApplyCouponResponse) => {
+  const coupon = response.data?.coupon || response.coupon;
+  if (coupon) {
+    return { discountType: getCouponType(coupon), discountValue: getCouponValue(coupon) };
+  }
+
+  const discountType = response.data?.discountType || response.data?.type;
+  const discountValue = response.data?.value ?? response.data?.discountValue;
+  return discountType && discountValue != null
+    ? { discountType, discountValue: Number(discountValue) }
+    : {};
+};
 
 export const applyCoupon = (payload: ApplyCouponPayload) =>
   api<ApplyCouponResponse>("/coupons/apply", {

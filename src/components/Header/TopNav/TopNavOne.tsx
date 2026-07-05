@@ -14,7 +14,7 @@ const TopNavOne: React.FC<Props> = ({ props, slogan }) => {
     const [isOpenLanguage, setIsOpenLanguage] = useState(false)
     const [isOpenCurrence, setIsOpenCurrence] = useState(false)
     const [language, setLanguage] = useState('English')
-    const [currence, setCurrence] = useState('USD')
+    const [currence, setCurrence] = useState('GBP')
 
     return (
         <>
@@ -52,7 +52,7 @@ const TopNavOne: React.FC<Props> = ({ props, slogan }) => {
                                     <p className="selected caption2 text-white">{currence}</p>
                                     <ul className={`list-option bg-white ${isOpenCurrence ? 'open' : ''}`}>
                                         {
-                                            ['USD', 'EUR', 'GBP'].map((item, index) => (
+                                            ['GBP', 'EUR', 'USD'].map((item, index) => (
                                                 <li key={index} className="caption2" onClick={() => setCurrence(item)}>{item}</li>
                                             ))
                                         }

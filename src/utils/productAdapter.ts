@@ -40,7 +40,7 @@ export const toStorefrontProduct = (product: Product): ProductType => {
     rate: product.ratingsAverage || 0,
     price: salePrice,
     originPrice: product.price,
-    currency: 'Rs. ',
+    currency: '£',
     brand: 'Inner Beast',
     sold: product.ratingsCount || 0,
     quantity: product.stock || 0,
