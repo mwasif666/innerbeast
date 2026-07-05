@@ -37,7 +37,7 @@ export const updateCustomerStatus = async (id: string, isActive: boolean) => {
 
 export const updateCustomerRole = async (
   id: string,
-  role: "user" | "admin",
+  role: CustomerRole,
 ) => {
   return await api<CustomerResponse>(`/users/${id}/role`, {
     method: "PATCH",

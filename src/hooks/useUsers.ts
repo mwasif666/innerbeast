@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
+  CustomerRole,
   deleteCustomer,
   getCustomers,
   updateCustomerRole,
@@ -35,7 +36,7 @@ export const useUpdateCustomerRole = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, role }: { id: string; role: "user" | "admin" }) =>
+    mutationFn: ({ id, role }: { id: string; role: CustomerRole }) =>
       updateCustomerRole(id, role),
     onSuccess: () => {
       queryClient.invalidateQueries({

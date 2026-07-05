@@ -7,6 +7,7 @@ import {
   Button,
   Card,
   Input,
+  Select,
   Table,
   Tag,
   Tooltip,
@@ -19,18 +20,19 @@ import {
   LockOutlined,
   SearchOutlined,
   UnlockOutlined,
-  UserSwitchOutlined,
 } from "@ant-design/icons";
 
+import { useCurrentUser } from "@/hooks/useAuth";
 import {
   useCustomers,
   useDeleteCustomer,
   useUpdateCustomerRole,
   useUpdateCustomerStatus,
 } from "@/hooks/useUsers";
-import { Customer } from "@/services/user.service";
+import { Customer, CustomerRole } from "@/services/user.service";
 
 const { Title, Text } = Typography;
+const USER_ROLES: CustomerRole[] = ["user", "admin", "superAdmin"];
 
 const formatDate = (date?: string) => {
   if (!date) return "-";
@@ -54,27 +56,60 @@ const AdminUsersPage = () => {
   const { message, modal } = App.useApp();
   const [search, setSearch] = useState("");
 
+  const currentUserQuery = useCurrentUser();
   const customersQuery = useCustomers();
   const updateStatusMutation = useUpdateCustomerStatus();
   const updateRoleMutation = useUpdateCustomerRole();
   const deleteCustomerMutation = useDeleteCustomer();
 
-  const customers = customersQuery.data?.data || [];
+  const currentUser = currentUserQuery.data?.data;
+  const actorIsSuperAdmin = currentUser?.role === "superAdmin";
+  const customers = useMemo(
+    () => customersQuery.data?.data || [],
+    [customersQuery.data?.data],
+  );
+  const manageableUsers = useMemo(
+    () =>
+      actorIsSuperAdmin
+        ? customers
+        : customers.filter((customer) => customer.role === "user"),
+    [actorIsSuperAdmin, customers],
+  );
+  const activeSuperAdminCount = customers.filter(
+    (customer) => customer.role === "superAdmin" && customer.isActive,
+  ).length;
+
+  const isLastActiveSuperAdmin = (customer: Customer) =>
+    customer.role === "superAdmin" &&
+    customer.isActive &&
+    activeSuperAdminCount <= 1;
+
+  const canManageAccount = (customer: Customer) =>
+    actorIsSuperAdmin || customer.role === "user";
 
   const filteredCustomers = useMemo(() => {
     const searchValue = search.toLowerCase().trim();
-    if (!searchValue) return customers;
+    if (!searchValue) return manageableUsers;
 
-    return customers.filter(
+    return manageableUsers.filter(
       (customer) =>
         customer.name?.toLowerCase().includes(searchValue) ||
         customer.email?.toLowerCase().includes(searchValue) ||
         customer.role?.toLowerCase().includes(searchValue),
     );
-  }, [customers, search]);
+  }, [manageableUsers, search]);
 
   const handleToggleStatus = (customer: Customer) => {
+    if (!canManageAccount(customer)) {
+      message.error("Normal admins can only manage customer accounts.");
+      return;
+    }
+
     const nextStatus = !customer.isActive;
+    if (!nextStatus && isLastActiveSuperAdmin(customer)) {
+      message.error("The last active super admin cannot be disabled.");
+      return;
+    }
 
     modal.confirm({
       title: nextStatus ? "Activate Customer" : "Disable Customer",
@@ -100,27 +135,46 @@ const AdminUsersPage = () => {
     });
   };
 
-  const handleMakeAdmin = (customer: Customer) => {
+  const handleChangeRole = (customer: Customer, role: CustomerRole) => {
+    if (!actorIsSuperAdmin) {
+      message.error("Only a super admin can change roles.");
+      return;
+    }
+    if (role === customer.role) return;
+    if (role !== "superAdmin" && isLastActiveSuperAdmin(customer)) {
+      message.error("The last active super admin cannot be demoted.");
+      return;
+    }
+
     modal.confirm({
-      title: "Update Customer Role",
+      title: "Update User Role",
       icon: <ExclamationCircleFilled />,
-      content: `Are you sure you want to make ${customer.name} an admin?`,
-      okText: "Make Admin",
+      content: `Change ${customer.name}'s role from ${customer.role} to ${role}?`,
+      okText: "Change Role",
       onOk: async () => {
         try {
           await updateRoleMutation.mutateAsync({
             id: customer._id,
-            role: "admin",
+            role,
           });
-          message.success("Customer role updated successfully.");
+          message.success("User role updated successfully.");
         } catch {
-          message.error("Failed to update customer role.");
+          message.error("Failed to update user role.");
         }
       },
     });
   };
 
   const handleDeleteCustomer = (customer: Customer) => {
+    if (!canManageAccount(customer)) {
+      message.error("Normal admins can only manage customer accounts.");
+      return;
+    }
+    if (isLastActiveSuperAdmin(customer)) {
+      message.error("The last active super admin cannot be deleted.");
+      return;
+    }
+
     modal.confirm({
       title: "Delete Customer",
       icon: <ExclamationCircleFilled />,
@@ -169,8 +223,26 @@ const AdminUsersPage = () => {
       title: "Role",
       dataIndex: "role",
       sorter: (a, b) => (a.role || "").localeCompare(b.role || ""),
-      render: (role: Customer["role"]) => {
+      render: (role: Customer["role"], customer) => {
         const privileged = role === "admin" || role === "superAdmin";
+        if (actorIsSuperAdmin) {
+          return (
+            <Select<CustomerRole>
+              size="small"
+              value={role}
+              disabled={
+                updateRoleMutation.isPending ||
+                isLastActiveSuperAdmin(customer)
+              }
+              onChange={(nextRole) => handleChangeRole(customer, nextRole)}
+              style={{ width: 132 }}
+              options={USER_ROLES.map((value) => ({
+                value,
+                label: value === "superAdmin" ? "Super admin" : value[0].toUpperCase() + value.slice(1),
+              }))}
+            />
+          );
+        }
         return (
           <Tag
             color={privileged ? "blue" : "default"}
@@ -209,34 +281,48 @@ const AdminUsersPage = () => {
       key: "actions",
       align: "right",
       render: (_, customer) => {
-        const isSuperAdmin = customer.role === "superAdmin";
+        const canManage = canManageAccount(customer);
+        const protectedSuperAdmin = isLastActiveSuperAdmin(customer);
+        const statusTitle = !canManage
+          ? "Only super admins can manage staff accounts"
+          : protectedSuperAdmin && customer.isActive
+            ? "Last active super admin cannot be disabled"
+            : customer.isActive
+              ? "Disable"
+              : "Activate";
         return (
           <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
-            <Tooltip title={customer.isActive ? "Disable" : "Activate"}>
+            <Tooltip title={statusTitle}>
               <Button
                 type="text"
                 shape="circle"
                 icon={customer.isActive ? <LockOutlined /> : <UnlockOutlined />}
                 danger={customer.isActive}
+                disabled={
+                  !canManage ||
+                  (protectedSuperAdmin && customer.isActive) ||
+                  updateStatusMutation.isPending
+                }
                 onClick={() => handleToggleStatus(customer)}
               />
             </Tooltip>
-            <Tooltip title="Make Admin">
-              <Button
-                type="text"
-                shape="circle"
-                icon={<UserSwitchOutlined />}
-                disabled={customer.role === "admin" || isSuperAdmin}
-                onClick={() => handleMakeAdmin(customer)}
-              />
-            </Tooltip>
-            <Tooltip title="Delete">
+            <Tooltip
+              title={
+                !canManage
+                  ? "Only super admins can delete staff accounts"
+                  : protectedSuperAdmin
+                    ? "Last active super admin cannot be deleted"
+                    : "Delete"
+              }
+            >
               <Button
                 type="text"
                 shape="circle"
                 danger
                 icon={<DeleteOutlined />}
-                disabled={isSuperAdmin}
+                disabled={
+                  !canManage || protectedSuperAdmin || deleteCustomerMutation.isPending
+                }
                 onClick={() => handleDeleteCustomer(customer)}
               />
             </Tooltip>
@@ -272,9 +358,13 @@ const AdminUsersPage = () => {
             User management
           </div>
           <Title level={2} style={{ margin: 0, color: "#fff" }}>
-            Customers
+            {actorIsSuperAdmin ? "Users & Staff" : "Customers"}
           </Title>
-          <Text type="secondary">Manage registered customer accounts.</Text>
+          <Text type="secondary">
+            {actorIsSuperAdmin
+              ? "Manage customer accounts, staff access and roles."
+              : "Manage registered customer accounts."}
+          </Text>
         </div>
 
         <div
@@ -290,7 +380,7 @@ const AdminUsersPage = () => {
             fontSize: 13,
           }}
         >
-          <span>Total customers</span>
+          <span>{actorIsSuperAdmin ? "Total users" : "Total customers"}</span>
           <span
             style={{
               display: "grid",
@@ -305,7 +395,7 @@ const AdminUsersPage = () => {
               fontWeight: 700,
             }}
           >
-            {customersQuery.data?.count || 0}
+            {manageableUsers.length}
           </span>
         </div>
       </div>
@@ -342,7 +432,7 @@ const AdminUsersPage = () => {
           rowKey="_id"
           columns={columns}
           dataSource={filteredCustomers}
-          loading={customersQuery.isLoading}
+          loading={customersQuery.isLoading || currentUserQuery.isLoading}
           scroll={{ x: 900 }}
           pagination={{
             pageSize: 8,
