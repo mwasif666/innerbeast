@@ -34,6 +34,7 @@ const CheckoutContent = () => {
     })
 
     const discount = Math.max(0, Number(searchParams.get('discount')) || 0)
+    const couponCode = String(searchParams.get('coupon') || '').trim().toUpperCase()
     const shipping = Math.max(0, Number(searchParams.get('ship')) || 0)
     const subtotal = useMemo(
         () => cartState.cartArray.reduce((total, item) => total + item.price * item.quantity, 0),
@@ -113,6 +114,7 @@ const CheckoutContent = () => {
             },
             customer: { name: fullName, email, phone },
             paymentMethod: paymentMethods[activePayment],
+            couponCode: couponCode || undefined,
             notes: value('note') || undefined,
         }
 
@@ -258,7 +260,7 @@ const CheckoutContent = () => {
                             </div>
                             <div className={styles.totals}>
                                 <div><span>Subtotal</span><strong>{formatPrice(subtotal)}</strong></div>
-                                <div><span>Discount</span><strong className={discount > 0 ? styles.saving : ''}>{discount > 0 ? `−${formatPrice(discount)}` : formatPrice(0)}</strong></div>
+                                <div><span>{couponCode ? `Coupon (${couponCode})` : 'Discount'}</span><strong className={discount > 0 ? styles.saving : ''}>{discount > 0 ? `−${formatPrice(discount)}` : formatPrice(0)}</strong></div>
                                 <div><span>Shipping</span><strong>{shipping === 0 ? 'Free' : formatPrice(shipping)}</strong></div>
                                 <div className={styles.grandTotal}><span>Total</span><strong>{formatPrice(total)}</strong></div>
                             </div>

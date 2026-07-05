@@ -19,6 +19,12 @@ interface CartState {
   cartArray: CartItem[];
 }
 
+export type AppliedCoupon = {
+  code: string;
+  discountAmount: number;
+  subtotal: number;
+};
+
 type CartAction =
   | { type: "ADD_TO_CART"; payload: ProductType }
   | { type: "REMOVE_FROM_CART"; payload: string }
@@ -45,6 +51,8 @@ interface CartContextProps {
     selectedColor: string,
   ) => void;
   clearCart: () => void;
+  appliedCoupon: AppliedCoupon | null;
+  setAppliedCoupon: (coupon: AppliedCoupon | null) => void;
 }
 
 const CART_STORAGE_KEY = "innerbeast-cart";
@@ -129,6 +137,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [cartState, dispatch] = useReducer(cartReducer, { cartArray: [] });
   const [isLoaded, setIsLoaded] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
 
   useEffect(() => {
     try {
@@ -195,6 +204,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const clearCart = () => {
     dispatch({ type: "CLEAR_CART" });
+    setAppliedCoupon(null);
     try {
       window.localStorage.removeItem(CART_STORAGE_KEY);
       window.localStorage.removeItem(LEGACY_CART_STORAGE_KEY);
@@ -205,7 +215,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <CartContext.Provider
-      value={{ cartState, addToCart, removeFromCart, updateCart, clearCart }}
+      value={{
+        cartState,
+        addToCart,
+        removeFromCart,
+        updateCart,
+        clearCart,
+        appliedCoupon,
+        setAppliedCoupon,
+      }}
     >
       {children}
     </CartContext.Provider>

@@ -11,6 +11,8 @@ import { useProducts } from '@/hooks/useProducts'
 import { toStorefrontProduct } from '@/utils/productAdapter'
 import { countdownTime } from '@/store/countdownTime'
 import CountdownTimeType from '@/type/CountdownType';
+import { useApplyCoupon } from '@/hooks/useCoupons';
+import { getAppliedDiscount } from '@/services/coupon.service';
 
 const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) => {
     const [timeLeft, setTimeLeft] = useState(serverTimeLeft);
@@ -25,7 +27,10 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
 
     const [activeTab, setActiveTab] = useState<string | undefined>('')
     const { isModalOpen, closeModalCart } = useModalCartContext();
-    const { cartState, addToCart, removeFromCart, updateCart } = useCart()
+    const { cartState, addToCart, removeFromCart, updateCart, appliedCoupon, setAppliedCoupon } = useCart()
+    const applyCouponMutation = useApplyCoupon()
+    const [couponCode, setCouponCode] = useState('')
+    const [couponError, setCouponError] = useState('')
 
     const productsQuery = useProducts({ limit: 12, sort: 'newest', isActive: true })
 
@@ -54,6 +59,31 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
     let [discountCart, setDiscountCart] = useState<number>(0)
 
     cartState.cartArray.map(item => totalCart += item.price * item.quantity)
+
+    const modalDiscount = appliedCoupon?.subtotal === totalCart ? appliedCoupon.discountAmount : 0
+
+    const handleApplyCoupon = async () => {
+        setCouponError('')
+        if (!cartState.cartArray.length) return setCouponError('Your cart is empty.')
+        try {
+            const response = await applyCouponMutation.mutateAsync({
+                code: couponCode,
+                items: cartState.cartArray.map((item) => ({
+                    product: item.id,
+                    productId: item.id,
+                    id: item.id,
+                    quantity: item.quantity,
+                })),
+            })
+            const discountAmount = getAppliedDiscount(response)
+            if (discountAmount <= 0) throw new Error('This coupon did not return a discount.')
+            setAppliedCoupon({ code: couponCode.trim().toUpperCase(), discountAmount, subtotal: totalCart })
+            setActiveTab('')
+        } catch (error) {
+            setAppliedCoupon(null)
+            setCouponError((error as Error).message || 'Coupon could not be applied.')
+        }
+    }
 
     return (
         <>
@@ -189,6 +219,7 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                 <div className="heading5">Subtotal</div>
                                 <div className="heading5">${totalCart}.00</div>
                             </div>
+                            {modalDiscount > 0 && <div className="flex items-center justify-between pt-2 px-6 text-green"><div>Coupon ({appliedCoupon?.code})</div><div>-Rs. {modalDiscount.toLocaleString('en-PK')}</div></div>}
                             <div className="block-button text-center p-6">
                                 <div className="flex items-center gap-4">
                                     <Link
@@ -199,7 +230,7 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                         View cart
                                     </Link>
                                     <Link
-                                        href={'/checkout'}
+                                        href={`/checkout?discount=${modalDiscount}&ship=0${appliedCoupon?.code && modalDiscount > 0 ? `&coupon=${encodeURIComponent(appliedCoupon.code)}` : ''}`}
                                         className='button-main basis-1/2 text-center uppercase'
                                         onClick={closeModalCart}
                                     >
@@ -287,11 +318,12 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                 <div className="form pt-4 px-6">
                                     <div className="">
                                         <label htmlFor='select-discount' className="caption1 text-secondary">Enter Code</label>
-                                        <input className="border-line px-5 py-3 w-full rounded-xl mt-3" id="select-discount" type="text" placeholder="Discount code" />
+                                        <input value={couponCode} onChange={(event) => setCouponCode(event.target.value)} className="border-line px-5 py-3 w-full rounded-xl mt-3 uppercase" id="select-discount" type="text" placeholder="Discount code" />
+                                        {couponError && <div className="text-red caption1 mt-2">{couponError}</div>}
                                     </div>
                                 </div>
                                 <div className="block-button text-center pt-4 px-6 pb-6">
-                                    <div className='button-main w-full text-center' onClick={() => setActiveTab('')}>Apply</div>
+                                    <button type="button" disabled={applyCouponMutation.isPending || !couponCode.trim()} className='button-main w-full text-center disabled:opacity-60' onClick={handleApplyCoupon}>{applyCouponMutation.isPending ? 'Applying...' : 'Apply'}</button>
                                     <div onClick={() => setActiveTab('')} className="text-button-uppercase mt-4 text-center has-line-before cursor-pointer inline-block">Cancel</div>
                                 </div>
                             </div>

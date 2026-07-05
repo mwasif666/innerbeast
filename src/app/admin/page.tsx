@@ -6,6 +6,7 @@ import {
   AppstoreOutlined,
   RightOutlined,
   ShoppingCartOutlined,
+  PercentageOutlined,
   TagsOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
@@ -55,6 +56,12 @@ const QUICK_ACTIONS: QuickAction[] = [
     description: "Track and fulfil customer orders.",
     icon: <ShoppingCartOutlined />,
     href: "/admin/orders",
+  },
+  {
+    label: "Manage Coupons",
+    description: "Create and manage storefront discount codes.",
+    icon: <PercentageOutlined />,
+    href: "/admin/coupons",
   },
 ];
 

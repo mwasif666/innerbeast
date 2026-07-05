@@ -29,6 +29,7 @@ export type CreateOrderPayload = {
     phone?: string;
   };
   paymentMethod?: "COD" | "CARD" | "BANK_TRANSFER" | "ONLINE";
+  couponCode?: string;
   notes?: string;
 };
 

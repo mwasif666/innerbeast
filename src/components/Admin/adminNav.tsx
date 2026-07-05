@@ -3,6 +3,7 @@ import {
   AppstoreOutlined,
   DashboardOutlined,
   ShoppingCartOutlined,
+  PercentageOutlined,
   TagsOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
@@ -19,6 +20,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { key: "/admin/categories", label: "Categories", icon: <TagsOutlined /> },
   { key: "/admin/products", label: "Products", icon: <AppstoreOutlined /> },
   { key: "/admin/orders", label: "Orders", icon: <ShoppingCartOutlined /> },
+  { key: "/admin/coupons", label: "Coupons", icon: <PercentageOutlined /> },
 ];
 
 export const getActiveKey = (pathname: string) => {
