@@ -213,7 +213,7 @@ const Cart = () => {
                                     </button>
                                 </form>
                             </div>
-                            {couponMessage && <div className="sm:mt-4 mt-3 rounded-lg border border-[#ef4444]/40 bg-[#ef4444]/10 px-4 py-3 text-[#ef4444]">{couponMessage}</div>}
+                            {couponMessage && <div className="sm:mt-4 mt-3 rounded-lg border border-success/40 bg-success/10 px-4 py-3 text-success flex items-center gap-2"><Icon.CheckCircle size={20} weight="fill" className="flex-shrink-0" />{couponMessage}</div>}
                             {couponError && <div className="sm:mt-4 mt-3 rounded-lg bg-red/10 px-4 py-3 text-red">{couponError}</div>}
                         </div>
                         <div className="xl:w-1/3 xl:pl-12 w-full">
@@ -225,7 +225,7 @@ const Cart = () => {
                                 </div>
                                 <div className="discount-block py-5 flex justify-between border-b border-line">
                                     <div className="text-title">Discounts</div>
-                                    <div className="text-title text-red">−{formatGBP(discountCart)}</div>
+                                    <div className="text-title text-success">−{formatGBP(discountCart)}</div>
                                 </div>
                                 <div className="ship-block py-5 flex justify-between border-b border-line">
                                     <div className="text-title">Shipping</div>
