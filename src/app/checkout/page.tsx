@@ -44,7 +44,7 @@ const CheckoutContent = () => {
     const shippingRequest = useRef(0)
     const [checkoutDetails, setCheckoutDetails] = useState({
         firstName: '', lastName: '', email: '', phone: '', country: 'United Kingdom',
-        city: '', state: '', street: '', apartment: '', postal: '',
+        city: '', street: '', apartment: '', postal: '',
     })
 
     const queryDiscount = Math.max(0, Number(searchParams.get('discount')) || 0)
@@ -75,7 +75,6 @@ const CheckoutContent = () => {
             phone: address?.phone || currentUser.phone || '',
             country: address?.country || 'United Kingdom',
             city: address?.city || '',
-            state: address?.state || '',
             street: address?.addressLine1 || '',
             apartment: address?.addressLine2 || '',
             postal: address?.postalCode || '',
@@ -312,8 +311,7 @@ const CheckoutContent = () => {
                                         <label><span>Email address *</span><input id="email" name="email" value={checkoutDetails.email} onChange={updateCheckoutDetail} type="email" placeholder="you@example.com" autoComplete="email" required /></label>
                                         <label><span>Phone number *</span><input id="phoneNumber" name="phone" value={checkoutDetails.phone} onChange={updateCheckoutDetail} type="tel" placeholder="+44 7700 900000" autoComplete="tel" required /></label>
                                         <label className={styles.fullWidth}><span>Country / region *</span><select id="region" name="country" value={checkoutDetails.country} onChange={updateCheckoutDetail} autoComplete="country-name" required>{COUNTRIES.map((country) => <option key={country.code} value={country.name}>{country.name}</option>)}</select></label>
-                                        <label><span>Town / city *</span><input id="city" name="city" value={checkoutDetails.city} onChange={updateCheckoutDetail} type="text" placeholder="e.g. London" autoComplete="address-level2" required /></label>
-                                        <label><span>County *</span><input id="state" name="state" value={checkoutDetails.state} onChange={updateCheckoutDetail} type="text" placeholder="e.g. Greater London" autoComplete="address-level1" required /></label>
+                                        <label className={styles.fullWidth}><span>Town / city *</span><input id="city" name="city" value={checkoutDetails.city} onChange={updateCheckoutDetail} type="text" placeholder="e.g. London" autoComplete="address-level2" required /></label>
                                         <label className={styles.fullWidth}><span>Street address *</span><input id="street" name="street" value={checkoutDetails.street} onChange={updateCheckoutDetail} type="text" placeholder="House number and street name" autoComplete="street-address" required /></label>
                                         <label><span>Apartment (optional)</span><input id="apartment" name="apartment" value={checkoutDetails.apartment} onChange={updateCheckoutDetail} type="text" placeholder="Apartment, suite, unit" /></label>
                                         <label><span>Postcode *</span><input id="postal" name="postal" value={checkoutDetails.postal} onChange={updateCheckoutDetail} type="text" placeholder="e.g. SW1A 1AA" autoComplete="postal-code" required /></label>
