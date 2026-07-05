@@ -6,6 +6,7 @@ import {
   PercentageOutlined,
   TagsOutlined,
   TeamOutlined,
+  TruckOutlined,
 } from "@ant-design/icons";
 
 export type AdminNavItem = {
@@ -21,6 +22,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { key: "/admin/products", label: "Products", icon: <AppstoreOutlined /> },
   { key: "/admin/orders", label: "Orders", icon: <ShoppingCartOutlined /> },
   { key: "/admin/coupons", label: "Coupons", icon: <PercentageOutlined /> },
+  { key: "/admin/shipping", label: "Shipping", icon: <TruckOutlined /> },
 ];
 
 export const getActiveKey = (pathname: string) => {
