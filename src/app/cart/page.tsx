@@ -33,6 +33,10 @@ const Cart = () => {
     const [couponError, setCouponError] = useState('')
     const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
 
+    useEffect(() => {
+        setCouponCode(appliedCoupon?.code || '')
+    }, [appliedCoupon?.code])
+
     const handleQuantityChange = (productId: string, newQuantity: number) => {
         // Tìm sản phẩm trong giỏ hàng
         const itemToUpdate = cartState.cartArray.find((item) => item.id === productId);
@@ -44,10 +48,8 @@ const Cart = () => {
         }
     };
 
-    let moneyForFreeship = 150;
     const totalCart = cartState.cartArray.reduce((total, item) => total + item.price * item.quantity, 0)
     const discountCart = Number(appliedCoupon?.discountAmount || 0)
-    let [shipCart, setShipCart] = useState<number>(30)
 
     const handleApplyCode = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
@@ -75,14 +77,6 @@ const Cart = () => {
         }
     }
 
-    if (totalCart < moneyForFreeship) {
-        shipCart = 30
-    }
-
-    if (cartState.cartArray.length === 0) {
-        shipCart = 0
-    }
-
     const redirectToCheckout = () => {
         router.push('/checkout')
     }
@@ -103,19 +97,6 @@ const Cart = () => {
                                 <div className="caption1 pl-2">Your cart will expire in
                                     <span className="min text-white text-button fw-700"> {timeLeft.minutes}:{timeLeft.seconds < 10 ? `0${timeLeft.seconds}` : timeLeft.seconds}</span>
                                     <span> minutes! Please checkout now before your items sell out!</span>
-                                </div>
-                            </div>
-                            <div className="heading banner mt-5">
-                                <div className="text">Buy
-                                    <span className="text-button text-red"> {formatGBP(Math.max(0, moneyForFreeship - totalCart))} </span>
-                                    <span>more to get </span>
-                                    <span className="text-button">freeship</span>
-                                </div>
-                                <div className="tow-bar-block mt-4">
-                                    <div
-                                        className="progress-line"
-                                        style={{ width: totalCart <= moneyForFreeship ? `${(totalCart / moneyForFreeship) * 100}%` : `100%` }}
-                                    ></div>
                                 </div>
                             </div>
                             <div className="list-product w-full sm:mt-7 mt-5">
@@ -219,61 +200,11 @@ const Cart = () => {
                                 </div>
                                 <div className="ship-block py-5 flex justify-between border-b border-line">
                                     <div className="text-title">Shipping</div>
-                                    <div className="choose-type flex gap-12">
-                                        <div className="left">
-                                            <div className="type">
-                                                {moneyForFreeship - totalCart > 0 ?
-                                                    (
-                                                        <input
-                                                            id="shipping"
-                                                            type="radio"
-                                                            name="ship"
-                                                            disabled
-                                                        />
-                                                    ) : (
-                                                        <input
-                                                            id="shipping"
-                                                            type="radio"
-                                                            name="ship"
-                                                            checked={shipCart === 0}
-                                                            onChange={() => setShipCart(0)}
-                                                        />
-                                                    )}
-                                                < label className="pl-1" htmlFor="shipping">Free Shipping:</label>
-                                            </div>
-                                            <div className="type mt-1">
-                                                <input
-                                                    id="local"
-                                                    type="radio"
-                                                    name="ship"
-                                                    value={30}
-                                                    checked={shipCart === 30}
-                                                    onChange={() => setShipCart(30)}
-                                                />
-                                                <label className="text-on-surface-variant1 pl-1" htmlFor="local">Local:</label>
-                                            </div>
-                                            <div className="type mt-1">
-                                                <input
-                                                    id="flat"
-                                                    type="radio"
-                                                    name="ship"
-                                                    value={40}
-                                                    checked={shipCart === 40}
-                                                    onChange={() => setShipCart(40)}
-                                                />
-                                                <label className="text-on-surface-variant1 pl-1" htmlFor="flat">Flat Rate:</label>
-                                            </div>
-                                        </div>
-                                        <div className="right">
-                                            <div className="ship">{formatGBP(0)}</div>
-                                            <div className="local text-on-surface-variant1 mt-1">{formatGBP(30)}</div>
-                                            <div className="flat text-on-surface-variant1 mt-1">{formatGBP(40)}</div>
-                                        </div>
-                                    </div>
+                                    <div className="text-on-surface-variant1 text-right">Calculated at checkout</div>
                                 </div>
                                 <div className="total-cart-block pt-4 pb-4 flex justify-between">
-                                    <div className="heading5">Total</div>
-                                    <div className="heading5 text-red">{formatGBP(totalCart - discountCart + shipCart)}</div>
+                                    <div><div className="heading5">Estimated total</div><div className="caption1 text-on-surface-variant1 mt-1">Excluding shipping</div></div>
+                                    <div className="heading5 text-red">{formatGBP(totalCart - discountCart)}</div>
                                 </div>
                                 <div className="block-button flex flex-col items-center gap-y-4 mt-5">
                                     <div className="checkout-btn button-main bg-[#ef4444] text-center w-full" onClick={redirectToCheckout}>Process To Checkout</div>

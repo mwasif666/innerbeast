@@ -34,6 +34,10 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
     const [couponError, setCouponError] = useState('')
     const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
 
+    useEffect(() => {
+        setCouponCode(appliedCoupon?.code || '')
+    }, [appliedCoupon?.code])
+
     const productsQuery = useProducts({ limit: 12, sort: 'newest', isActive: true })
 
     const suggestedProducts = useMemo(() => {
