@@ -24,10 +24,32 @@ const instrument = Instrument_Sans({
   adjustFontFallback: false,
 });
 
-export const metadata: Metadata = {
-  title: "Inner Beast",
-  description: "Inner Beast Store",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const fallback: Metadata = {
+    title: "Inner Beast",
+    description: "Inner Beast Store",
+  };
+
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) return fallback;
+
+  try {
+    const response = await fetch(`${apiUrl}/settings`, {
+      next: { revalidate: 300 },
+    });
+    if (!response.ok) return fallback;
+
+    const json = await response.json();
+    const seo = json?.data?.seo;
+
+    return {
+      title: seo?.metaTitle || json?.data?.storeName || "Inner Beast",
+      description: seo?.metaDescription || "Inner Beast Store",
+    };
+  } catch {
+    return fallback;
+  }
+}
 
 export default function RootLayout({
   children,

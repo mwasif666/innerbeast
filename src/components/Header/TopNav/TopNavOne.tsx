@@ -1,9 +1,11 @@
 'use client'
 
 import React, { useState } from 'react'
-import Link from 'next/link';
-import Image from 'next/image';
 import * as Icon from "@phosphor-icons/react/dist/ssr";
+
+import SocialLinks from '@/components/Shared/SocialLinks'
+import { usePublicSettings } from '@/hooks/useSettings'
+import { useStoreCurrency } from '@/hooks/useStoreCurrency'
 
 interface Props {
     props: string;
@@ -12,9 +14,14 @@ interface Props {
 
 const TopNavOne: React.FC<Props> = ({ props, slogan }) => {
     const [isOpenLanguage, setIsOpenLanguage] = useState(false)
-    const [isOpenCurrence, setIsOpenCurrence] = useState(false)
     const [language, setLanguage] = useState('English')
-    const [currence, setCurrence] = useState('GBP')
+    const { code: currence } = useStoreCurrency()
+    const { data, isSuccess } = usePublicSettings()
+
+    const announcement = data?.data?.announcement
+    const sloganText = isSuccess
+        ? (announcement?.enabled && announcement.text?.trim()) || ''
+        : slogan
 
     return (
         <>
@@ -26,7 +33,6 @@ const TopNavOne: React.FC<Props> = ({ props, slogan }) => {
                                 className="choose-type choose-language flex items-center gap-1.5"
                                 onClick={() => {
                                     setIsOpenLanguage(!isOpenLanguage)
-                                    setIsOpenCurrence(false)
                                 }}
                             >
                                 <div className="select relative">
@@ -41,45 +47,15 @@ const TopNavOne: React.FC<Props> = ({ props, slogan }) => {
                                 </div>
                                 <Icon.CaretDown size={12} color='#fff' />
                             </div>
-                            <div
-                                className="choose-type choose-currency flex items-center gap-1.5"
-                                onClick={() => {
-                                    setIsOpenCurrence(!isOpenCurrence)
-                                    setIsOpenLanguage(false)
-                                }}
-                            >
-                                <div className="select relative">
-                                    <p className="selected caption2 text-white">{currence}</p>
-                                    <ul className={`list-option bg-white ${isOpenCurrence ? 'open' : ''}`}>
-                                        {
-                                            ['GBP', 'EUR', 'USD'].map((item, index) => (
-                                                <li key={index} className="caption2" onClick={() => setCurrence(item)}>{item}</li>
-                                            ))
-                                        }
-                                    </ul>
-                                </div>
-                                <Icon.CaretDown size={12} color='#fff' />
+                            <div className="choose-type choose-currency flex items-center gap-1.5">
+                                <p className="selected caption2 text-white">{currence}</p>
                             </div>
                         </div>
                         <div className="text-center text-button-uppercase text-white flex items-center">
-                            {slogan}
+                            {sloganText}
                         </div>
                         <div className="right-content flex items-center gap-5 max-md:hidden">
-                            <Link href={'https://www.facebook.com/'} target='_blank'>
-                                <i className="icon-facebook text-white"></i>
-                            </Link>
-                            <Link href={'https://www.instagram.com/'} target='_blank'>
-                                <i className="icon-instagram text-white"></i>
-                            </Link>
-                            <Link href={'https://www.youtube.com/'} target='_blank'>
-                                <i className="icon-youtube text-white"></i>
-                            </Link>
-                            <Link href={'https://twitter.com/'} target='_blank'>
-                                <i className="icon-twitter text-white"></i>
-                            </Link>
-                            <Link href={'https://pinterest.com/'} target='_blank'>
-                                <i className="icon-pinterest text-white"></i>
-                            </Link>
+                            <SocialLinks iconClassName='text-white' iconSize={16} />
                         </div>
 
                     </div>

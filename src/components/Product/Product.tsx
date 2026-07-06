@@ -15,6 +15,7 @@ import { useModalQuickviewContext } from '@/context/ModalQuickviewContext'
 import { useRouter } from 'next/navigation'
 import Marquee from 'react-fast-marquee'
 import Rate from '../Other/Rate'
+import { useStoreCurrency } from '@/hooks/useStoreCurrency'
 
 interface ProductProps {
     data: ProductType
@@ -90,7 +91,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
 
     let percentSale = Math.floor(100 - ((data.price / data.originPrice) * 100))
     let percentSold = Math.floor((data.sold / data.quantity) * 100)
-    const currency = data.currency ?? '$'
+    const { format: formatPrice } = useStoreCurrency()
 
     return (
         <>
@@ -456,10 +457,10 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
                                 </div>
                             )}
                             <div className="product-price-block flex items-center gap-2 flex-wrap mt-1 duration-300 relative z-[1]">
-                                <div className="product-price text-title">{currency}{data.price.toLocaleString()}</div>
+                                <div className="product-price text-title">{formatPrice(data.price)}</div>
                                 {percentSale > 0 && (
                                     <>
-                                        <div className="product-origin-price caption1 text-secondary2"><del>{currency}{data.originPrice.toLocaleString()}</del></div>
+                                        <div className="product-origin-price caption1 text-secondary2"><del>{formatPrice(data.originPrice)}</del></div>
                                         <div className="product-sale caption1 font-medium bg-green px-3 py-0.5 inline-block rounded-full">
                                             -{percentSale}%
                                         </div>
@@ -559,8 +560,8 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
                                         <div className="product-infor max-sm:w-full">
                                             <div onClick={handleDetailProduct} className="product-name heading6 inline-block duration-300">{data.name}</div>
                                             <div className="product-price-block flex items-center gap-2 flex-wrap mt-2 duration-300 relative z-[1]">
-                                                <div className="product-price text-title">{currency}{data.price.toLocaleString()}</div>
-                                                <div className="product-origin-price caption1 text-secondary2"><del>{currency}{data.originPrice.toLocaleString()}</del></div>
+                                                <div className="product-price text-title">{formatPrice(data.price)}</div>
+                                                <div className="product-origin-price caption1 text-secondary2"><del>{formatPrice(data.originPrice)}</del></div>
                                                 {data.originPrice && (
                                                     <div className="product-sale caption1 font-medium bg-green px-3 py-0.5 inline-block rounded-full">
                                                         -{percentSale}%
@@ -735,7 +736,7 @@ const Product: React.FC<ProductProps> = ({ data, type, style = '' }) => {
                         <div className="flex gap-0.5 mt-1">
                             <Rate currentRate={data.rate} size={16} />
                         </div>
-                        <span className="text-title inline-block mt-1">{currency}{data.price.toLocaleString()}</span>
+                        <span className="text-title inline-block mt-1">{formatPrice(data.price)}</span>
                     </div>
                 </div>
             ) : (

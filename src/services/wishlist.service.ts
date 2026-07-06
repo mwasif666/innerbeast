@@ -1,5 +1,6 @@
 import api from "./api";
 import { ProductType } from "@/type/ProductType";
+import { DEFAULT_CURRENCY } from "@/utils/currency";
 
 type BackendImage = string | { url?: string; alt?: string };
 
@@ -74,7 +75,7 @@ export const backendProductToProductType = (
     rate: Number(product.ratingsAverage || 0),
     price: activePrice,
     originPrice: originalPrice,
-    currency: "£",
+    currency: DEFAULT_CURRENCY.symbol,
     brand: "Inner Beast",
     sold: 0,
     quantity: Number(product.stock || 0),

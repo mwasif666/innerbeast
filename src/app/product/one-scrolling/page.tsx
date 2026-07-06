@@ -14,6 +14,7 @@ import { toStorefrontProduct } from '@/utils/productAdapter'
 import { useCart } from '@/context/CartContext'
 import { useModalCartContext } from '@/context/ModalCartContext'
 import { useWishlist } from '@/context/WishlistContext'
+import { useStoreCurrency } from '@/hooks/useStoreCurrency'
 
 const ProductOneScrollingContent = () => {
     const searchParams = useSearchParams()
@@ -23,6 +24,7 @@ const ProductOneScrollingContent = () => {
     const { cartState, addToCart, updateCart } = useCart()
     const { openModalCart } = useModalCartContext()
     const { wishlistState, addToWishlist, removeFromWishlist } = useWishlist()
+    const { format: formatPrice } = useStoreCurrency()
 
     const product = useMemo(
         () => productQuery.data?.data
@@ -174,11 +176,11 @@ const ProductOneScrollingContent = () => {
                                     <h1 className="heading2 mt-2">{product.name}</h1>
 
                                     <div className="flex items-center gap-3 mt-5">
-                                        <span className="heading5">£{product.price.toLocaleString("en-GB")}</span>
+                                        <span className="heading5">{formatPrice(product.price)}</span>
                                         {product.sale && (
                                             <>
                                                 <del className="text-secondary2">
-                                                    £{product.originPrice.toLocaleString("en-GB")}
+                                                    {formatPrice(product.originPrice)}
                                                 </del>
                                                 <span className="caption1 bg-green text-black px-3 py-1 rounded-full">
                                                     -{salePercent}%

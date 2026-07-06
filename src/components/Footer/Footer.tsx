@@ -1,9 +1,25 @@
+'use client'
+
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import * as Icon from "@phosphor-icons/react/dist/ssr";
 
+import SocialLinks from '@/components/Shared/SocialLinks'
+import { usePublicSettings } from '@/hooks/useSettings'
+
 const Footer = () => {
+    const { data, isSuccess } = usePublicSettings()
+    const settings = data?.data
+
+    const storeName = settings?.storeName || 'Innerbeast'
+    const tagline = isSuccess
+        ? settings?.storeTagline || ''
+        : 'Premium essentials built to move with you. Unleash your inner beast.'
+    const email = isSuccess ? settings?.supportEmail || '' : 'hi.avitex@gmail.com'
+    const phone = isSuccess ? settings?.supportPhone || '' : '1-333-345-6868'
+    const address = isSuccess ? settings?.address || '' : '549 Oak St. Crystal Lake, IL 60014'
+
     return (
         <>
             <div id="footer" className='footer'>
@@ -40,22 +56,30 @@ const Footer = () => {
                                         className='w-auto h-12 object-contain'
                                     />
                                 </Link>
-                                <div className="caption1 text-white/55 mt-5 max-w-[320px]">
-                                    Premium essentials built to move with you. Unleash your inner beast.
-                                </div>
+                                {tagline && (
+                                    <div className="caption1 text-white/55 mt-5 max-w-[320px]">
+                                        {tagline}
+                                    </div>
+                                )}
                                 <div className='flex flex-col gap-3 mt-6'>
-                                    <div className="flex items-center gap-3 text-white/80">
-                                        <Icon.Envelope size={18} className='text-white/40' />
-                                        <span>hi.avitex@gmail.com</span>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-white/80">
-                                        <Icon.Phone size={18} className='text-white/40' />
-                                        <span>1-333-345-6868</span>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-white/80">
-                                        <Icon.MapPin size={18} className='text-white/40' />
-                                        <span>549 Oak St. Crystal Lake, IL 60014</span>
-                                    </div>
+                                    {email && (
+                                        <div className="flex items-center gap-3 text-white/80">
+                                            <Icon.Envelope size={18} className='text-white/40' />
+                                            <span>{email}</span>
+                                        </div>
+                                    )}
+                                    {phone && (
+                                        <div className="flex items-center gap-3 text-white/80">
+                                            <Icon.Phone size={18} className='text-white/40' />
+                                            <span>{phone}</span>
+                                        </div>
+                                    )}
+                                    {address && (
+                                        <div className="flex items-center gap-3 text-white/80">
+                                            <Icon.MapPin size={18} className='text-white/40' />
+                                            <span>{address}</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -88,21 +112,11 @@ const Footer = () => {
                             <div className="item flex flex-col col-span-2 max-md:col-span-6">
                                 <div className="text-button-uppercase pb-4 text-white">Follow us</div>
                                 <div className="list-social flex flex-wrap items-center gap-3">
-                                    <Link href={'https://www.facebook.com/'} target='_blank' className='w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-white hover:bg-white hover:text-black duration-300'>
-                                        <div className="icon-facebook text-xl"></div>
-                                    </Link>
-                                    <Link href={'https://www.instagram.com/'} target='_blank' className='w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-white hover:bg-white hover:text-black duration-300'>
-                                        <div className="icon-instagram text-xl"></div>
-                                    </Link>
-                                    <Link href={'https://www.twitter.com/'} target='_blank' className='w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-white hover:bg-white hover:text-black duration-300'>
-                                        <div className="icon-twitter text-xl"></div>
-                                    </Link>
-                                    <Link href={'https://www.youtube.com/'} target='_blank' className='w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-white hover:bg-white hover:text-black duration-300'>
-                                        <div className="icon-youtube text-xl"></div>
-                                    </Link>
-                                    <Link href={'https://www.pinterest.com/'} target='_blank' className='w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-white hover:bg-white hover:text-black duration-300'>
-                                        <div className="icon-pinterest text-xl"></div>
-                                    </Link>
+                                    <SocialLinks
+                                        linkClassName='w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-white hover:bg-white hover:text-black duration-300'
+                                        iconClassName='text-xl'
+                                        iconSize={20}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -110,7 +124,7 @@ const Footer = () => {
                         {/* ===== Bottom bar ===== */}
                         <div className="footer-bottom py-6 flex items-center justify-between gap-5 max-lg:justify-center max-lg:flex-col border-t border-white/10">
                             <div className="left flex items-center gap-8 max-md:flex-col max-md:gap-3">
-                                <div className="copyright caption1 text-white/50">©2026 Innerbeast. All Rights Reserved.</div>
+                                <div className="copyright caption1 text-white/50">©{new Date().getFullYear()} {storeName}. All Rights Reserved.</div>
                                 <div className="select-block flex items-center gap-5 max-md:hidden">
                                     <div className="choose-language flex items-center gap-1.5">
                                         <select name="language" id="chooseLanguageFooter" className='caption2 bg-transparent text-white/70 [&>option]:text-black'>

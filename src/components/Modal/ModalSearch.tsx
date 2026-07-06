@@ -8,6 +8,7 @@ import { useModalSearchContext } from '@/context/ModalSearchContext'
 import { useProducts } from '@/hooks/useProducts'
 import { toStorefrontProduct } from '@/utils/productAdapter'
 import { ProductType } from '@/type/ProductType'
+import { useStoreCurrency } from '@/hooks/useStoreCurrency'
 
 const FEATURE_KEYWORDS = ['t-shirt', 'shorts', 'joggers', 'duffle bag', 'accessories']
 const MAX_RESULTS = 6
@@ -16,6 +17,7 @@ const ModalSearch = () => {
     const { isModalOpen, closeModalSearch } = useModalSearchContext();
     const [searchKeyword, setSearchKeyword] = useState('');
     const router = useRouter()
+    const { format: formatPrice } = useStoreCurrency()
 
     const productsQuery = useProducts({ limit: 100, sort: 'newest', isActive: true })
 
@@ -140,7 +142,6 @@ const ModalSearch = () => {
                     ) : (
                         <div className="grid mt-4 gap-2">
                             {visibleProducts.map((product) => {
-                                const currency = product.currency ?? '$'
                                 const onSale = product.price < product.originPrice
                                 return (
                                     <div
@@ -162,9 +163,9 @@ const ModalSearch = () => {
                                             <div className="caption1 text-secondary capitalize">{product.type}</div>
                                         </div>
                                         <div className="text-right flex-shrink-0">
-                                            <div className="text-title text-black">{currency}{product.price}</div>
+                                            <div className="text-title text-black">{formatPrice(product.price)}</div>
                                             {onSale && (
-                                                <div className="caption1 text-secondary line-through">{currency}{product.originPrice}</div>
+                                                <div className="caption1 text-secondary line-through">{formatPrice(product.originPrice)}</div>
                                             )}
                                         </div>
                                     </div>

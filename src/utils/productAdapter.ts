@@ -1,5 +1,6 @@
 import { Product } from '@/services/product.service'
 import { ProductType } from '@/type/ProductType'
+import { DEFAULT_CURRENCY } from '@/utils/currency'
 
 const FALLBACK_IMAGE = '/images/product/pf-1.jpg'
 const ALLOWED_IMAGE_HOSTS = new Set([
@@ -40,7 +41,7 @@ export const toStorefrontProduct = (product: Product): ProductType => {
     rate: product.ratingsAverage || 0,
     price: salePrice,
     originPrice: product.price,
-    currency: '£',
+    currency: DEFAULT_CURRENCY.symbol,
     brand: 'Inner Beast',
     sold: product.ratingsCount || 0,
     quantity: product.stock || 0,

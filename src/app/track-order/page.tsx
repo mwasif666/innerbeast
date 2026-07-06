@@ -10,9 +10,9 @@ import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
 import Footer from "@/components/Footer/Footer";
 import { useTrackOrder } from "@/hooks/useOrders";
 import { Order, OrderItem } from "@/services/order.service";
+import { formatMoney } from "@/utils/currency";
 
-const money = (value?: number) =>
-  new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(Number(value || 0));
+const money = (value?: number) => formatMoney(value);
 
 const date = (value?: string) => {
   if (!value) return "-";

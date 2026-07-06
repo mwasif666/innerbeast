@@ -4,15 +4,17 @@ import React, { useState } from 'react'
 import Link from 'next/link';
 import * as Icon from "@phosphor-icons/react/dist/ssr";
 
+import SocialLinks from '@/components/Shared/SocialLinks'
+import { useStoreCurrency } from '@/hooks/useStoreCurrency'
+
 interface Props {
     props: string;
 }
 
 const TopNavThree: React.FC<Props> = ({ props }) => {
     const [isOpenLanguage, setIsOpenLanguage] = useState(false)
-    const [isOpenCurrence, setIsOpenCurrence] = useState(false)
     const [language, setLanguage] = useState('English')
-    const [currence, setCurrence] = useState('GBP')
+    const { code: currence } = useStoreCurrency()
 
     return (
         <>
@@ -48,7 +50,6 @@ const TopNavThree: React.FC<Props> = ({ props }) => {
                                 className="choose-type choose-language flex items-center gap-1.5"
                                 onClick={() => {
                                     setIsOpenLanguage(!isOpenLanguage)
-                                    setIsOpenCurrence(false)
                                 }}
                             >
                                 <div className="select relative">
@@ -63,40 +64,10 @@ const TopNavThree: React.FC<Props> = ({ props }) => {
                                 </div>
                                 <Icon.CaretDown size={12} />
                             </div>
-                            <div
-                                className="choose-type choose-currency flex items-center gap-1.5"
-                                onClick={() => {
-                                    setIsOpenCurrence(!isOpenCurrence)
-                                    setIsOpenLanguage(false)
-                                }}
-                            >
-                                <div className="select relative">
-                                    <p className="selected caption2">{currence}</p>
-                                    <ul className={`list-option bg-white ${isOpenCurrence ? 'open' : ''}`}>
-                                        {
-                                            ['GBP', 'EUR', 'USD'].map((item, index) => (
-                                                <li key={index} className="caption2" onClick={() => setCurrence(item)}>{item}</li>
-                                            ))
-                                        }
-                                    </ul>
-                                </div>
-                                <Icon.CaretDown size={12} />
+                            <div className="choose-type choose-currency flex items-center gap-1.5">
+                                <p className="selected caption2">{currence}</p>
                             </div>
-                            <Link href={'https://www.facebook.com/'} target='_blank'>
-                                <i className="icon-facebook text-black"></i>
-                            </Link>
-                            <Link href={'https://www.instagram.com/'} target='_blank'>
-                                <i className="icon-instagram text-black"></i>
-                            </Link>
-                            <Link href={'https://www.youtube.com/'} target='_blank'>
-                                <i className="icon-youtube text-black"></i>
-                            </Link>
-                            <Link href={'https://twitter.com/'} target='_blank'>
-                                <i className="icon-twitter text-black"></i>
-                            </Link>
-                            <Link href={'https://pinterest.com/'} target='_blank'>
-                                <i className="icon-pinterest text-black"></i>
-                            </Link>
+                            <SocialLinks iconClassName='text-black' iconSize={16} />
                         </div>
 
                     </div>

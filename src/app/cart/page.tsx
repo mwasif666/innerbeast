@@ -10,14 +10,12 @@ import Footer from '@/components/Footer/Footer'
 import * as Icon from "@phosphor-icons/react/dist/ssr";
 import { useCart } from '@/context/CartContext'
 import { countdownTime } from '@/store/countdownTime'
-
-const formatGBP = (value: number) => new Intl.NumberFormat('en-GB', {
-    style: 'currency', currency: 'GBP', minimumFractionDigits: 2,
-}).format(value)
+import { useStoreCurrency } from '@/hooks/useStoreCurrency'
 
 const Cart = () => {
     const [timeLeft, setTimeLeft] = useState(countdownTime());
     const router = useRouter()
+    const { format: formatPrice } = useStoreCurrency()
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -68,8 +66,8 @@ const Cart = () => {
             setCouponCode(code)
             const offer = coupon?.discountType === 'percentage' && coupon.discountValue
                 ? `${coupon.discountValue}% off`
-                : `${formatGBP(discountAmount)} off`
-            setCouponMessage(`${code} applied — ${offer}. You saved ${formatGBP(discountAmount)}.`)
+                : `${formatPrice(discountAmount)} off`
+            setCouponMessage(`${code} applied — ${offer}. You saved ${formatPrice(discountAmount)}.`)
         } catch (error) {
             setCouponError((error as Error).message || 'Coupon could not be applied.')
         } finally {
@@ -141,7 +139,7 @@ const Cart = () => {
                                                         </div>
                                                     </div>
                                                     <div className="w-1/12 price flex items-center justify-center">
-                                                        <div className="text-title text-center">{formatGBP(product.price)}</div>
+                                                        <div className="text-title text-center">{formatPrice(product.price)}</div>
                                                     </div>
                                                     <div className="w-1/6 flex items-center justify-center">
                                                         <div className="quantity-block bg-surface text-black md:p-3 p-2 flex items-center justify-between rounded-lg border border-line md:w-[100px] flex-shrink-0 w-20">
@@ -161,7 +159,7 @@ const Cart = () => {
                                                         </div>
                                                     </div>
                                                     <div className="w-1/6 flex total-price items-center justify-center">
-                                                        <div className="text-title text-center">{formatGBP(product.quantity * product.price)}</div>
+                                                        <div className="text-title text-center">{formatPrice(product.quantity * product.price)}</div>
                                                     </div>
                                                     <div className="w-1/12 flex items-center justify-center">
                                                         <Icon.XCircle
@@ -192,11 +190,11 @@ const Cart = () => {
                                 <div className="heading5">Order Summary</div>
                                 <div className="total-block py-5 flex justify-between border-b border-line">
                                     <div className="text-title">Subtotal</div>
-                                    <div className="text-title">{formatGBP(totalCart)}</div>
+                                    <div className="text-title">{formatPrice(totalCart)}</div>
                                 </div>
                                 <div className="discount-block py-5 flex justify-between border-b border-line">
                                     <div className="text-title">Discounts</div>
-                                    <div className="text-title text-success">−{formatGBP(discountCart)}</div>
+                                    <div className="text-title text-success">−{formatPrice(discountCart)}</div>
                                 </div>
                                 <div className="ship-block py-5 flex justify-between border-b border-line">
                                     <div className="text-title">Shipping</div>
@@ -204,7 +202,7 @@ const Cart = () => {
                                 </div>
                                 <div className="total-cart-block pt-4 pb-4 flex justify-between">
                                     <div><div className="heading5">Estimated total</div><div className="caption1 text-on-surface-variant1 mt-1">Excluding shipping</div></div>
-                                    <div className="heading5 text-red">{formatGBP(totalCart - discountCart)}</div>
+                                    <div className="heading5 text-red">{formatPrice(totalCart - discountCart)}</div>
                                 </div>
                                 <div className="block-button flex flex-col items-center gap-y-4 mt-5">
                                     <div className="checkout-btn button-main bg-[#ef4444] text-center w-full" onClick={redirectToCheckout}>Process To Checkout</div>

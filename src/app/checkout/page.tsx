@@ -15,6 +15,7 @@ import { useCreateOrder } from '@/hooks/useOrders'
 import { useCalculateShipping } from '@/hooks/useShipping'
 import { CreateOrderPayload } from '@/services/order.service'
 import { COUNTRIES } from '@/data/countries'
+import { useStoreCurrency } from '@/hooks/useStoreCurrency'
 import styles from './checkout.module.scss'
 
 type PaymentMethod = 'credit-card' | 'cash-delivery' | 'paypal'
@@ -56,9 +57,7 @@ const CheckoutContent = () => {
         [cartState.cartArray]
     )
     const total = Math.max(0, subtotal - discount + (shipping || 0))
-    const formatPrice = (value: number) => new Intl.NumberFormat('en-GB', {
-        style: 'currency', currency: 'GBP', minimumFractionDigits: 2,
-    }).format(value)
+    const { format: formatPrice } = useStoreCurrency()
 
     useEffect(() => {
         setCouponInput(couponCode)

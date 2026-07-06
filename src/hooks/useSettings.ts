@@ -18,6 +18,7 @@ export const usePublicSettings = () => {
     queryKey: settingsKeys.public(),
     queryFn: getPublicSettings,
     staleTime: 1000 * 60 * 5,
+    retry: 1,
   });
 };
 

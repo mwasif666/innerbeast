@@ -12,13 +12,14 @@ import Footer from "@/components/Footer/Footer";
 import { useChangePassword, useCurrentUser, useLogout, useUpdateMe } from "@/hooks/useAuth";
 import { useCancelOrder, useMyOrders } from "@/hooks/useOrders";
 import { extractOrders, getOrderById, OrderItem, Order } from "@/services/order.service";
+import { formatMoney } from "@/utils/currency";
 import styles from "./account.module.scss";
 
 type Tab = "dashboard" | "orders" | "address" | "settings";
 
 const CANCELLABLE_STATUSES = ["pending", "confirmed", "processing"];
 
-const money = (value?: number) => new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(Number(value || 0));
+const money = (value?: number) => formatMoney(value);
 const date = (value?: string) => value ? new Intl.DateTimeFormat("en-PK", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(value)) : "-";
 const itemName = (item: OrderItem) => item.title || item.name || (typeof item.product === "object" ? item.product.title || item.product.name : "") || "Product";
 const itemImage = (item: OrderItem) => typeof item.image === "string" ? item.image : item.image?.url || (typeof item.product === "object" ? (typeof item.product.images?.[0] === "string" ? item.product.images[0] : item.product.images?.[0]?.url) : "") || "";

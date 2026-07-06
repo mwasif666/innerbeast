@@ -11,13 +11,11 @@ import { useProducts } from '@/hooks/useProducts'
 import { toStorefrontProduct } from '@/utils/productAdapter'
 import { countdownTime } from '@/store/countdownTime'
 import CountdownTimeType from '@/type/CountdownType';
-
-const formatGBP = (value: number) => new Intl.NumberFormat('en-GB', {
-    style: 'currency', currency: 'GBP', minimumFractionDigits: 2,
-}).format(value)
+import { useStoreCurrency } from '@/hooks/useStoreCurrency'
 
 const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) => {
     const [timeLeft, setTimeLeft] = useState(serverTimeLeft);
+    const { format: formatPrice } = useStoreCurrency()
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -114,8 +112,8 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                         <div className=''>
                                             <div className="name text-button">{product.name}</div>
                                             <div className="flex items-center gap-2 mt-2">
-                                            <div className="product-price text-title">{formatGBP(product.price)}</div>
-                                            <div className="product-origin-price text-title text-secondary2"><del>{formatGBP(product.originPrice)}</del></div>
+                                            <div className="product-price text-title">{formatPrice(product.price)}</div>
+                                            <div className="product-origin-price text-title text-secondary2"><del>{formatPrice(product.originPrice)}</del></div>
                                             </div>
                                         </div>
                                     </div>
@@ -151,7 +149,7 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                             </div>
                         </div>
                         <div className="heading banner mt-3 px-6">
-                            <div className="text">Buy <span className="text-button text-red"> {formatGBP(Math.max(0, moneyForFreeship - totalCart))} </span>
+                            <div className="text">Buy <span className="text-button text-red"> {formatPrice(Math.max(0, moneyForFreeship - totalCart))} </span>
                                 <span>more to get </span>
                                 <span className="text-button">freeship</span></div>
                             <div className="tow-bar-block mt-3">
@@ -190,7 +188,7 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                                     {(product.selectedColor || product.variation?.[0]?.color) ? ' / ' : ''}
                                                     {product.selectedColor || product.variation?.[0]?.color || ''}
                                                 </div>
-                                                <div className="product-price text-title">{formatGBP(product.price)}</div>
+                                                <div className="product-price text-title">{formatPrice(product.price)}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -223,9 +221,9 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                             </div>
                             <div className="flex items-center justify-between pt-6 px-6">
                                 <div className="heading5">Subtotal</div>
-                                <div className="heading5">{formatGBP(totalCart)}</div>
+                                <div className="heading5">{formatPrice(totalCart)}</div>
                             </div>
-                            {modalDiscount > 0 && <div className="flex items-center justify-between pt-2 px-6 text-[#ef4444]"><div>Coupon ({appliedCoupon?.code}){appliedCoupon?.discountType === 'percentage' && appliedCoupon.discountValue ? ` · ${appliedCoupon.discountValue}% off` : ''}</div><div>−{formatGBP(modalDiscount)} saved</div></div>}
+                            {modalDiscount > 0 && <div className="flex items-center justify-between pt-2 px-6 text-[#ef4444]"><div>Coupon ({appliedCoupon?.code}){appliedCoupon?.discountType === 'percentage' && appliedCoupon.discountValue ? ` · ${appliedCoupon.discountValue}% off` : ''}</div><div>−{formatPrice(modalDiscount)} saved</div></div>}
                             <div className="block-button text-center p-6">
                                 <div className="flex items-center gap-4">
                                     <Link

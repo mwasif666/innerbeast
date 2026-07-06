@@ -6,8 +6,20 @@ import TopNavOne from '@/components/Header/TopNav/TopNavOne'
 import MenuOne from '@/components/Header/Menu/MenuOne'
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb';
 import Footer from '@/components/Footer/Footer'
+import { usePublicSettings } from '@/hooks/useSettings'
 
 const ContactUs = () => {
+    const { data, isSuccess } = usePublicSettings()
+    const settings = data?.data
+
+    const address = isSuccess
+        ? settings?.address || ''
+        : '2163 Phillips Gap Rd, West Jefferson, North Carolina, United States'
+    const phone = isSuccess ? settings?.supportPhone || '' : '+1 666 8888'
+    const email = isSuccess ? settings?.supportEmail || '' : 'hi.avitex@gmail.com'
+    const whatsapp = settings?.whatsappPhone || ''
+    const whatsappLink = `https://wa.me/${whatsapp.replace(/[^\d]/g, '')}`
+
     return (
         <>
             <TopNavOne props="style-one bg-black" slogan="New customers save 10% with the code GET10" />
@@ -41,9 +53,12 @@ const ContactUs = () => {
                         <div className="right lg:w-1/4 lg:pl-4">
                             <div className="item">
                                 <div className="heading4">Our Store</div>
-                                <p className="mt-3">2163 Phillips Gap Rd, West Jefferson, North Carolina, United States</p>
-                                <p className="mt-3">Phone: <span className='whitespace-nowrap'>+1 666 8888</span></p>
-                                <p className="mt-1">Email: <span className='whitespace-nowrap'>hi.avitex@gmail.com</span></p>
+                                {address && <p className="mt-3">{address}</p>}
+                                {phone && <p className="mt-3">Phone: <span className='whitespace-nowrap'>{phone}</span></p>}
+                                {email && <p className="mt-1">Email: <span className='whitespace-nowrap'>{email}</span></p>}
+                                {whatsapp && (
+                                    <p className="mt-1">WhatsApp: <Link href={whatsappLink} target='_blank' className='whitespace-nowrap underline'>{whatsapp}</Link></p>
+                                )}
                             </div>
                             <div className="item mt-10">
                                 <div className="heading4">Open Hours</div>
