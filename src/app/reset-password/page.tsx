@@ -29,11 +29,12 @@ const ResetPasswordContent = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const formElement = event.currentTarget;
 
     setError("");
     setMessage("");
 
-    const formData = new FormData(event.currentTarget);
+    const formData = new FormData(formElement);
     const password = String(formData.get("password") || "");
     const confirmPassword = String(formData.get("confirmPassword") || "");
 
@@ -67,7 +68,7 @@ const ResetPasswordContent = () => {
       });
 
       setMessage(response.message || "Password has been reset successfully.");
-      event.currentTarget.reset();
+      formElement.reset();
     } catch (err) {
       setError(
         (err as Error).message ||
