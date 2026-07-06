@@ -10,10 +10,15 @@ import {
   registerUser,
   updateMe,
   changePassword,
+  forgotPassword,
+  verifyResetToken,
+  resetPassword,
   LoginPayload,
   RegisterPayload,
   UpdateProfilePayload,
   ChangePasswordPayload,
+  ForgotPasswordPayload,
+  ResetPasswordPayload,
 } from "../services/auth.service";
 
 export const useCurrentUser = () => {
@@ -74,6 +79,33 @@ export const useUpdateMe = () => {
 export const useChangePassword = () => {
   return useMutation({
     mutationFn: (payload: ChangePasswordPayload) => changePassword(payload),
+  });
+};
+
+export const useForgotPassword = () => {
+  return useMutation({
+    mutationFn: (payload: ForgotPasswordPayload) => forgotPassword(payload),
+  });
+};
+
+export const useVerifyResetToken = (token: string, enabled = true) => {
+  return useQuery({
+    queryKey: ["auth", "reset-token", token],
+    queryFn: () => verifyResetToken(token),
+    enabled: Boolean(token) && enabled,
+    retry: false,
+  });
+};
+
+export const useResetPassword = () => {
+  return useMutation({
+    mutationFn: ({
+      token,
+      payload,
+    }: {
+      token: string;
+      payload: ResetPasswordPayload;
+    }) => resetPassword(token, payload),
   });
 };
 
