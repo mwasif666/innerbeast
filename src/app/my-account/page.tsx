@@ -11,7 +11,7 @@ import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
 import Footer from "@/components/Footer/Footer";
 import { useChangePassword, useCurrentUser, useLogout, useUpdateMe } from "@/hooks/useAuth";
 import { useCancelOrder, useMyOrders } from "@/hooks/useOrders";
-import { extractOrders, OrderItem, Order } from "@/services/order.service";
+import { extractOrders, getOrderById, OrderItem, Order } from "@/services/order.service";
 import styles from "./account.module.scss";
 
 type Tab = "dashboard" | "orders" | "address" | "settings";
@@ -24,6 +24,13 @@ const itemName = (item: OrderItem) => item.title || item.name || (typeof item.pr
 const itemImage = (item: OrderItem) => typeof item.image === "string" ? item.image : item.image?.url || (typeof item.product === "object" ? (typeof item.product.images?.[0] === "string" ? item.product.images[0] : item.product.images?.[0]?.url) : "") || "";
 const itemColor = (item: OrderItem) => { const color = item.color || item.selectedColor; return typeof color === "object" ? color.name : color || ""; };
 const canCancelOrder = (order: Order) => CANCELLABLE_STATUSES.includes(String(order.orderStatus || "pending"));
+const labelize = (value?: string) => String(value || "Not available").replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+const firstNumber = (...values: Array<number | undefined>) => values.find((value) => typeof value === "number") || 0;
+const orderSubtotal = (order: Order) => firstNumber(order.subtotal, order.items.reduce((sum, item) => sum + firstNumber(item.lineTotal, Number(item.price || 0) * Number(item.quantity || 0)), 0));
+const orderDiscount = (order: Order) => firstNumber(order.discountTotal, order.discount, order.coupon?.discountAmount, order.appliedCoupon?.discountAmount);
+const orderShipping = (order: Order) => firstNumber(order.shippingFee, order.shipping);
+const orderTotal = (order: Order) => firstNumber(order.grandTotal, order.totalAmount, order.total, orderSubtotal(order) - orderDiscount(order) + orderShipping(order));
+const couponCode = (order: Order) => order.coupon?.code || order.appliedCoupon?.code || order.couponCode || "";
 
 const MyAccount = () => {
   const router = useRouter();
@@ -31,6 +38,10 @@ const MyAccount = () => {
   const [notice, setNotice] = useState<{ text: string; error?: boolean } | null>(null);
   const [cancelTarget, setCancelTarget] = useState<Order | null>(null);
   const [cancelReason, setCancelReason] = useState("");
+  const [orderDetails, setOrderDetails] = useState<Record<string, Order>>({});
+  const [detailLoading, setDetailLoading] = useState<Record<string, boolean>>({});
+  const [detailErrors, setDetailErrors] = useState<Record<string, string>>({});
+  const [openOrders, setOpenOrders] = useState<Record<string, boolean>>({});
   const userQuery = useCurrentUser();
   const user = userQuery.data?.data;
   const ordersQuery = useMyOrders(Boolean(user));
@@ -107,6 +118,26 @@ const MyAccount = () => {
 
   const logout = async () => { await logoutMutation.mutateAsync(); router.replace("/login"); };
 
+  const loadOrderDetails = async (order: Order) => {
+    if (orderDetails[order._id] || detailLoading[order._id]) return;
+    setDetailLoading((current) => ({ ...current, [order._id]: true }));
+    setDetailErrors((current) => ({ ...current, [order._id]: "" }));
+    try {
+      const response = await getOrderById(order._id);
+      setOrderDetails((current) => ({ ...current, [order._id]: response.data }));
+    } catch (error) {
+      setDetailErrors((current) => ({ ...current, [order._id]: (error as Error).message || "Complete order details could not be loaded." }));
+    } finally {
+      setDetailLoading((current) => ({ ...current, [order._id]: false }));
+    }
+  };
+
+  const toggleOrder = (order: Order) => {
+    const willOpen = !openOrders[order._id];
+    setOpenOrders((current) => ({ ...current, [order._id]: willOpen }));
+    if (willOpen) void loadOrderDetails(order);
+  };
+
   if (userQuery.isLoading || (!user && !userQuery.isError)) return <><TopNavOne props="style-one bg-black" slogan="New customers save 10% with the code GET10" /><div className={styles.page}><div className={styles.loading}>Loading your account...</div></div></>;
   if (!user) return null;
 
@@ -114,9 +145,68 @@ const MyAccount = () => {
     const visible = limit ? orders.slice(0, limit) : orders;
     if (ordersQuery.isLoading) return <div className={styles.empty}>Loading orders...</div>;
     if (!visible.length) return <div className={styles.empty}><Icon.Package size={34} /><div>No orders found yet.</div><Link href="/shop">Start shopping</Link></div>;
-    return <div className={styles.orders}>{visible.map((order) => <details className={styles.order} key={order._id}>
-      <summary><div><div className={styles.orderNumber}>{order.orderNumber || `#${order._id.slice(-8)}`}</div><div className={styles.muted}>{date(order.createdAt || order.placedAt)}</div></div><div>{order.totalItems || order.items.reduce((sum, item) => sum + Number(item.quantity || 0), 0)} items</div><span className={styles.status} data-status={order.orderStatus}>{order.orderStatus || "pending"}</span><strong>{money(order.grandTotal || order.total)}</strong></summary>
-      <div className={styles.orderBody}>{order.items.map((item, index) => { const image = itemImage(item); return <div className={styles.product} key={`${item.sku || index}`}><div className={styles.thumb} style={image ? { backgroundImage: `url("${image.replace(/"/g, "%22")}")` } : undefined} /><div><h3>{itemName(item)}</h3><p>Qty {item.quantity}{item.size || item.selectedSize ? ` · Size ${item.size || item.selectedSize}` : ""}{itemColor(item) ? ` · ${itemColor(item)}` : ""}</p></div><strong>{money(item.lineTotal || Number(item.price) * item.quantity)}</strong></div>; })}</div>
+    return <div className={styles.orders}>{visible.map((summaryOrder) => {
+      const order = orderDetails[summaryOrder._id] || summaryOrder;
+      const address = order.shippingAddress;
+      const timeline = [
+        ["Placed", order.placedAt || order.createdAt],
+        ["Confirmed", order.confirmedAt],
+        ["Processing", order.processingAt],
+        ["Shipped", order.shippedAt],
+        ["Delivered", order.deliveredAt],
+        ["Cancelled", order.cancelledAt],
+        ["Returned", order.returnedAt],
+      ].filter((entry): entry is [string, string] => Boolean(entry[1]));
+      const discount = orderDiscount(order);
+      const code = couponCode(order);
+
+      return <details className={styles.order} key={order._id} open={Boolean(openOrders[order._id])}>
+      <summary onClick={(event) => { event.preventDefault(); toggleOrder(summaryOrder); }}><div><div className={styles.orderNumber}>{order.orderNumber || `#${order._id.slice(-8)}`}</div><div className={styles.muted}>{date(order.createdAt || order.placedAt)}</div></div><div>{order.totalItems || order.items.reduce((sum, item) => sum + Number(item.quantity || 0), 0)} items</div><span className={styles.status} data-status={order.orderStatus}>{order.orderStatus || "pending"}</span><strong>{money(orderTotal(order))}</strong></summary>
+      <div className={styles.orderBody}>{order.items.map((item, index) => { const image = itemImage(item); return <div className={styles.product} key={`${item.sku || index}`}><div className={styles.thumb} style={image ? { backgroundImage: `url("${image.replace(/"/g, "%22")}")` } : undefined} /><div><h3>{itemName(item)}</h3><p>Qty {item.quantity}{item.size || item.selectedSize ? ` · Size ${item.size || item.selectedSize}` : ""}{itemColor(item) ? ` · ${itemColor(item)}` : ""}</p></div><strong>{money(firstNumber(item.lineTotal, Number(item.price || 0) * item.quantity))}</strong></div>; })}</div>
+
+      <div className={styles.detailArea}>
+        {detailLoading[order._id] && <div className={styles.detailLoading}>Loading complete order details...</div>}
+        {detailErrors[order._id] && <div className={styles.detailError}>{detailErrors[order._id]}</div>}
+        <div className={styles.detailGrid}>
+          <section className={styles.detailCard}>
+            <div className={styles.detailTitle}><Icon.MapPin size={18} /> Delivery address</div>
+            {address ? <address>
+              <strong>{address.fullName}</strong>
+              <span>{address.addressLine1}</span>
+              {address.addressLine2 && <span>{address.addressLine2}</span>}
+              <span>{[address.city, address.state, address.postalCode].filter(Boolean).join(", ")}</span>
+              {address.country && <span>{address.country}</span>}
+              <span>{address.phone}</span>
+              {address.email && <span>{address.email}</span>}
+            </address> : <p className={styles.unavailable}>Delivery address not available.</p>}
+          </section>
+
+          <section className={styles.detailCard}>
+            <div className={styles.detailTitle}><Icon.CreditCard size={18} /> Payment</div>
+            <dl className={styles.metaList}>
+              <div><dt>Method</dt><dd>{labelize(order.paymentMethod)}</dd></div>
+              <div><dt>Status</dt><dd><span className={styles.paymentStatus} data-status={order.paymentStatus}>{labelize(order.paymentStatus)}</span></dd></div>
+            </dl>
+          </section>
+
+          <section className={styles.detailCard}>
+            <div className={styles.detailTitle}><Icon.ClockCounterClockwise size={18} /> Order timeline</div>
+            <ol className={styles.timeline}>{timeline.map(([label, value]) => <li key={label}><span /><div><strong>{label}</strong><small>{date(value)}</small></div></li>)}</ol>
+          </section>
+
+          <section className={styles.detailCard}>
+            <div className={styles.detailTitle}><Icon.Receipt size={18} /> Order summary</div>
+            {code && <div className={styles.coupon}><span>Coupon</span><strong>{code}</strong><em>−{money(discount)}</em></div>}
+            <dl className={styles.totals}>
+              <div><dt>Subtotal</dt><dd>{money(orderSubtotal(order))}</dd></div>
+              <div className={styles.saving}><dt>Discount{code ? ` (${code})` : ""}</dt><dd>−{money(discount)}</dd></div>
+              <div><dt>Shipping fee</dt><dd>{orderShipping(order) === 0 ? "Free" : money(orderShipping(order))}</dd></div>
+              <div className={styles.grandTotal}><dt>Total</dt><dd>{money(orderTotal(order))}</dd></div>
+            </dl>
+          </section>
+        </div>
+      </div>
+
       {canCancelOrder(order) && (
         <div className="mx-5 mb-5 pt-4 border-t border-[#292e2e] flex justify-end">
           <button
@@ -129,7 +219,7 @@ const MyAccount = () => {
           </button>
         </div>
       )}
-    </details>)}</div>;
+    </details>})}</div>;
   };
 
   return <>

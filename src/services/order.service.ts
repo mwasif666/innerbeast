@@ -89,6 +89,11 @@ export type Order = {
     code?: string;
     discountAmount?: number;
   };
+  couponCode?: string;
+  appliedCoupon?: {
+    code?: string;
+    discountAmount?: number;
+  };
   shippingFee?: number;
   shipping?: number;
   taxTotal?: number;
@@ -102,9 +107,11 @@ export type Order = {
   cancelReason?: string;
   placedAt?: string;
   confirmedAt?: string;
+  processingAt?: string;
   shippedAt?: string;
   deliveredAt?: string;
   cancelledAt?: string;
+  returnedAt?: string;
   createdAt?: string;
   updatedAt?: string;
 };
