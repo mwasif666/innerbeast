@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Instrument_Sans } from "next/font/google";
+import { cache } from "react";
 import "@/styles/styles.scss";
 
 import GlobalProvider from "./GlobalProvider";
@@ -14,6 +15,7 @@ import ModalCompare from "@/components/Modal/ModalCompare";
 
 import CountdownTimeType from "@/type/CountdownType";
 import { countdownTime } from "@/store/countdownTime";
+import type { StoreSettingsResponse } from "@/services/settings.service";
 
 const serverTimeLeft: CountdownTimeType = countdownTime();
 
@@ -24,26 +26,33 @@ const instrument = Instrument_Sans({
   adjustFontFallback: false,
 });
 
+const getServerSettings = cache(async (): Promise<StoreSettingsResponse | undefined> => {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) return undefined;
+
+  try {
+    const response = await fetch(`${apiUrl}/settings`, { cache: "no-store" });
+    if (!response.ok) return undefined;
+
+    return await response.json() as StoreSettingsResponse;
+  } catch {
+    return undefined;
+  }
+});
+
 export async function generateMetadata(): Promise<Metadata> {
   const fallback: Metadata = {
     title: "Inner Beast",
     description: "Inner Beast Store",
   };
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (!apiUrl) return fallback;
-
   try {
-    const response = await fetch(`${apiUrl}/settings`, {
-      next: { revalidate: 60 },
-    });
-    if (!response.ok) return fallback;
-
-    const json = await response.json();
-    const seo = json?.data?.seo;
+    const settings = await getServerSettings();
+    if (!settings) return fallback;
+    const seo = settings.data?.seo;
 
     return {
-      title: seo?.metaTitle || json?.data?.storeName || "Inner Beast",
+      title: seo?.metaTitle || settings.data?.storeName || "Inner Beast",
       description: seo?.metaDescription || "Inner Beast Store",
     };
   } catch {
@@ -51,16 +60,18 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const initialSettings = await getServerSettings();
+
   return (
     <html lang="en">
       <body className={instrument.className}>
         <GlobalScrollbar />
-        <ReactQueryProvider>
+        <ReactQueryProvider initialSettings={initialSettings}>
           <GlobalProvider>
             {children}
 

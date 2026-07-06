@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { CSSProperties, useEffect } from "react";
 import {
   App,
   Button,
@@ -77,11 +77,11 @@ const defaultValues: SettingsFormValues = {
   },
 };
 
-const cardBodyStyle = {
+const cardBodyStyle: CSSProperties = {
   padding: 22,
 };
 
-const sectionTitleStyle = {
+const sectionTitleStyle: CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: 10,
@@ -183,6 +183,42 @@ const AdminSettingsPage = () => {
     });
   }, [form, settings]);
 
+  const resetToSavedSettings = () => {
+    if (!settings) {
+      form.setFieldsValue(defaultValues);
+      return;
+    }
+
+    form.setFieldsValue({
+      ...defaultValues,
+      ...settings,
+      currency: {
+        ...defaultValues.currency,
+        ...settings.currency,
+      },
+      tax: {
+        ...defaultValues.tax,
+        ...settings.tax,
+      },
+      shippingDefaults: {
+        ...defaultValues.shippingDefaults,
+        ...settings.shippingDefaults,
+      },
+      socialLinks: {
+        ...defaultValues.socialLinks,
+        ...settings.socialLinks,
+      },
+      seo: {
+        ...defaultValues.seo,
+        ...settings.seo,
+      },
+      announcement: {
+        ...defaultValues.announcement,
+        ...settings.announcement,
+      },
+    });
+  };
+
   const submit = async (values: SettingsFormValues) => {
     try {
       await updateMutation.mutateAsync(buildPayload(values));
@@ -231,7 +267,7 @@ const AdminSettingsPage = () => {
 
         <Space>
           <Button
-            onClick={() => form.resetFields()}
+            onClick={resetToSavedSettings}
             disabled={updateMutation.isPending}
           >
             Reset

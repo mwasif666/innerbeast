@@ -2,15 +2,17 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode, useState } from "react";
+import type { StoreSettingsResponse } from "@/services/settings.service";
 
 type ReactQueryProviderProps = {
   children: ReactNode;
+  initialSettings?: StoreSettingsResponse;
 };
 
-const ReactQueryProvider = ({ children }: ReactQueryProviderProps) => {
+const ReactQueryProvider = ({ children, initialSettings }: ReactQueryProviderProps) => {
   const [queryClient] = useState(
-    () =>
-      new QueryClient({
+    () => {
+      const client = new QueryClient({
         defaultOptions: {
           queries: {
             staleTime: 5 * 60 * 1000,
@@ -18,7 +20,14 @@ const ReactQueryProvider = ({ children }: ReactQueryProviderProps) => {
             refetchOnWindowFocus: false,
           },
         },
-      }),
+      });
+
+      if (initialSettings) {
+        client.setQueryData(["settings", "public"], initialSettings);
+      }
+
+      return client;
+    },
   );
 
   return (
