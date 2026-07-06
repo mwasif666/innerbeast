@@ -82,16 +82,21 @@ const MyAccount = () => {
 
   const cancelCustomerOrder = async () => {
     if (!cancelTarget?._id) return;
+    const targetId = cancelTarget._id;
     if (cancelReason.trim().length < 5) {
       showNotice("Please enter a cancellation reason.", true);
       return;
     }
 
     try {
-      await cancelMutation.mutateAsync({
-        id: cancelTarget._id,
+      const response = await cancelMutation.mutateAsync({
+        id: targetId,
         payload: { reason: cancelReason.trim() },
       });
+      setOrderDetails((current) => ({
+        ...current,
+        [targetId]: response.data,
+      }));
       setCancelTarget(null);
       setCancelReason("");
       showNotice("Order cancelled successfully.");
