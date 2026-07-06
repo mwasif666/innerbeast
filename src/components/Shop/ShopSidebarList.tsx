@@ -8,6 +8,7 @@ import Product from '../Product/Product';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css'
 import HandlePagination from '../Other/HandlePagination';
+import { useStoreCurrency } from '@/hooks/useStoreCurrency';
 
 interface Props {
     data: Array<ProductType>;
@@ -16,6 +17,7 @@ interface Props {
 }
 
 const ShopSidebarList: React.FC<Props> = ({ data, productPerPage, dataType }) => {
+    const { symbol } = useStoreCurrency()
     const [type, setType] = useState<string | null>(dataType)
     const [showOnlySale, setShowOnlySale] = useState(false)
     const [sortOption, setSortOption] = useState('')
@@ -276,13 +278,13 @@ const ShopSidebarList: React.FC<Props> = ({ data, productPerPage, dataType }) =>
                                 <div className="price-block flex flex-col items-start gap-1 mt-4">
                                     <div className="min flex items-center gap-1">
                                         <div>Min price:</div>
-                                        <div className='price-min'>£
+                                        <div className='price-min'>{symbol}
                                             <span>{priceRange.min.toLocaleString()}</span>
                                         </div>
                                     </div>
                                     <div className="min flex items-center gap-1">
                                         <div>Max price:</div>
-                                        <div className='price-max'>£
+                                        <div className='price-max'>{symbol}
                                             <span>{priceRange.max.toLocaleString()}</span>
                                         </div>
                                     </div>

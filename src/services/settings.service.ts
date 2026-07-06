@@ -84,7 +84,9 @@ export type StoreSettingsResponse = {
 };
 
 export const getPublicSettings = () => {
-  return api<StoreSettingsResponse>("/settings");
+  return api<StoreSettingsResponse>("/settings", {
+    cache: "no-store",
+  });
 };
 
 export const getAdminSettings = () => {

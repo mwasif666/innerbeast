@@ -35,7 +35,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   try {
     const response = await fetch(`${apiUrl}/settings`, {
-      next: { revalidate: 300 },
+      next: { revalidate: 60 },
     });
     if (!response.ok) return fallback;
 

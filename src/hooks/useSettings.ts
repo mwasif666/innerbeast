@@ -17,7 +17,10 @@ export const usePublicSettings = () => {
   return useQuery({
     queryKey: settingsKeys.public(),
     queryFn: getPublicSettings,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: "always",
+    refetchOnReconnect: "always",
     retry: 1,
   });
 };
@@ -34,7 +37,9 @@ export const useUpdateStoreSettings = () => {
 
   return useMutation({
     mutationFn: (payload: StoreSettingsPayload) => updateStoreSettings(payload),
-    onSuccess: () => {
+    onSuccess: (response) => {
+      queryClient.setQueryData(settingsKeys.admin(), response);
+      queryClient.setQueryData(settingsKeys.public(), response);
       queryClient.invalidateQueries({
         queryKey: settingsKeys.all,
       });

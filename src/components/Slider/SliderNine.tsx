@@ -8,6 +8,9 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Navigation, Pagination } from 'swiper/modules'
 import 'swiper/css/bundle'
 
+import { usePublicSettings } from '@/hooks/useSettings'
+import { useStoreCurrency } from '@/hooks/useStoreCurrency'
+
 const slides = [
     {
         lineOne: 'Unleash The',
@@ -29,14 +32,24 @@ const slides = [
     },
 ]
 
-const benefits = [
-    { icon: Icon.Truck, title: 'Free Shipping', text: 'On orders over £75' },
-    { icon: Icon.ShieldCheck, title: 'Secure Payment', text: '100% secure checkout' },
-    { icon: Icon.ArrowClockwise, title: 'Easy Returns', text: '30 day return policy' },
-    { icon: Icon.Headphones, title: '24/7 Support', text: "We're here to help" },
-]
-
 const SliderNine = () => {
+    const { format } = useStoreCurrency()
+    const { data } = usePublicSettings()
+    const freeShippingThreshold = Number(data?.data?.shippingDefaults?.freeShippingThreshold || 0)
+
+    const benefits = [
+        {
+            icon: Icon.Truck,
+            title: 'Free Shipping',
+            text: freeShippingThreshold > 0
+                ? `On orders over ${format(freeShippingThreshold)}`
+                : 'On qualifying orders',
+        },
+        { icon: Icon.ShieldCheck, title: 'Secure Payment', text: '100% secure checkout' },
+        { icon: Icon.ArrowClockwise, title: 'Easy Returns', text: '30 day return policy' },
+        { icon: Icon.Headphones, title: '24/7 Support', text: "We're here to help" },
+    ]
+
     return (
         <section className="hero-beast w-full bg-[#090a0a] text-white">
             <div className="hero-stage relative overflow-hidden xl:h-[600px] lg:h-[540px] md:h-[500px] h-[570px]">

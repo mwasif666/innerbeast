@@ -20,7 +20,13 @@ import {
 } from '@/services/product.service'
 import { toStorefrontProduct } from '@/utils/productAdapter'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60
+
+const emptyList = <T,>(): ApiListResponse<T> => ({
+  success: false,
+  count: 0,
+  data: [],
+})
 
 const getHomepageData = async () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL
@@ -29,18 +35,25 @@ const getHomepageData = async () => {
 
   const [productsResponse, categoriesResponse] = await Promise.all([
     fetch(`${apiUrl}/products?limit=40&sort=newest&isActive=true`, {
-      cache: 'no-store',
+      next: { revalidate: 60 },
     }),
-    fetch(`${apiUrl}/categories?limit=100`, { cache: 'no-store' }),
+    fetch(`${apiUrl}/categories?limit=100`, { next: { revalidate: 60 } }),
   ])
 
   if (!productsResponse.ok || !categoriesResponse.ok) {
-    throw new Error('Unable to load homepage catalogue')
+    console.error('Unable to load homepage catalogue', {
+      productsStatus: productsResponse.status,
+      categoriesStatus: categoriesResponse.status,
+    })
   }
 
   return {
-    products: (await productsResponse.json()) as ApiListResponse<ApiProduct>,
-    categories: (await categoriesResponse.json()) as ApiListResponse<Category>,
+    products: productsResponse.ok
+      ? (await productsResponse.json()) as ApiListResponse<ApiProduct>
+      : emptyList<ApiProduct>(),
+    categories: categoriesResponse.ok
+      ? (await categoriesResponse.json()) as ApiListResponse<Category>
+      : emptyList<Category>(),
   }
 }
 

@@ -12,6 +12,7 @@ import { toStorefrontProduct } from '@/utils/productAdapter'
 import { countdownTime } from '@/store/countdownTime'
 import CountdownTimeType from '@/type/CountdownType';
 import { useStoreCurrency } from '@/hooks/useStoreCurrency'
+import { usePublicSettings } from '@/hooks/useSettings'
 
 const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) => {
     const [timeLeft, setTimeLeft] = useState(serverTimeLeft);
@@ -58,7 +59,8 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
         setActiveTab(tab)
     }
 
-    let moneyForFreeship = 150;
+    const { data: settingsData } = usePublicSettings()
+    const moneyForFreeship = Number(settingsData?.data?.shippingDefaults?.freeShippingThreshold || 0)
     let [totalCart, setTotalCart] = useState<number>(0)
     let [discountCart, setDiscountCart] = useState<number>(0)
 
@@ -148,17 +150,19 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                     Please checkout now before your items sell out!</div>
                             </div>
                         </div>
-                        <div className="heading banner mt-3 px-6">
-                            <div className="text">Buy <span className="text-button text-red"> {formatPrice(Math.max(0, moneyForFreeship - totalCart))} </span>
-                                <span>more to get </span>
-                                <span className="text-button">freeship</span></div>
-                            <div className="tow-bar-block mt-3">
-                                <div
-                                    className="progress-line"
-                                    style={{ width: totalCart <= moneyForFreeship ? `${(totalCart / moneyForFreeship) * 100}%` : `100%` }}
-                                ></div>
+                        {moneyForFreeship > 0 && (
+                            <div className="heading banner mt-3 px-6">
+                                <div className="text">Buy <span className="text-button text-red"> {formatPrice(Math.max(0, moneyForFreeship - totalCart))} </span>
+                                    <span>more to get </span>
+                                    <span className="text-button">freeship</span></div>
+                                <div className="tow-bar-block mt-3">
+                                    <div
+                                        className="progress-line"
+                                        style={{ width: totalCart <= moneyForFreeship ? `${(totalCart / moneyForFreeship) * 100}%` : `100%` }}
+                                    ></div>
+                                </div>
                             </div>
-                        </div>
+                        )}
                         <div className="list-product px-6">
                             {cartState.cartArray.map((product) => (
                                 <div key={product.id} className='item py-5 flex items-center justify-between gap-3 border-b border-line'>

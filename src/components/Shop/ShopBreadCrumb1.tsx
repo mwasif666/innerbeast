@@ -8,6 +8,7 @@ import Product from '../Product/Product';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css'
 import HandlePagination from '../Other/HandlePagination';
+import { useStoreCurrency } from '@/hooks/useStoreCurrency';
 
 interface Props {
     data: Array<ProductType>
@@ -18,6 +19,7 @@ interface Props {
 }
 
 const ShopBreadCrumb1: React.FC<Props> = ({ data, productPerPage, dataType, gender, category }) => {
+    const { symbol } = useStoreCurrency()
     const [showOnlySale, setShowOnlySale] = useState(false)
     const [sortOption, setSortOption] = useState('');
     const [type, setType] = useState<string | null | undefined>(dataType)
@@ -294,13 +296,13 @@ const ShopBreadCrumb1: React.FC<Props> = ({ data, productPerPage, dataType, gend
                                 <div className="price-block flex items-center justify-between flex-wrap mt-4">
                                     <div className="min flex items-center gap-1">
                                         <div>Min price:</div>
-                                        <div className='price-min'>$
+                                        <div className='price-min'>{symbol}
                                             <span>{priceRange.min}</span>
                                         </div>
                                     </div>
                                     <div className="min flex items-center gap-1">
                                         <div>Max price:</div>
-                                        <div className='price-max'>$
+                                        <div className='price-max'>{symbol}
                                             <span>{priceRange.max}</span>
                                         </div>
                                     </div>

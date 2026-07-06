@@ -7,9 +7,11 @@ import * as Icon from "@phosphor-icons/react/dist/ssr";
 
 import SocialLinks from '@/components/Shared/SocialLinks'
 import { usePublicSettings } from '@/hooks/useSettings'
+import { useStoreCurrency } from '@/hooks/useStoreCurrency'
 
 const Footer = () => {
     const { data, isSuccess } = usePublicSettings()
+    const { currency } = useStoreCurrency()
     const settings = data?.data
 
     const storeName = settings?.storeName || 'Innerbeast'
@@ -32,7 +34,7 @@ const Footer = () => {
                         {/* ===== Newsletter CTA band ===== */}
                         <div className="footer-cta py-12 border-b border-white/10 flex items-center justify-between gap-8 flex-wrap">
                             <div className="cta-text max-md:basis-full">
-                                <h2 className="heading4 text-white">Join the Innerbeast pack</h2>
+                                <h2 className="heading4 text-white">Join the {storeName} pack</h2>
                                 <div className="caption1 text-white/55 mt-2">Sign up for our newsletter and get 10% off your first purchase.</div>
                             </div>
                             <form className='cta-form relative w-full max-w-[440px] h-[54px]' action="post">
@@ -52,7 +54,7 @@ const Footer = () => {
                                         src={'/footer-logo.png'}
                                         width={180}
                                         height={52}
-                                        alt='Innerbeast'
+                                        alt={storeName}
                                         className='w-auto h-12 object-contain'
                                     />
                                 </Link>
@@ -136,9 +138,7 @@ const Footer = () => {
                                     </div>
                                     <div className="choose-currency flex items-center gap-1.5">
                                         <select name="currency" id="chooseCurrencyFooter" className='caption2 bg-transparent text-white/70 [&>option]:text-black'>
-                                            <option value="GBP">GBP</option>
-                                            <option value="EUR">EUR</option>
-                                            <option value="USD">USD</option>
+                                            <option value={currency.code}>{currency.code} ({currency.symbol})</option>
                                         </select>
                                         <Icon.CaretDown size={12} color='#ffffff' />
                                     </div>
