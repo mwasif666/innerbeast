@@ -231,10 +231,10 @@ const AdminProductsPage = () => {
       | undefined) || [];
   const watchedDiscountType = Form.useWatch("discountType", form);
 
-  const products = productsQuery.data?.data || [];
   const categories = categoriesQuery.data?.data || [];
 
   const filteredProducts = useMemo(() => {
+    const products = productsQuery.data?.data || [];
     const searchValue = search.toLowerCase().trim();
 
     if (!searchValue) return products;
@@ -246,7 +246,7 @@ const AdminProductsPage = () => {
         product.category?.name?.toLowerCase().includes(searchValue)
       );
     });
-  }, [products, search]);
+  }, [productsQuery.data?.data, search]);
 
   const openCreateModal = () => {
     setEditingProduct(null);
