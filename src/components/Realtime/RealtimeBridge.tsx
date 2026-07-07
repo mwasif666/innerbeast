@@ -9,17 +9,12 @@ const RealtimeBridge = () => {
 
   useEffect(() => {
     const socket = connectRealtimeSocket();
-    const syncData = () => {
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-      queryClient.invalidateQueries({ queryKey: ["categories"] });
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
-      queryClient.invalidateQueries({ queryKey: ["admin", "stats"] });
-    };
+    const syncData = () => queryClient.refetchQueries();
 
-    socket.on("realtime:connected", syncData);
+    socket.onAny(syncData);
 
     return () => {
-      socket.off("realtime:connected", syncData);
+      socket.offAny(syncData);
     };
   }, [queryClient]);
 
