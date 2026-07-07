@@ -718,7 +718,7 @@ const AdminPage = () => {
           type="error"
           showIcon
           style={{ marginBottom: 18 }}
-          title="Dashboard stats could not be loaded."
+          message="Dashboard stats could not be loaded."
           description="Check backend /api/admin/stats and admin authentication."
         />
       )}

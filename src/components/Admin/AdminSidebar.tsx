@@ -20,7 +20,7 @@ const AdminSidebar = ({ activeKey, onNavigate }: AdminSidebarProps) => {
     try {
       await logoutMutation.mutateAsync();
     } finally {
-      router.replace("/test-auth");
+      router.replace("/login");
     }
   };
 

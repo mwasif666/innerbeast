@@ -15,10 +15,10 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
   const user = currentUserQuery.data?.data;
 
   useEffect(() => {
-    if (currentUserQuery.isError) {
-      router.replace("/test-auth");
+    if (currentUserQuery.isError || (!currentUserQuery.isLoading && !user)) {
+      router.replace("/login?redirect=/admin");
     }
-  }, [currentUserQuery.isError, router]);
+  }, [currentUserQuery.isError, currentUserQuery.isLoading, router, user]);
 
   if (currentUserQuery.isLoading) {
     return (
@@ -28,17 +28,11 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
     );
   }
 
-  if (currentUserQuery.isError) {
+  if (currentUserQuery.isError || !user) {
     return (
       <div style={{ padding: "40px", fontSize: "18px" }}>
         Redirecting to login...
       </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div style={{ padding: "40px", fontSize: "18px" }}>No user found</div>
     );
   }
 
