@@ -26,12 +26,10 @@ const Footer = () => {
         <>
             <div id="footer" className='footer'>
                 <div className="footer-main bg-[#0e0e0e] text-white relative overflow-hidden">
-                    {/* soft glows */}
                     <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-white/[0.05] blur-[120px]"></div>
                     <div className="pointer-events-none absolute bottom-0 -right-32 w-96 h-96 rounded-full bg-white/[0.03] blur-3xl"></div>
 
                     <div className="container relative z-[1]">
-                        {/* ===== Newsletter CTA band ===== */}
                         <div className="footer-cta py-12 border-b border-white/10 flex items-center justify-between gap-8 flex-wrap">
                             <div className="cta-text max-md:basis-full">
                                 <h2 className="heading4 text-white">Join the {storeName} pack</h2>
@@ -45,9 +43,7 @@ const Footer = () => {
                             </form>
                         </div>
 
-                        {/* ===== Main grid ===== */}
                         <div className="content-footer py-[60px] grid grid-cols-12 gap-y-10 gap-x-8 max-lg:gap-x-6">
-                            {/* Brand column */}
                             <div className="company-infor col-span-4 max-lg:col-span-12 pr-7 max-lg:pr-0">
                                 <Link href={'/'} className="logo inline-block">
                                     <Image
@@ -58,41 +54,21 @@ const Footer = () => {
                                         className='w-auto h-12 object-contain'
                                     />
                                 </Link>
-                                {tagline && (
-                                    <div className="caption1 text-white/55 mt-5 max-w-[320px]">
-                                        {tagline}
-                                    </div>
-                                )}
+                                {tagline && <div className="caption1 text-white/55 mt-5 max-w-[320px]">{tagline}</div>}
                                 <div className='flex flex-col gap-3 mt-6'>
-                                    {email && (
-                                        <div className="flex items-center gap-3 text-white/80">
-                                            <Icon.Envelope size={18} className='text-white/40' />
-                                            <span>{email}</span>
-                                        </div>
-                                    )}
-                                    {phone && (
-                                        <div className="flex items-center gap-3 text-white/80">
-                                            <Icon.Phone size={18} className='text-white/40' />
-                                            <span>{phone}</span>
-                                        </div>
-                                    )}
-                                    {address && (
-                                        <div className="flex items-center gap-3 text-white/80">
-                                            <Icon.MapPin size={18} className='text-white/40' />
-                                            <span>{address}</span>
-                                        </div>
-                                    )}
+                                    {email && <div className="flex items-center gap-3 text-white/80"><Icon.Envelope size={18} className='text-white/40' /><span>{email}</span></div>}
+                                    {phone && <div className="flex items-center gap-3 text-white/80"><Icon.Phone size={18} className='text-white/40' /><span>{phone}</span></div>}
+                                    {address && <div className="flex items-center gap-3 text-white/80"><Icon.MapPin size={18} className='text-white/40' /><span>{address}</span></div>}
                                 </div>
                             </div>
 
-                            {/* Link columns */}
                             <div className="item flex flex-col col-span-2 max-md:col-span-6">
                                 <div className="text-button-uppercase pb-4 text-white">Infomation</div>
                                 <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit' href={'/contact-us'}>Contact us</Link>
                                 <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/about-us'}>About Us</Link>
                                 <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/my-account'}>My Account</Link>
-                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/order-tracking'}>Order &amp; Returns</Link>
-                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/faqs'}>FAQs</Link>
+                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/track-order'}>Order &amp; Returns</Link>
+                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/faq'}>FAQs</Link>
                             </div>
                             <div className="item flex flex-col col-span-2 max-md:col-span-6">
                                 <div className="text-button-uppercase pb-4 text-white">Quick Shop</div>
@@ -104,26 +80,20 @@ const Footer = () => {
                             </div>
                             <div className="item flex flex-col col-span-2 max-md:col-span-6">
                                 <div className="text-button-uppercase pb-4 text-white">Services</div>
-                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit' href={'/shipping-policy'}>Shipping</Link>
+                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit' href={'/ship-policy'}>Shipping</Link>
                                 <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/returns'}>Returns &amp; Refunds</Link>
-                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/privacy-policy'}>Privacy Policy</Link>
-                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/terms-and-conditions'}>Terms &amp; Conditions</Link>
+                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/privacy'}>Privacy Policy</Link>
+                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/terms'}>Terms &amp; Conditions</Link>
                             </div>
 
-                            {/* Socials column */}
                             <div className="item flex flex-col col-span-2 max-md:col-span-6">
                                 <div className="text-button-uppercase pb-4 text-white">Follow us</div>
                                 <div className="list-social flex flex-wrap items-center gap-3">
-                                    <SocialLinks
-                                        linkClassName='w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-white hover:bg-white hover:text-black duration-300'
-                                        iconClassName='text-xl'
-                                        iconSize={20}
-                                    />
+                                    <SocialLinks linkClassName='w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 text-white hover:bg-white hover:text-black duration-300' iconClassName='text-xl' iconSize={20} />
                                 </div>
                             </div>
                         </div>
 
-                        {/* ===== Bottom bar ===== */}
                         <div className="footer-bottom py-6 flex items-center justify-between gap-5 max-lg:justify-center max-lg:flex-col border-t border-white/10">
                             <div className="left flex items-center gap-8 max-md:flex-col max-md:gap-3">
                                 <div className="copyright caption1 text-white/50">©{new Date().getFullYear()} {storeName}. All Rights Reserved.</div>
