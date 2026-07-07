@@ -13,6 +13,7 @@ import Testimonial from '@/components/Home1/Testimonial'
 import Instagram from '@/components/Home1/Instagram'
 import Brand from '@/components/Home1/Brand'
 import Footer from '@/components/Footer/Footer'
+import SupportWidget from '@/components/Support/SupportWidget'
 import {
   ApiListResponse,
   Category,
@@ -86,6 +87,7 @@ export default async function Home() {
       <Instagram />
       <Brand />
       <Footer />
+      <SupportWidget />
     </>
   )
 }
