@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, useEffect, useMemo, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { connectRealtimeSocket } from '@/services/realtime.service'
 import {
@@ -42,7 +42,7 @@ const SupportWidget = () => {
   const messages = conversation?.messages || []
   const hasConversation = Boolean(conversation?._id || conversationId)
 
-  const loadConversation = async (id = conversationId, gid = guestId) => {
+  const loadConversation = useCallback(async (id = conversationId, gid = guestId) => {
     if (!id && !gid) return
     try {
       const response = await getSupportConversation(id || undefined, gid || undefined)
@@ -54,7 +54,7 @@ const SupportWidget = () => {
     } catch {
       // Keep the widget quiet if support is temporarily unavailable.
     }
-  }
+  }, [conversationId, guestId])
 
   useEffect(() => {
     const gid = getGuestId()
@@ -62,13 +62,13 @@ const SupportWidget = () => {
     setGuestId(gid)
     setConversationId(savedConversationId)
     loadConversation(savedConversationId, gid)
-  }, [])
+  }, [loadConversation])
 
   useEffect(() => {
     if (!hasConversation) return
     const interval = window.setInterval(() => loadConversation(), 20000)
     return () => window.clearInterval(interval)
-  }, [hasConversation, conversationId, guestId])
+  }, [hasConversation, conversationId, guestId, loadConversation])
 
   useEffect(() => {
     const socket = connectRealtimeSocket()
@@ -81,7 +81,7 @@ const SupportWidget = () => {
     return () => {
       socket.off('chat:changed', refresh)
     }
-  }, [conversationId, guestId])
+  }, [conversationId, guestId, loadConversation])
 
   const unread = useMemo(() => conversation?.unreadForCustomer || 0, [conversation])
 

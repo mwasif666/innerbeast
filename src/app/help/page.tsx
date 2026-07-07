@@ -1,6 +1,5 @@
 'use client'
 
-import SupportWidget from '@/components/Support/SupportWidget'
 import TopNavOne from '@/components/Header/TopNav/TopNavOne'
 import MenuOne from '@/components/Header/Menu/MenuOne'
 import Breadcrumb from '@/components/Breadcrumb/Breadcrumb'
@@ -19,7 +18,6 @@ export default function HelpPage() {
         <p className='body1 text-secondary mt-4 max-w-2xl'>Message our team about orders, delivery, products, returns, or account support.</p>
       </main>
       <Footer />
-      <SupportWidget />
     </>
   )
 }

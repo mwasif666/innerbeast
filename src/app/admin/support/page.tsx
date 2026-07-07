@@ -1,7 +1,8 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
-import { Button, Card, Empty, Input, List, Select, Space, Tag, Typography } from "antd";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { Alert, Badge, Button, Card, Empty, Input, List, Select, Space, Spin, Tag, Typography } from "antd";
+import { connectRealtimeSocket } from "@/services/realtime.service";
 import {
   getSupportInbox,
   getSupportThread,
@@ -18,27 +19,93 @@ const AdminSupportPage = () => {
   const [activeId, setActiveId] = useState("");
   const [active, setActive] = useState<SupportConversation | null>(null);
   const [reply, setReply] = useState("");
+  const [listLoading, setListLoading] = useState(false);
+  const [threadLoading, setThreadLoading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const activeIdRef = useRef("");
 
-  const loadList = async () => {
-    const response = await getSupportInbox(status);
-    setItems(response.data || []);
-    if (!activeId && response.data?.[0]?._id) setActiveId(response.data[0]._id);
-  };
+  useEffect(() => {
+    activeIdRef.current = activeId;
+  }, [activeId]);
 
-  const loadThread = async (id: string) => {
+  const loadList = useCallback(async (nextActiveId = activeIdRef.current) => {
+    setListLoading(true);
+    setError("");
+
+    try {
+      const response = await getSupportInbox(status);
+      const conversations = response.data || [];
+
+      setItems(conversations);
+
+      if (!nextActiveId && conversations[0]?._id) {
+        setActiveId(conversations[0]._id);
+        return;
+      }
+
+      if (
+        nextActiveId &&
+        conversations.length > 0 &&
+        !conversations.some((conversation) => conversation._id === nextActiveId)
+      ) {
+        setActiveId(conversations[0]._id);
+        return;
+      }
+
+      if (!conversations.length) {
+        setActive(null);
+      }
+    } catch (listError) {
+      setError((listError as Error).message || "Support inbox could not be loaded.");
+    } finally {
+      setListLoading(false);
+    }
+  }, [status]);
+
+  const loadThread = useCallback(async (id: string) => {
     if (!id) return;
-    const response = await getSupportThread(id);
-    setActive(response.data);
-  };
+
+    setThreadLoading(true);
+    setError("");
+
+    try {
+      const response = await getSupportThread(id);
+      setActive(response.data);
+    } catch (threadError) {
+      setError((threadError as Error).message || "Support conversation could not be loaded.");
+      setActive(null);
+    } finally {
+      setThreadLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     loadList();
-  }, [status]);
+  }, [loadList]);
 
   useEffect(() => {
     loadThread(activeId);
-  }, [activeId]);
+  }, [activeId, loadThread]);
+
+  useEffect(() => {
+    const socket = connectRealtimeSocket();
+    const refreshSupport = (payload?: { conversationId?: string }) => {
+      loadList(payload?.conversationId || activeIdRef.current);
+
+      if (payload?.conversationId && payload.conversationId === activeIdRef.current) {
+        loadThread(payload.conversationId);
+      }
+    };
+
+    socket.on("chat:changed", refreshSupport);
+    const interval = window.setInterval(() => loadList(), 15000);
+
+    return () => {
+      socket.off("chat:changed", refreshSupport);
+      window.clearInterval(interval);
+    };
+  }, [loadList, loadThread]);
 
   const handleReply = async (event: FormEvent) => {
     event.preventDefault();
@@ -51,6 +118,8 @@ const AdminSupportPage = () => {
       setActive(response.data);
       setReply("");
       loadList();
+    } catch (replyError) {
+      setError((replyError as Error).message || "Reply could not be sent.");
     } finally {
       setLoading(false);
     }
@@ -58,9 +127,13 @@ const AdminSupportPage = () => {
 
   const changeStatus = async (nextStatus: SupportConversation["status"]) => {
     if (!activeId) return;
-    const response = await setSupportStatus(activeId, nextStatus);
-    setActive(response.data);
-    loadList();
+    try {
+      const response = await setSupportStatus(activeId, nextStatus);
+      setActive(response.data);
+      loadList();
+    } catch (statusError) {
+      setError((statusError as Error).message || "Conversation status could not be updated.");
+    }
   };
 
   return (
@@ -83,32 +156,52 @@ const AdminSupportPage = () => {
                 { label: "Closed", value: "closed" },
               ]}
             />
-            <Button onClick={loadList}>Refresh</Button>
+            <Button onClick={() => loadList()} loading={listLoading}>Refresh</Button>
           </Space>
         </Space>
       </Card>
 
+      {error && (
+        <Alert
+          type="error"
+          showIcon
+          message="Support chat error"
+          description={error}
+        />
+      )}
+
       <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: 24 }}>
         <Card styles={{ body: { padding: 0 } }}>
-          <List
-            dataSource={items}
-            locale={{ emptyText: <Empty description="No messages yet" /> }}
-            renderItem={(item) => (
-              <List.Item
-                onClick={() => setActiveId(item._id)}
-                style={{ cursor: "pointer", padding: 16, background: activeId === item._id ? "#f5f5f5" : "transparent" }}
-              >
-                <List.Item.Meta
-                  title={<Space><span>{item.customerName || "Customer"}</span><Tag>{item.status}</Tag></Space>}
-                  description={<Text type="secondary" ellipsis>{item.lastMessage || item.customerEmail || "Guest"}</Text>}
-                />
-              </List.Item>
-            )}
-          />
+          <Spin spinning={listLoading}>
+            <List
+              dataSource={items}
+              locale={{ emptyText: <Empty description={error ? "Inbox could not be loaded" : "No messages yet"} /> }}
+              renderItem={(item) => (
+                <List.Item
+                  onClick={() => setActiveId(item._id)}
+                  style={{ cursor: "pointer", padding: 16, background: activeId === item._id ? "#f5f5f5" : "transparent" }}
+                >
+                  <List.Item.Meta
+                    title={(
+                      <Space>
+                        <Badge count={item.unreadForAdmin || 0} size="small">
+                          <span style={{ paddingRight: item.unreadForAdmin ? 10 : 0 }}>
+                            {item.customerName || "Customer"}
+                          </span>
+                        </Badge>
+                        <Tag>{item.status}</Tag>
+                      </Space>
+                    )}
+                    description={<Text type="secondary" ellipsis>{item.lastMessage || item.customerEmail || "Guest"}</Text>}
+                  />
+                </List.Item>
+              )}
+            />
+          </Spin>
         </Card>
 
         <Card>
-          {!active ? <Empty description="Select a conversation" /> : (
+          {threadLoading ? <Spin /> : !active ? <Empty description="Select a conversation" /> : (
             <div style={{ display: "grid", gap: 16 }}>
               <Space style={{ justifyContent: "space-between", width: "100%" }} wrap>
                 <div>

@@ -6,6 +6,7 @@ import "@/styles/styles.scss";
 import GlobalProvider from "./GlobalProvider";
 import ReactQueryProvider from "@/providers/ReactQueryProvider";
 import GlobalScrollbar from "@/components/GlobalScrollbar";
+import SupportWidget from "@/components/Support/SupportWidget";
 
 import ModalCart from "@/components/Modal/ModalCart";
 import ModalWishlist from "@/components/Modal/ModalWishlist";
@@ -80,6 +81,7 @@ export default async function RootLayout({
             <ModalSearch />
             <ModalQuickview />
             <ModalCompare />
+            <SupportWidget />
           </GlobalProvider>
         </ReactQueryProvider>
       </body>

@@ -107,6 +107,12 @@ const QUICK_ACTIONS: QuickAction[] = [
     href: "/admin/orders",
   },
   {
+    label: "Support",
+    description: "Read and reply to customer chats.",
+    icon: <TeamOutlined />,
+    href: "/admin/support",
+  },
+  {
     label: "Coupons",
     description: "Manage discount codes.",
     icon: <PercentageOutlined />,
