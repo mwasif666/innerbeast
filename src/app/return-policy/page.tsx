@@ -1,1 +1,1 @@
-export default function Page(){return <main className="container py-20"><h1>Page</h1></main>}
+export default function Page(){return <main className="container py-20"><h1>Return policy</h1><p>Customers can contact support with the order number if an item is damaged, incorrect, incomplete or needs review.</p></main>}
