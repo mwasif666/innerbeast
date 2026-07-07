@@ -87,9 +87,8 @@ const AdminCategoriesPage = () => {
 
   const imagePreviewUrl = Form.useWatch("imageUrl", form);
 
-  const categories = categoriesQuery.data?.data || [];
-
   const filteredCategories = useMemo(() => {
+    const categories = categoriesQuery.data?.data || [];
     const searchValue = search.toLowerCase().trim();
 
     if (!searchValue) return categories;
@@ -101,7 +100,7 @@ const AdminCategoriesPage = () => {
         category.description?.toLowerCase().includes(searchValue)
       );
     });
-  }, [categories, search]);
+  }, [categoriesQuery.data?.data, search]);
 
   const openCreateModal = () => {
     setEditingCategory(null);
