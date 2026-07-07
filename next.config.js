@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
-    // Keep the dev compiler away from production builds. Running `next build`
-    // while the dev server is open must not replace chunks in the browser.
     distDir: process.env.NODE_ENV === 'development' ? '.next-dev' : '.next',
     images: {
         remotePatterns: [
@@ -16,11 +14,16 @@ const nextConfig = {
             { source: '/shop/sidebar-list', destination: '/shop', permanent: true },
             { source: '/pages/about', destination: '/about-us', permanent: true },
             { source: '/pages/contact', destination: '/contact-us', permanent: true },
-            { source: '/pages/faqs', destination: '/faqs', permanent: true },
-            { source: '/pages/shipping', destination: '/shipping-policy', permanent: true },
+            { source: '/pages/faqs', destination: '/faq', permanent: true },
+            { source: '/pages/shipping', destination: '/ship-policy', permanent: true },
             { source: '/pages/returns', destination: '/returns', permanent: true },
-            { source: '/pages/privacy-policy', destination: '/privacy-policy', permanent: true },
-            { source: '/pages/terms-conditions', destination: '/terms-and-conditions', permanent: true },
+            { source: '/pages/privacy-policy', destination: '/privacy', permanent: true },
+            { source: '/pages/terms-conditions', destination: '/terms', permanent: true },
+            { source: '/faqs', destination: '/faq', permanent: true },
+            { source: '/privacy-policy', destination: '/privacy', permanent: true },
+            { source: '/terms-and-conditions', destination: '/terms', permanent: true },
+            { source: '/shipping-policy', destination: '/ship-policy', permanent: true },
+            { source: '/return-policy', destination: '/returns', permanent: true },
         ]
     },
 }
