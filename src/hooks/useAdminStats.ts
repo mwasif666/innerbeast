@@ -9,5 +9,11 @@ export const useAdminStats = () => {
     queryKey: ["admin", "stats"],
     queryFn: getAdminStats,
     retry: false,
+    placeholderData: (previousData) => previousData,
+    staleTime: 10 * 1000,
+    refetchInterval: 30 * 1000,
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
 };
