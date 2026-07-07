@@ -9,17 +9,18 @@ import {
   Progress,
   Row,
   Skeleton,
-  Space,
-  Statistic,
   Table,
   Tag,
+  Tooltip,
   Typography,
 } from "antd";
 import {
   AppstoreOutlined,
   ArrowRightOutlined,
+  CheckCircleOutlined,
   DollarOutlined,
   PercentageOutlined,
+  ReloadOutlined,
   RightOutlined,
   SettingOutlined,
   ShoppingCartOutlined,
@@ -32,6 +33,7 @@ import type { CSSProperties, ReactNode } from "react";
 
 import { useAdminStats } from "@/hooks/useAdminStats";
 import { useCurrentUser } from "@/hooks/useAuth";
+import { useAdminTheme } from "@/providers/AdminAntdProvider";
 import type {
   AdminLowStockProduct,
   AdminRecentOrder,
@@ -75,15 +77,9 @@ const STATUS_COLORS: Record<string, string> = {
   returned: "orange",
 };
 
-const STATUS_ACCENTS: Record<string, string> = {
-  pending: "#f59e0b",
-  confirmed: "#60a5fa",
-  processing: "#a78bfa",
-  shipped: "#22d3ee",
-  delivered: "#22c55e",
-  cancelled: "#ef4444",
-  returned: "#fb923c",
-};
+// Per-mode values live in AdminAntdProvider's CSS variables; both palettes
+// are validated for colorblind separation and surface contrast.
+const getStatusAccent = (status: string) => `var(--adm-status-${status})`;
 
 const QUICK_ACTIONS: QuickAction[] = [
   {
@@ -125,21 +121,21 @@ const QUICK_ACTIONS: QuickAction[] = [
 ];
 
 const panelStyle: CSSProperties = {
-  borderColor: "rgba(255,255,255,0.08)",
-  background:
-    "linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02))",
+  borderColor: "var(--adm-border)",
+  background: "var(--adm-panel-bg)",
 };
 
 const heroStyle: CSSProperties = {
   position: "relative",
   overflow: "hidden",
-  padding: 28,
-  borderRadius: 28,
-  border: "1px solid rgba(255,255,255,0.08)",
-  marginBottom: 24,
-  background:
-    "radial-gradient(circle at top left, rgba(96,165,250,0.28), transparent 34%), linear-gradient(135deg, rgba(15,23,42,0.96), rgba(30,41,59,0.88))",
+  padding: "22px 26px",
+  borderRadius: 20,
+  border: "1px solid var(--adm-border)",
+  marginBottom: 20,
+  background: "var(--adm-hero-bg)",
 };
+
+const cardTitleStyle: CSSProperties = { color: "var(--adm-text)" };
 
 const formatMoney = (value?: number) =>
   `Rs. ${Number(value || 0).toLocaleString("en-PK")}`;
@@ -156,76 +152,301 @@ const formatDate = (value?: string) => {
   }).format(new Date(value));
 };
 
+const formatDateOnly = (value: string) =>
+  new Intl.DateTimeFormat("en-PK", { dateStyle: "medium" }).format(
+    new Date(value),
+  );
+
+const formatTimeOnly = (value: string) =>
+  new Intl.DateTimeFormat("en-PK", { timeStyle: "short" }).format(
+    new Date(value),
+  );
+
 const getStatusLabel = (status?: string) =>
   STATUS_LABELS[status || ""] || status || "Pending";
 
-const RevenueSplit = ({
-  paid = 0,
-  pending = 0,
+const sumStatuses = (
+  ordersByStatus: Record<string, number>,
+  statuses: string[],
+) =>
+  statuses.reduce(
+    (total, status) => total + Number(ordersByStatus[status] || 0),
+    0,
+  );
+
+const StatusBarChart = ({
+  ordersByStatus,
+  totalOrders,
 }: {
-  paid?: number;
-  pending?: number;
+  ordersByStatus: Record<string, number>;
+  totalOrders: number;
 }) => {
-  const total = paid + pending;
-  const paidPercent = total ? Math.round((paid / total) * 100) : 0;
-  const pendingPercent = total ? 100 - paidPercent : 0;
+  const statuses = Object.keys(STATUS_LABELS);
+  const maxCount = Math.max(
+    ...statuses.map((status) => Number(ordersByStatus[status] || 0)),
+    1,
+  );
 
   return (
     <div>
-      <div
-        style={{
-          display: "flex",
-          height: 18,
-          borderRadius: 999,
-          overflow: "hidden",
-          background: "rgba(255,255,255,0.08)",
-        }}
-      >
+      {statuses.map((status) => {
+        const count = Number(ordersByStatus[status] || 0);
+        const barPercent = (count / maxCount) * 100;
+        const share = totalOrders ? Math.round((count / totalOrders) * 100) : 0;
+
+        return (
+          <Tooltip
+            key={status}
+            title={`${getStatusLabel(status)}: ${formatNumber(count)} orders — ${share}% of all orders`}
+          >
+            <div
+              className="dash-bar-row"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 14,
+                padding: "8px 10px",
+                borderRadius: 10,
+                cursor: "default",
+              }}
+            >
+              <span
+                style={{
+                  width: 92,
+                  flexShrink: 0,
+                  fontSize: 13,
+                  color: "var(--adm-text-2)",
+                }}
+              >
+                {getStatusLabel(status)}
+              </span>
+
+              <div
+                style={{
+                  flex: 1,
+                  height: 14,
+                  borderRadius: "0 4px 4px 0",
+                  background: "var(--adm-wash)",
+                  borderLeft: "1px solid var(--adm-baseline)",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  className="dash-bar-fill"
+                  style={{
+                    width: `${barPercent}%`,
+                    minWidth: count > 0 ? 6 : 0,
+                    height: "100%",
+                    borderRadius: "0 4px 4px 0",
+                    background: getStatusAccent(status),
+                  }}
+                />
+              </div>
+
+              <strong
+                style={{
+                  width: 44,
+                  textAlign: "right",
+                  color: "var(--adm-text)",
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {formatNumber(count)}
+              </strong>
+
+              <span
+                style={{
+                  width: 40,
+                  textAlign: "right",
+                  fontSize: 12,
+                  color: "var(--adm-text-3)",
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {share}%
+              </span>
+            </div>
+          </Tooltip>
+        );
+      })}
+    </div>
+  );
+};
+
+const RevenueCollection = ({
+  paid = 0,
+  pending = 0,
+  orders = 0,
+}: {
+  paid?: number;
+  pending?: number;
+  orders?: number;
+}) => {
+  const total = paid + pending;
+  const collectedPercent = total ? Math.round((paid / total) * 100) : 0;
+  const avgOrderValue = orders ? Math.round(total / orders) : 0;
+
+  const legendRows = [
+    { label: "Paid", value: paid, accent: "var(--adm-good)" },
+    { label: "Pending", value: pending, accent: "var(--adm-warn)" },
+  ];
+
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+        <span
+          style={{
+            color: "var(--adm-text)",
+            fontSize: 38,
+            fontWeight: 800,
+            letterSpacing: "-0.03em",
+            lineHeight: 1,
+          }}
+        >
+          {collectedPercent}%
+        </span>
+        <Text type="secondary">of revenue collected</Text>
+      </div>
+
+      <div style={{ display: "flex", gap: 2, height: 14, marginTop: 16 }}>
         <div
           style={{
-            width: `${paidPercent}%`,
-            background: "#22c55e",
+            width: `${collectedPercent}%`,
+            minWidth: paid > 0 ? 6 : 0,
+            borderRadius: 4,
+            background: "var(--adm-good)",
           }}
         />
         <div
           style={{
-            width: `${pendingPercent}%`,
-            background: "#f59e0b",
+            flex: 1,
+            borderRadius: 4,
+            background: pending > 0 ? "var(--adm-warn)" : "var(--adm-wash)",
           }}
         />
       </div>
 
-      <Row gutter={12} style={{ marginTop: 18 }}>
-        <Col span={12}>
+      <div style={{ marginTop: 16 }}>
+        {legendRows.map((row) => (
           <div
+            key={row.label}
             style={{
-              padding: 14,
-              borderRadius: 14,
-              background: "rgba(34,197,94,0.1)",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "6px 0",
             }}
           >
-            <Text type="secondary">Paid</Text>
-            <div style={{ color: "#fff", fontWeight: 800, marginTop: 4 }}>
-              {formatMoney(paid)}
-            </div>
+            <span
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: 3,
+                background: row.accent,
+                flexShrink: 0,
+              }}
+            />
+            <Text type="secondary" style={{ flex: 1 }}>
+              {row.label}
+            </Text>
+            <strong style={{ color: "var(--adm-text)" }}>{formatMoney(row.value)}</strong>
           </div>
-        </Col>
+        ))}
+      </div>
 
-        <Col span={12}>
-          <div
-            style={{
-              padding: 14,
-              borderRadius: 14,
-              background: "rgba(245,158,11,0.1)",
-            }}
-          >
-            <Text type="secondary">Pending</Text>
-            <div style={{ color: "#fff", fontWeight: 800, marginTop: 4 }}>
-              {formatMoney(pending)}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginTop: 12,
+          paddingTop: 12,
+          borderTop: "1px solid var(--adm-border)",
+        }}
+      >
+        <Text type="secondary">Avg. order value</Text>
+        <strong style={{ color: "var(--adm-text)" }}>{formatMoney(avgOrderValue)}</strong>
+      </div>
+    </div>
+  );
+};
+
+const FulfilmentHealth = ({
+  ordersByStatus,
+  totalOrders,
+}: {
+  ordersByStatus: Record<string, number>;
+  totalOrders: number;
+}) => {
+  const { mode } = useAdminTheme();
+  const goodColor = mode === "dark" ? "#22c55e" : "#16a34a";
+
+  const delivered = Number(ordersByStatus.delivered || 0);
+  const deliveredPercent = totalOrders
+    ? Math.round((delivered / totalOrders) * 100)
+    : 0;
+
+  const rows = [
+    {
+      label: "In transit",
+      value: sumStatuses(ordersByStatus, ["shipped"]),
+    },
+    {
+      label: "In pipeline",
+      value: sumStatuses(ordersByStatus, [
+        "pending",
+        "confirmed",
+        "processing",
+      ]),
+    },
+    {
+      label: "Cancelled / returned",
+      value: sumStatuses(ordersByStatus, ["cancelled", "returned"]),
+    },
+  ];
+
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+      <Progress
+        type="circle"
+        percent={deliveredPercent}
+        size={92}
+        strokeColor={goodColor}
+        railColor={
+          mode === "dark" ? "rgba(34,197,94,0.14)" : "rgba(22,163,74,0.16)"
+        }
+      />
+
+      <div style={{ flex: 1 }}>
+        <div style={{ color: "var(--adm-text)", fontWeight: 800 }}>
+          {formatNumber(delivered)} delivered
+        </div>
+        <Text type="secondary" style={{ fontSize: 12 }}>
+          out of {formatNumber(totalOrders)} orders
+        </Text>
+
+        <div style={{ marginTop: 10 }}>
+          {rows.map((row) => (
+            <div
+              key={row.label}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 12,
+                padding: "3px 0",
+                fontSize: 13,
+              }}
+            >
+              <Text type="secondary">{row.label}</Text>
+              <strong
+                style={{ color: "var(--adm-text)", fontVariantNumeric: "tabular-nums" }}
+              >
+                {formatNumber(row.value)}
+              </strong>
             </div>
-          </div>
-        </Col>
-      </Row>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
@@ -234,6 +455,11 @@ const AdminPage = () => {
   const router = useRouter();
   const currentUserQuery = useCurrentUser();
   const statsQuery = useAdminStats();
+  const { mode } = useAdminTheme();
+
+  // Icon chips tint their accent with hex alpha, so these need concrete hex
+  // values per mode rather than CSS variables.
+  const isDark = mode === "dark";
 
   const user = currentUserQuery.data?.data;
   const firstName = user?.name ? user.name.split(" ")[0] : "";
@@ -243,64 +469,59 @@ const AdminPage = () => {
   const ordersByStatus = statsData?.ordersByStatus || {};
   const totalOrders = totals?.orders || 0;
 
-  const deliveredCount = Number(ordersByStatus.delivered || 0);
-  const deliveredPercent = totalOrders
-    ? Math.round((deliveredCount / totalOrders) * 100)
-    : 0;
-
-  const revenueCollectionPercent = totals?.revenue
-    ? Math.round(
-        (Number(totals?.paidRevenue || 0) / Number(totals.revenue)) * 100,
-      )
-    : 0;
+  const updatedAt =
+    statsData?.meta?.generatedAt ||
+    (statsQuery.dataUpdatedAt
+      ? new Date(statsQuery.dataUpdatedAt).toISOString()
+      : undefined);
 
   const statCards: StatCard[] = [
     {
       label: "Revenue",
       value: statsQuery.isLoading ? "…" : formatMoney(totals?.revenue),
-      note: "Active order value",
+      note: "Excl. cancelled / returned",
       icon: <DollarOutlined />,
-      accent: "#22c55e",
+      accent: isDark ? "#22c55e" : "#16a34a",
       href: "/admin/orders",
     },
     {
       label: "Orders",
-      value: statsQuery.isLoading ? "…" : (totals?.orders ?? 0),
+      value: statsQuery.isLoading ? "…" : formatNumber(totals?.orders),
       note: "All customer orders",
       icon: <ShoppingCartOutlined />,
-      accent: "#f59e0b",
+      accent: isDark ? "#f59e0b" : "#d97706",
       href: "/admin/orders",
     },
     {
       label: "Customers",
-      value: statsQuery.isLoading ? "…" : (totals?.customers ?? 0),
+      value: statsQuery.isLoading ? "…" : formatNumber(totals?.customers),
       note: "Registered accounts",
       icon: <TeamOutlined />,
-      accent: "#60a5fa",
+      accent: isDark ? "#60a5fa" : "#2563eb",
       href: "/admin/users",
     },
     {
       label: "Products",
-      value: statsQuery.isLoading ? "…" : (totals?.products ?? 0),
+      value: statsQuery.isLoading ? "…" : formatNumber(totals?.products),
       note: "Catalogue items",
       icon: <AppstoreOutlined />,
-      accent: "#a78bfa",
+      accent: isDark ? "#a78bfa" : "#7c3aed",
       href: "/admin/products",
     },
     {
       label: "Categories",
-      value: statsQuery.isLoading ? "…" : (totals?.categories ?? 0),
+      value: statsQuery.isLoading ? "…" : formatNumber(totals?.categories),
       note: "Product groups",
       icon: <TagsOutlined />,
-      accent: "#38bdf8",
+      accent: isDark ? "#38bdf8" : "#0284c7",
       href: "/admin/categories",
     },
     {
       label: "Low Stock",
-      value: statsQuery.isLoading ? "…" : (totals?.lowStock ?? 0),
+      value: statsQuery.isLoading ? "…" : formatNumber(totals?.lowStock),
       note: "Needs restock",
       icon: <WarningOutlined />,
-      accent: "#ef4444",
+      accent: isDark ? "#ef4444" : "#dc2626",
       href: "/admin/products",
     },
   ];
@@ -309,15 +530,19 @@ const AdminPage = () => {
     {
       title: "Order",
       dataIndex: "orderNumber",
+      width: 165,
       render: (orderNumber?: string) => (
-        <strong style={{ color: "#fff" }}>{orderNumber || "-"}</strong>
+        <strong style={{ color: "var(--adm-text)", fontSize: 13, whiteSpace: "nowrap" }}>
+          {orderNumber || "-"}
+        </strong>
       ),
     },
     {
       title: "Customer",
+      width: 180,
       render: (_, order) => (
         <div>
-          <div style={{ color: "#fff", fontWeight: 700 }}>
+          <div style={{ color: "var(--adm-text)", fontWeight: 700 }}>
             {order.customer?.name || "Guest"}
           </div>
           <Text type="secondary" style={{ fontSize: 12 }}>
@@ -329,6 +554,7 @@ const AdminPage = () => {
     {
       title: "Status",
       dataIndex: "orderStatus",
+      width: 110,
       render: (status?: string) => (
         <Tag color={STATUS_COLORS[status || ""] || "default"}>
           {getStatusLabel(status)}
@@ -338,8 +564,12 @@ const AdminPage = () => {
     {
       title: "Payment",
       dataIndex: "paymentStatus",
+      width: 100,
       render: (status?: string) => (
-        <Tag color={status === "paid" ? "green" : "gold"}>
+        <Tag
+          color={status === "paid" ? "green" : "gold"}
+          style={{ textTransform: "capitalize" }}
+        >
           {status || "pending"}
         </Tag>
       ),
@@ -348,12 +578,35 @@ const AdminPage = () => {
       title: "Total",
       dataIndex: "grandTotal",
       align: "right",
-      render: (total?: number) => <strong>{formatMoney(total)}</strong>,
+      width: 110,
+      render: (total?: number) => (
+        <strong
+          style={{
+            color: "var(--adm-text)",
+            whiteSpace: "nowrap",
+            fontVariantNumeric: "tabular-nums",
+          }}
+        >
+          {formatMoney(total)}
+        </strong>
+      ),
     },
     {
       title: "Date",
       dataIndex: "createdAt",
-      render: (createdAt?: string) => formatDate(createdAt),
+      width: 125,
+      render: (createdAt?: string) => {
+        if (!createdAt) return "-";
+
+        return (
+          <div style={{ whiteSpace: "nowrap" }}>
+            <div>{formatDateOnly(createdAt)}</div>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              {formatTimeOnly(createdAt)}
+            </Text>
+          </div>
+        );
+      },
     },
   ];
 
@@ -363,8 +616,8 @@ const AdminPage = () => {
       dataIndex: "title",
       render: (title: string, product) => (
         <div>
-          <strong style={{ color: "#fff" }}>{title}</strong>
-          <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 12 }}>
+          <strong style={{ color: "var(--adm-text)" }}>{title}</strong>
+          <div style={{ color: "var(--adm-text-3)", fontSize: 12 }}>
             {product.sku || "No SKU"}
           </div>
         </div>
@@ -384,120 +637,79 @@ const AdminPage = () => {
 
   return (
     <div style={{ maxWidth: 1540, margin: "0 auto" }}>
+      <style>{`
+        .dash-bar-row { transition: background 0.15s ease; }
+        .dash-bar-row:hover { background: var(--adm-wash); }
+        .dash-bar-row:hover .dash-bar-fill { filter: brightness(1.18); }
+        .dash-action {
+          transition: border-color 0.15s ease, background 0.15s ease;
+        }
+        .dash-action:hover,
+        .dash-action:focus-visible {
+          border-color: var(--adm-accent-border) !important;
+          background: var(--adm-accent-soft);
+          outline: none;
+        }
+      `}</style>
+
       <div style={heroStyle}>
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <div
-            style={{
-              color: "#60a5fa",
-              fontSize: 12,
-              fontWeight: 800,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              marginBottom: 8,
-            }}
-          >
-            Executive overview
+        <div
+          style={{
+            position: "relative",
+            zIndex: 1,
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+            gap: 16,
+          }}
+        >
+          <div>
+            <div
+              style={{
+                color: "var(--adm-accent)",
+                fontSize: 12,
+                fontWeight: 800,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                marginBottom: 6,
+              }}
+            >
+              Executive overview
+            </div>
+
+            <Title
+              level={2}
+              style={{ color: "var(--adm-text)", margin: 0, letterSpacing: "-0.03em" }}
+            >
+              Welcome back{firstName ? `, ${firstName}` : ""} 👋
+            </Title>
+
+            <Text style={{ color: "var(--adm-text-2)", fontSize: 14 }}>
+              Sales, orders, customers, inventory and fulfilment overview.
+            </Text>
           </div>
 
-          <Title
-            level={1}
+          <div
             style={{
-              color: "#fff",
-              margin: 0,
-              letterSpacing: "-0.04em",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-end",
+              gap: 6,
             }}
           >
-            Welcome back{firstName ? `, ${firstName}` : ""} 👋
-          </Title>
+            <Button
+              icon={<ReloadOutlined />}
+              loading={statsQuery.isFetching && !statsQuery.isLoading}
+              onClick={() => statsQuery.refetch()}
+            >
+              Refresh
+            </Button>
 
-          <Text style={{ color: "rgba(255,255,255,0.62)", fontSize: 15 }}>
-            Sales, orders, customers, inventory and fulfilment overview.
-          </Text>
-
-          <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
-            <Col xs={24} md={8}>
-              <Card
-                styles={{ body: { padding: 18 } }}
-                style={{ ...panelStyle, height: "100%" }}
-              >
-                <Text type="secondary">Total revenue</Text>
-                <div
-                  style={{
-                    color: "#fff",
-                    fontSize: 28,
-                    fontWeight: 900,
-                    marginTop: 6,
-                  }}
-                >
-                  {statsQuery.isLoading ? "…" : formatMoney(totals?.revenue)}
-                </div>
-                <Text type="secondary">
-                  Excluding cancelled / returned orders
-                </Text>
-              </Card>
-            </Col>
-
-            <Col xs={24} md={8}>
-              <Card
-                styles={{ body: { padding: 18 } }}
-                style={{ ...panelStyle, height: "100%" }}
-              >
-                <Text type="secondary">Fulfilment health</Text>
-
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 14,
-                    marginTop: 10,
-                  }}
-                >
-                  <Progress
-                    type="circle"
-                    percent={deliveredPercent}
-                    size={74}
-                    strokeColor="#22c55e"
-                  />
-
-                  <div>
-                    <div style={{ color: "#fff", fontWeight: 800 }}>
-                      {formatNumber(deliveredCount)} delivered
-                    </div>
-                    <Text type="secondary">
-                      out of {formatNumber(totalOrders)} orders
-                    </Text>
-                  </div>
-                </div>
-              </Card>
-            </Col>
-
-            <Col xs={24} md={8}>
-              <Card
-                styles={{ body: { padding: 18 } }}
-                style={{ ...panelStyle, height: "100%" }}
-              >
-                <Text type="secondary">Revenue collected</Text>
-
-                <div
-                  style={{
-                    color: "#fff",
-                    fontSize: 28,
-                    fontWeight: 900,
-                    marginTop: 6,
-                  }}
-                >
-                  {revenueCollectionPercent}%
-                </div>
-
-                <Progress
-                  percent={revenueCollectionPercent}
-                  showInfo={false}
-                  strokeColor="#22c55e"
-                  style={{ marginTop: 10 }}
-                />
-              </Card>
-            </Col>
-          </Row>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              Updated {formatDate(updatedAt)}
+            </Text>
+          </div>
         </div>
       </div>
 
@@ -506,18 +718,18 @@ const AdminPage = () => {
           type="error"
           showIcon
           style={{ marginBottom: 18 }}
-          message="Dashboard stats could not be loaded."
+          title="Dashboard stats could not be loaded."
           description="Check backend /api/admin/stats and admin authentication."
         />
       )}
 
-      <Row gutter={[18, 18]} style={{ marginBottom: 24 }}>
+      <Row gutter={[18, 18]} style={{ marginBottom: 20 }}>
         {statCards.map((stat) => (
-          <Col key={stat.label} xs={24} sm={12} xl={8} xxl={4}>
+          <Col key={stat.label} xs={12} md={8} xxl={4}>
             <Card
               hoverable
               onClick={() => router.push(stat.href)}
-              styles={{ body: { padding: 20 } }}
+              styles={{ body: { padding: 18 } }}
               style={{ ...panelStyle, height: "100%" }}
             >
               <div
@@ -525,17 +737,17 @@ const AdminPage = () => {
                   display: "flex",
                   alignItems: "flex-start",
                   justifyContent: "space-between",
-                  gap: 14,
+                  gap: 12,
                 }}
               >
                 <span
                   style={{
                     display: "grid",
                     placeItems: "center",
-                    width: 48,
-                    height: 48,
-                    borderRadius: 16,
-                    fontSize: 20,
+                    width: 42,
+                    height: 42,
+                    borderRadius: 14,
+                    fontSize: 18,
                     color: stat.accent,
                     background: `${stat.accent}1f`,
                     flexShrink: 0,
@@ -546,22 +758,37 @@ const AdminPage = () => {
 
                 <RightOutlined
                   style={{
-                    color: "rgba(255,255,255,0.28)",
+                    color: "var(--adm-text-4)",
+                    fontSize: 12,
                     marginTop: 4,
                   }}
                 />
               </div>
 
-              <Statistic
-                title={stat.label}
-                value={stat.value}
-                valueStyle={{
-                  color: "#fff",
-                  fontSize: 24,
-                  fontWeight: 800,
-                  marginTop: 12,
+              <div
+                style={{
+                  marginTop: 14,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "var(--adm-text-3)",
                 }}
-              />
+              >
+                {stat.label}
+              </div>
+
+              <div
+                style={{
+                  color: "var(--adm-text)",
+                  fontSize: 22,
+                  fontWeight: 800,
+                  marginTop: 4,
+                  overflowWrap: "anywhere",
+                }}
+              >
+                {stat.value}
+              </div>
 
               <Text type="secondary" style={{ fontSize: 12 }}>
                 {stat.note}
@@ -571,182 +798,228 @@ const AdminPage = () => {
         ))}
       </Row>
 
-      <Row gutter={[18, 18]} style={{ marginBottom: 24 }}>
-        <Col xs={24} xl={15}>
-          <Card
-            title={<span style={{ color: "#fff" }}>Order status chart</span>}
-            extra={
-              <Text type="secondary">
-                Distribution across fulfilment stages
-              </Text>
-            }
-            styles={{ body: { padding: 22 } }}
-            style={panelStyle}
+      <Row gutter={[18, 18]} style={{ marginBottom: 20 }}>
+        <Col xs={24} xl={14}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 18,
+              height: "100%",
+            }}
           >
-            {statsQuery.isLoading ? (
-              <Skeleton active paragraph={{ rows: 6 }} />
-            ) : (
-              <Space direction="vertical" size={16} style={{ width: "100%" }}>
-                {Object.keys(STATUS_LABELS).map((status) => {
-                  const count = Number(ordersByStatus[status] || 0);
-                  const percent = totalOrders
-                    ? Math.round((count / totalOrders) * 100)
-                    : 0;
+            <Card
+              title={<span style={cardTitleStyle}>Orders by status</span>}
+              extra={<Text type="secondary">Share of all orders</Text>}
+              styles={{ body: { padding: 16 } }}
+              style={panelStyle}
+            >
+              {statsQuery.isLoading ? (
+                <Skeleton active paragraph={{ rows: 6 }} />
+              ) : (
+                <StatusBarChart
+                  ordersByStatus={ordersByStatus}
+                  totalOrders={totalOrders}
+                />
+              )}
+            </Card>
 
-                  return (
-                    <div key={status}>
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          marginBottom: 6,
-                          color: "rgba(255,255,255,0.72)",
-                        }}
-                      >
-                        <span>{getStatusLabel(status)}</span>
-                        <strong style={{ color: "#fff" }}>{count}</strong>
-                      </div>
-
-                      <Progress
-                        percent={percent}
-                        showInfo={false}
-                        strokeColor={STATUS_ACCENTS[status]}
-                      />
+            <Card
+              title={<span style={cardTitleStyle}>Low stock watchlist</span>}
+              extra={
+                <Button
+                  type="link"
+                  onClick={() => router.push("/admin/products")}
+                >
+                  Products <ArrowRightOutlined />
+                </Button>
+              }
+              styles={{
+                body: {
+                  padding: 0,
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                },
+              }}
+              style={{
+                ...panelStyle,
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              {!statsQuery.isLoading &&
+              (statsData?.lowStockProducts || []).length === 0 ? (
+                <div
+                  style={{
+                    flex: 1,
+                    display: "grid",
+                    placeItems: "center",
+                    padding: "36px 24px",
+                    textAlign: "center",
+                  }}
+                >
+                  <div>
+                    <CheckCircleOutlined
+                      style={{ fontSize: 34, color: "var(--adm-good)" }}
+                    />
+                    <div
+                      style={{ color: "var(--adm-text)", fontWeight: 700, marginTop: 12 }}
+                    >
+                      All stocked up
                     </div>
-                  );
-                })}
-              </Space>
-            )}
-          </Card>
+                    <Text type="secondary" style={{ fontSize: 13 }}>
+                      No products are below the low stock threshold.
+                    </Text>
+                  </div>
+                </div>
+              ) : (
+                <Table<AdminLowStockProduct>
+                  rowKey="_id"
+                  size="middle"
+                  columns={lowStockColumns}
+                  dataSource={statsData?.lowStockProducts || []}
+                  loading={statsQuery.isLoading}
+                  pagination={false}
+                />
+              )}
+            </Card>
+          </div>
         </Col>
 
-        <Col xs={24} xl={9}>
-          <Card
-            title={<span style={{ color: "#fff" }}>Revenue collection</span>}
-            extra={<Text type="secondary">Paid vs pending</Text>}
-            styles={{ body: { padding: 22 } }}
-            style={{ ...panelStyle, height: "100%" }}
+        <Col xs={24} xl={10}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 18,
+              height: "100%",
+            }}
           >
-            {statsQuery.isLoading ? (
-              <Skeleton active paragraph={{ rows: 4 }} />
-            ) : (
-              <RevenueSplit
-                paid={Number(totals?.paidRevenue || 0)}
-                pending={Number(totals?.pendingRevenue || 0)}
-              />
-            )}
-          </Card>
-        </Col>
-      </Row>
+            <Card
+              title={<span style={cardTitleStyle}>Revenue collection</span>}
+              extra={<Text type="secondary">Paid vs pending</Text>}
+              styles={{ body: { padding: 20 } }}
+              style={panelStyle}
+            >
+              {statsQuery.isLoading ? (
+                <Skeleton active paragraph={{ rows: 4 }} />
+              ) : (
+                <RevenueCollection
+                  paid={Number(totals?.paidRevenue || 0)}
+                  pending={Number(totals?.pendingRevenue || 0)}
+                  orders={totalOrders}
+                />
+              )}
+            </Card>
 
-      <Row gutter={[18, 18]} style={{ marginBottom: 24 }}>
-        <Col xs={24} xl={16}>
-          <Card
-            title={<span style={{ color: "#fff" }}>Recent orders</span>}
-            extra={
-              <Button type="link" onClick={() => router.push("/admin/orders")}>
-                View all <ArrowRightOutlined />
-              </Button>
-            }
-            styles={{ body: { padding: 0 } }}
-            style={panelStyle}
-          >
-            <Table<AdminRecentOrder>
-              rowKey="_id"
-              columns={recentOrderColumns}
-              dataSource={statsData?.recentOrders || []}
-              loading={statsQuery.isLoading}
-              pagination={false}
-              scroll={{ x: 900 }}
-            />
-          </Card>
-        </Col>
-
-        <Col xs={24} xl={8}>
-          <Card
-            title={<span style={{ color: "#fff" }}>Low stock watchlist</span>}
-            extra={
-              <Button
-                type="link"
-                onClick={() => router.push("/admin/products")}
-              >
-                Products <ArrowRightOutlined />
-              </Button>
-            }
-            styles={{ body: { padding: 0 } }}
-            style={panelStyle}
-          >
-            <Table<AdminLowStockProduct>
-              rowKey="_id"
-              columns={lowStockColumns}
-              dataSource={statsData?.lowStockProducts || []}
-              loading={statsQuery.isLoading}
-              pagination={false}
-              locale={{ emptyText: "No low stock products." }}
-            />
-          </Card>
+            <Card
+              title={<span style={cardTitleStyle}>Fulfilment health</span>}
+              extra={<Text type="secondary">Delivered share</Text>}
+              styles={{ body: { padding: 20 } }}
+              style={{ ...panelStyle, flex: 1 }}
+            >
+              {statsQuery.isLoading ? (
+                <Skeleton active paragraph={{ rows: 3 }} />
+              ) : (
+                <FulfilmentHealth
+                  ordersByStatus={ordersByStatus}
+                  totalOrders={totalOrders}
+                />
+              )}
+            </Card>
+          </div>
         </Col>
       </Row>
 
       <Card
-        title={<span style={{ color: "#fff" }}>Quick actions</span>}
-        styles={{ body: { padding: 20 } }}
+        title={<span style={cardTitleStyle}>Recent orders</span>}
+        extra={
+          <Button type="link" onClick={() => router.push("/admin/orders")}>
+            View all <ArrowRightOutlined />
+          </Button>
+        }
+        styles={{ body: { padding: 0 } }}
+        style={{ ...panelStyle, marginBottom: 20 }}
+      >
+        <Table<AdminRecentOrder>
+          rowKey="_id"
+          size="middle"
+          columns={recentOrderColumns}
+          dataSource={statsData?.recentOrders || []}
+          loading={statsQuery.isLoading}
+          pagination={false}
+          scroll={{ x: 790 }}
+        />
+      </Card>
+
+      <Card
+        title={<span style={cardTitleStyle}>Quick actions</span>}
+        styles={{ body: { padding: 18 } }}
         style={panelStyle}
       >
-        <Row gutter={[16, 16]}>
+        <Row gutter={[14, 14]}>
           {QUICK_ACTIONS.map((action) => (
             <Col key={action.href} xs={24} md={12} xl={8}>
-              <Card
-                hoverable
+              <div
+                className="dash-action"
+                role="button"
+                tabIndex={0}
                 onClick={() => router.push(action.href)}
-                styles={{ body: { padding: 18 } }}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    router.push(action.href);
+                  }
+                }}
                 style={{
-                  borderColor: "rgba(255,255,255,0.08)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 14,
                   height: "100%",
+                  padding: "14px 16px",
+                  borderRadius: 14,
+                  border: "1px solid var(--adm-border)",
+                  cursor: "pointer",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                  <span
-                    style={{
-                      display: "grid",
-                      placeItems: "center",
-                      width: 46,
-                      height: 46,
-                      borderRadius: 14,
-                      fontSize: 19,
-                      color: "#60a5fa",
-                      background: "rgba(96,165,250,0.12)",
-                      flexShrink: 0,
-                    }}
-                  >
-                    {action.icon}
-                  </span>
+                <span
+                  style={{
+                    display: "grid",
+                    placeItems: "center",
+                    width: 42,
+                    height: 42,
+                    borderRadius: 13,
+                    fontSize: 18,
+                    color: "var(--adm-accent)",
+                    background: "var(--adm-accent-soft)",
+                    flexShrink: 0,
+                  }}
+                >
+                  {action.icon}
+                </span>
 
-                  <div style={{ flex: 1 }}>
-                    <div
-                      style={{
-                        fontSize: 15,
-                        fontWeight: 700,
-                        color: "#fff",
-                      }}
-                    >
-                      {action.label}
-                    </div>
-
-                    <div
-                      style={{
-                        marginTop: 4,
-                        color: "rgba(255,255,255,0.5)",
-                        fontSize: 13,
-                      }}
-                    >
-                      {action.description}
-                    </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "var(--adm-text)" }}>
+                    {action.label}
                   </div>
 
-                  <RightOutlined style={{ color: "rgba(255,255,255,0.32)" }} />
+                  <div
+                    style={{
+                      marginTop: 2,
+                      color: "var(--adm-text-3)",
+                      fontSize: 12,
+                    }}
+                  >
+                    {action.description}
+                  </div>
                 </div>
-              </Card>
+
+                <RightOutlined
+                  style={{ color: "var(--adm-text-4)", fontSize: 12 }}
+                />
+              </div>
             </Col>
           ))}
         </Row>

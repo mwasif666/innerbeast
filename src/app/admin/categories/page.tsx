@@ -236,8 +236,8 @@ const AdminCategoriesPage = () => {
               height: 42,
               borderRadius: 12,
               overflow: "hidden",
-              background: "rgba(96,165,250,0.12)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "var(--adm-accent-soft)",
+              border: "1px solid var(--adm-border)",
               display: "grid",
               placeItems: "center",
               color: "#93c5fd",
@@ -261,7 +261,7 @@ const AdminCategoriesPage = () => {
           </div>
 
           <div style={{ lineHeight: 1.3 }}>
-            <div style={{ color: "#fff", fontWeight: 600 }}>
+            <div style={{ color: "var(--adm-text)", fontWeight: 600 }}>
               {category.name}
             </div>
             <Text type="secondary" style={{ fontSize: 12.5 }}>
@@ -359,7 +359,7 @@ const AdminCategoriesPage = () => {
         <div>
           <div
             style={{
-              color: "#60a5fa",
+              color: "var(--adm-accent)",
               fontSize: 12,
               fontWeight: 700,
               letterSpacing: "0.12em",
@@ -370,7 +370,7 @@ const AdminCategoriesPage = () => {
             Catalog management
           </div>
 
-          <Title level={2} style={{ margin: 0, color: "#fff" }}>
+          <Title level={2} style={{ margin: 0, color: "var(--adm-text)" }}>
             Categories
           </Title>
 
@@ -388,7 +388,7 @@ const AdminCategoriesPage = () => {
 
       <Card
         styles={{ body: { padding: 18 } }}
-        style={{ borderColor: "rgba(255,255,255,0.1)" }}
+        style={{ borderColor: "var(--adm-border)" }}
       >
         <div
           style={{
@@ -404,7 +404,7 @@ const AdminCategoriesPage = () => {
             allowClear
             size="large"
             prefix={
-              <SearchOutlined style={{ color: "rgba(255,255,255,0.4)" }} />
+              <SearchOutlined style={{ color: "var(--adm-text-3)" }} />
             }
             placeholder="Search by name, slug or description..."
             value={search}
@@ -530,9 +530,9 @@ const AdminCategoriesPage = () => {
                   alignItems: "center",
                   gap: 12,
                   padding: 10,
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  border: "1px solid var(--adm-border)",
                   borderRadius: 12,
-                  background: "rgba(255,255,255,0.03)",
+                  background: "var(--adm-wash)",
                 }}
               >
                 <div
@@ -541,7 +541,7 @@ const AdminCategoriesPage = () => {
                     height: 64,
                     borderRadius: 10,
                     overflow: "hidden",
-                    background: "rgba(255,255,255,0.06)",
+                    background: "var(--adm-wash)",
                     flexShrink: 0,
                   }}
                 >
@@ -558,7 +558,7 @@ const AdminCategoriesPage = () => {
                 </div>
 
                 <div style={{ minWidth: 0 }}>
-                  <Text style={{ display: "block", color: "#fff" }}>
+                  <Text style={{ display: "block", color: "var(--adm-text)" }}>
                     Image uploaded
                   </Text>
                   <Text

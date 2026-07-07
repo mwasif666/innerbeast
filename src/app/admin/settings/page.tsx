@@ -245,7 +245,7 @@ const AdminSettingsPage = () => {
         <div>
           <div
             style={{
-              color: "#60a5fa",
+              color: "var(--adm-accent)",
               fontSize: 12,
               fontWeight: 700,
               letterSpacing: ".12em",
@@ -255,7 +255,7 @@ const AdminSettingsPage = () => {
             Global configuration
           </div>
 
-          <Title level={2} style={{ color: "#fff", margin: "6px 0 0" }}>
+          <Title level={2} style={{ color: "var(--adm-text)", margin: "6px 0 0" }}>
             Store Settings
           </Title>
 
@@ -300,8 +300,8 @@ const AdminSettingsPage = () => {
             <Col xs={24} xl={12}>
               <Card styles={{ body: cardBodyStyle }}>
                 <div style={sectionTitleStyle}>
-                  <ShopOutlined style={{ color: "#60a5fa" }} />
-                  <Title level={4} style={{ color: "#fff", margin: 0 }}>
+                  <ShopOutlined style={{ color: "var(--adm-accent)" }} />
+                  <Title level={4} style={{ color: "var(--adm-text)", margin: 0 }}>
                     Store identity
                   </Title>
                 </div>
@@ -329,8 +329,8 @@ const AdminSettingsPage = () => {
             <Col xs={24} xl={12}>
               <Card styles={{ body: cardBodyStyle }}>
                 <div style={sectionTitleStyle}>
-                  <CustomerServiceOutlined style={{ color: "#60a5fa" }} />
-                  <Title level={4} style={{ color: "#fff", margin: 0 }}>
+                  <CustomerServiceOutlined style={{ color: "var(--adm-accent)" }} />
+                  <Title level={4} style={{ color: "var(--adm-text)", margin: 0 }}>
                     Support details
                   </Title>
                 </div>
@@ -361,8 +361,8 @@ const AdminSettingsPage = () => {
             <Col xs={24} xl={12}>
               <Card styles={{ body: cardBodyStyle }}>
                 <div style={sectionTitleStyle}>
-                  <SettingOutlined style={{ color: "#60a5fa" }} />
-                  <Title level={4} style={{ color: "#fff", margin: 0 }}>
+                  <SettingOutlined style={{ color: "var(--adm-accent)" }} />
+                  <Title level={4} style={{ color: "var(--adm-text)", margin: 0 }}>
                     Currency & tax
                   </Title>
                 </div>
@@ -455,8 +455,8 @@ const AdminSettingsPage = () => {
             <Col xs={24} xl={12}>
               <Card styles={{ body: cardBodyStyle }}>
                 <div style={sectionTitleStyle}>
-                  <TruckOutlined style={{ color: "#60a5fa" }} />
-                  <Title level={4} style={{ color: "#fff", margin: 0 }}>
+                  <TruckOutlined style={{ color: "var(--adm-accent)" }} />
+                  <Title level={4} style={{ color: "var(--adm-text)", margin: 0 }}>
                     Shipping defaults
                   </Title>
                 </div>
@@ -512,8 +512,8 @@ const AdminSettingsPage = () => {
             <Col xs={24}>
               <Card styles={{ body: cardBodyStyle }}>
                 <div style={sectionTitleStyle}>
-                  <ShareAltOutlined style={{ color: "#60a5fa" }} />
-                  <Title level={4} style={{ color: "#fff", margin: 0 }}>
+                  <ShareAltOutlined style={{ color: "var(--adm-accent)" }} />
+                  <Title level={4} style={{ color: "var(--adm-text)", margin: 0 }}>
                     Social links
                   </Title>
                 </div>
@@ -582,8 +582,8 @@ const AdminSettingsPage = () => {
             <Col xs={24} xl={12}>
               <Card styles={{ body: cardBodyStyle }}>
                 <div style={sectionTitleStyle}>
-                  <SearchOutlined style={{ color: "#60a5fa" }} />
-                  <Title level={4} style={{ color: "#fff", margin: 0 }}>
+                  <SearchOutlined style={{ color: "var(--adm-accent)" }} />
+                  <Title level={4} style={{ color: "var(--adm-text)", margin: 0 }}>
                     SEO
                   </Title>
                 </div>
@@ -608,8 +608,8 @@ const AdminSettingsPage = () => {
             <Col xs={24} xl={12}>
               <Card styles={{ body: cardBodyStyle }}>
                 <div style={sectionTitleStyle}>
-                  <NotificationOutlined style={{ color: "#60a5fa" }} />
-                  <Title level={4} style={{ color: "#fff", margin: 0 }}>
+                  <NotificationOutlined style={{ color: "var(--adm-accent)" }} />
+                  <Title level={4} style={{ color: "var(--adm-text)", margin: 0 }}>
                     Announcement bar
                   </Title>
                 </div>

@@ -494,8 +494,8 @@ const AdminProductsPage = () => {
               height: 52,
               borderRadius: 12,
               overflow: "hidden",
-              background: "rgba(96,165,250,0.12)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "var(--adm-accent-soft)",
+              border: "1px solid var(--adm-border)",
               display: "grid",
               placeItems: "center",
               color: "#93c5fd",
@@ -519,7 +519,7 @@ const AdminProductsPage = () => {
           </div>
 
           <div style={{ lineHeight: 1.3 }}>
-            <div style={{ color: "#fff", fontWeight: 600 }}>
+            <div style={{ color: "var(--adm-text)", fontWeight: 600 }}>
               {product.title}
             </div>
             <Text type="secondary" style={{ fontSize: 12.5 }}>
@@ -542,7 +542,7 @@ const AdminProductsPage = () => {
       sorter: (a, b) => a.price - b.price,
       render: (_, product) => (
         <div style={{ lineHeight: 1.4 }}>
-          <div style={{ color: "#fff", fontWeight: 600 }}>
+          <div style={{ color: "var(--adm-text)", fontWeight: 600 }}>
             {formatPrice(product.discountPrice || product.price)}
           </div>
 
@@ -583,7 +583,7 @@ const AdminProductsPage = () => {
                   gap: 6,
                   margin: 0,
                   borderRadius: 999,
-                  background: "rgba(255,255,255,0.04)",
+                  background: "var(--adm-wash)",
                 }}
               >
                 <span
@@ -592,7 +592,7 @@ const AdminProductsPage = () => {
                     height: 12,
                     borderRadius: "50%",
                     background: color.hex || "#ffffff",
-                    border: "1px solid rgba(255,255,255,0.35)",
+                    border: "1px solid var(--adm-baseline)",
                     display: "inline-block",
                     flexShrink: 0,
                   }}
@@ -675,7 +675,7 @@ const AdminProductsPage = () => {
         <div>
           <div
             style={{
-              color: "#60a5fa",
+              color: "var(--adm-accent)",
               fontSize: 12,
               fontWeight: 700,
               letterSpacing: "0.12em",
@@ -686,7 +686,7 @@ const AdminProductsPage = () => {
             Catalog management
           </div>
 
-          <Title level={2} style={{ margin: 0, color: "#fff" }}>
+          <Title level={2} style={{ margin: 0, color: "var(--adm-text)" }}>
             Products
           </Title>
 
@@ -704,7 +704,7 @@ const AdminProductsPage = () => {
 
       <Card
         styles={{ body: { padding: 18 } }}
-        style={{ borderColor: "rgba(255,255,255,0.1)" }}
+        style={{ borderColor: "var(--adm-border)" }}
       >
         <div
           style={{
@@ -720,7 +720,7 @@ const AdminProductsPage = () => {
             allowClear
             size="large"
             prefix={
-              <SearchOutlined style={{ color: "rgba(255,255,255,0.4)" }} />
+              <SearchOutlined style={{ color: "var(--adm-text-3)" }} />
             }
             placeholder="Search by title, SKU or category..."
             value={search}
@@ -915,10 +915,10 @@ const AdminProductsPage = () => {
                   <div
                     key={image.url}
                     style={{
-                      border: "1px solid rgba(255,255,255,0.1)",
+                      border: "1px solid var(--adm-border)",
                       borderRadius: 12,
                       overflow: "hidden",
-                      background: "rgba(255,255,255,0.03)",
+                      background: "var(--adm-wash)",
                     }}
                   >
                     <div style={{ height: 92, background: "#111" }}>
@@ -938,7 +938,7 @@ const AdminProductsPage = () => {
                       style={{
                         display: "grid",
                         gridTemplateColumns: "1fr 1fr",
-                        borderTop: "1px solid rgba(255,255,255,0.08)",
+                        borderTop: "1px solid var(--adm-border)",
                       }}
                     >
                       <Upload
@@ -1036,11 +1036,11 @@ const AdminProductsPage = () => {
                           height: 42,
                           overflow: "hidden",
                           borderRadius: 8,
-                          border: "1px solid rgba(255,255,255,0.14)",
-                          background: "rgba(255,255,255,0.04)",
+                          border: "1px solid var(--adm-border)",
+                          background: "var(--adm-wash)",
                           display: "grid",
                           placeItems: "center",
-                          color: "rgba(255,255,255,0.45)",
+                          color: "var(--adm-text-3)",
                           fontSize: 10,
                         }}
                       >

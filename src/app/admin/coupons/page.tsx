@@ -136,7 +136,7 @@ const AdminCouponsPage = () => {
     {
       title: "Code",
       dataIndex: "code",
-      render: (code: string) => <strong style={{ color: "#fff" }}>{code}</strong>,
+      render: (code: string) => <strong style={{ color: "var(--adm-text)" }}>{code}</strong>,
     },
     {
       title: "Discount",
@@ -184,8 +184,8 @@ const AdminCouponsPage = () => {
     <div style={{ maxWidth: 1500, margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 16, marginBottom: 24 }}>
         <div>
-          <div style={{ color: "#f59e0b", fontSize: 12, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase" }}>Promotions</div>
-          <Title level={2} style={{ color: "#fff", margin: "6px 0 0" }}>Coupons</Title>
+          <div style={{ color: "var(--adm-warn)", fontSize: 12, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase" }}>Promotions</div>
+          <Title level={2} style={{ color: "var(--adm-text)", margin: "6px 0 0" }}>Coupons</Title>
           <Text type="secondary">Create and manage storefront discount codes.</Text>
         </div>
         <Button type="primary" size="large" icon={<PlusOutlined />} onClick={openCreate}>Add coupon</Button>

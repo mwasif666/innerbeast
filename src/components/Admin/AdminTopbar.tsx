@@ -1,9 +1,10 @@
 "use client";
 
-import { Avatar, Button } from "antd";
-import { MenuOutlined } from "@ant-design/icons";
+import { Avatar, Button, Tooltip } from "antd";
+import { MenuOutlined, MoonOutlined, SunOutlined } from "@ant-design/icons";
 
 import { User } from "@/services/auth.service";
+import { useAdminTheme } from "@/providers/AdminAntdProvider";
 
 type AdminTopbarProps = {
   title: string;
@@ -27,6 +28,8 @@ const AdminTopbar = ({
   onMenuClick,
   showMenuButton,
 }: AdminTopbarProps) => {
+  const { mode, toggleMode } = useAdminTheme();
+
   return (
     <div
       style={{
@@ -48,53 +51,79 @@ const AdminTopbar = ({
           />
         )}
         <div style={{ lineHeight: 1.25 }}>
-          <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12 }}>
-            Admin
-          </div>
-          <div style={{ color: "#fff", fontSize: 19, fontWeight: 650 }}>
+          <div style={{ color: "var(--adm-text-3)", fontSize: 12 }}>Admin</div>
+          <div
+            style={{
+              color: "var(--adm-text)",
+              fontSize: 19,
+              fontWeight: 650,
+            }}
+          >
             {title}
           </div>
         </div>
       </div>
 
-      {user && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 11,
-            padding: "5px 14px 5px 5px",
-            background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: 999,
-          }}
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <Tooltip
+          title={
+            mode === "dark" ? "Switch to light mode" : "Switch to dark mode"
+          }
         >
-          <Avatar
-            size={34}
+          <Button
+            type="text"
+            shape="circle"
+            icon={mode === "dark" ? <SunOutlined /> : <MoonOutlined />}
+            onClick={toggleMode}
+            aria-label="Toggle theme"
+          />
+        </Tooltip>
+
+        {user && (
+          <div
             style={{
-              background: "linear-gradient(135deg, #60a5fa, #2563eb)",
-              fontSize: 12,
-              fontWeight: 700,
+              display: "flex",
+              alignItems: "center",
+              gap: 11,
+              padding: "5px 14px 5px 5px",
+              background: "var(--adm-wash)",
+              border: "1px solid var(--adm-border)",
+              borderRadius: 999,
             }}
           >
-            {getInitials(user.name)}
-          </Avatar>
-          <div className="admin-user-meta" style={{ lineHeight: 1.25 }}>
-            <div style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>
-              {user.name}
-            </div>
-            <div
+            <Avatar
+              size={34}
               style={{
-                color: "rgba(255,255,255,0.45)",
+                background: "linear-gradient(135deg, #60a5fa, #2563eb)",
                 fontSize: 12,
-                textTransform: "capitalize",
+                fontWeight: 700,
               }}
             >
-              {user.role}
+              {getInitials(user.name)}
+            </Avatar>
+            <div className="admin-user-meta" style={{ lineHeight: 1.25 }}>
+              <div
+                style={{
+                  color: "var(--adm-text)",
+                  fontSize: 13,
+                  fontWeight: 600,
+                }}
+              >
+                {user.name}
+              </div>
+              <div
+                style={{
+                  color: "var(--adm-text-3)",
+                  fontSize: 12,
+                  textTransform: "capitalize",
+                }}
+              >
+                {user.role}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

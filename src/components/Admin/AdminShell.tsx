@@ -27,7 +27,7 @@ const AdminShell = ({ children }: { children: ReactNode }) => {
   const title = getPageTitle(pathname);
 
   return (
-    <Layout style={{ minHeight: "100vh", background: "#080808" }}>
+    <Layout style={{ minHeight: "100vh", background: "var(--adm-body-bg)" }}>
       {isDesktop && (
         <Sider
           width={SIDER_WIDTH}
@@ -37,7 +37,7 @@ const AdminShell = ({ children }: { children: ReactNode }) => {
             top: 0,
             bottom: 0,
             height: "100vh",
-            borderInlineEnd: "1px solid rgba(255,255,255,0.08)",
+            borderInlineEnd: "1px solid var(--adm-border)",
             zIndex: 50,
           }}
         >
@@ -51,7 +51,7 @@ const AdminShell = ({ children }: { children: ReactNode }) => {
         onClose={() => setDrawerOpen(false)}
         width={SIDER_WIDTH}
         closable={false}
-        styles={{ body: { padding: 0, background: "#0d0d0d" } }}
+        styles={{ body: { padding: 0, background: "var(--adm-sider-bg)" } }}
         rootClassName="admin-drawer"
       >
         <AdminSidebar
@@ -63,7 +63,7 @@ const AdminShell = ({ children }: { children: ReactNode }) => {
       <Layout
         style={{
           marginInlineStart: isDesktop ? SIDER_WIDTH : 0,
-          background: "#080808",
+          background: "var(--adm-body-bg)",
         }}
       >
         <Header
@@ -75,7 +75,7 @@ const AdminShell = ({ children }: { children: ReactNode }) => {
             padding: 0,
             lineHeight: "normal",
             backdropFilter: "blur(12px)",
-            borderBottom: "1px solid rgba(255,255,255,0.08)",
+            borderBottom: "1px solid var(--adm-border)",
           }}
         >
           <AdminTopbar

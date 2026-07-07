@@ -147,7 +147,7 @@ const AdminShippingPage = () => {
       dataIndex: "name",
       render: (name: string, rule) => (
         <div>
-          <strong style={{ color: "#fff" }}>{name}</strong>
+          <strong style={{ color: "var(--adm-text)" }}>{name}</strong>
           {rule.isDefault && <Tag color="blue" style={{ marginLeft: 8 }}>Default</Tag>}
         </div>
       ),
@@ -222,7 +222,7 @@ const AdminShippingPage = () => {
         <div>
           <div
             style={{
-              color: "#60a5fa",
+              color: "var(--adm-accent)",
               fontSize: 12,
               fontWeight: 700,
               letterSpacing: ".12em",
@@ -231,7 +231,7 @@ const AdminShippingPage = () => {
           >
             Delivery settings
           </div>
-          <Title level={2} style={{ color: "#fff", margin: "6px 0 0" }}>
+          <Title level={2} style={{ color: "var(--adm-text)", margin: "6px 0 0" }}>
             Shipping
           </Title>
           <Text type="secondary">

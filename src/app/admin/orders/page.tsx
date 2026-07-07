@@ -178,13 +178,13 @@ const ProductThumb = ({ item, size = 52 }: { item: OrderItem; size?: number }) =
         height: size,
         flex: `0 0 ${size}px`,
         borderRadius: 10,
-        border: "1px solid rgba(255,255,255,.1)",
+        border: "1px solid var(--adm-border)",
         background: image
           ? `#1b1b1b url("${image.replace(/"/g, "%22")}") center / cover no-repeat`
           : "#1b1b1b",
         display: "grid",
         placeItems: "center",
-        color: "rgba(255,255,255,.35)",
+        color: "var(--adm-text-3)",
       }}
     >
       {!image && <ShoppingCartOutlined />}
@@ -276,7 +276,7 @@ const AdminOrdersPage = () => {
       width: 180,
       render: (_, order) => (
         <div>
-          <button type="button" onClick={() => openOrder(order)} style={{ color: "#fff", fontWeight: 650, textAlign: "left" }}>
+          <button type="button" onClick={() => openOrder(order)} style={{ color: "var(--adm-text)", fontWeight: 650, textAlign: "left" }}>
             {order.orderNumber || `#${order._id.slice(-8).toUpperCase()}`}
           </button>
           <div><Text type="secondary" style={{ fontSize: 12 }}>{formatDate(order.createdAt || order.placedAt)}</Text></div>
@@ -295,7 +295,7 @@ const AdminOrdersPage = () => {
           <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
             <ProductThumb item={firstItem} size={44} />
             <div style={{ minWidth: 0 }}>
-              <div style={{ color: "#fff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{getItemName(firstItem)}</div>
+              <div style={{ color: "var(--adm-text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{getItemName(firstItem)}</div>
               <Text type="secondary" style={{ fontSize: 12 }}>{totalQty} item{totalQty === 1 ? "" : "s"}{order.items.length > 1 ? ` / +${order.items.length - 1} product` : ""}</Text>
             </div>
           </div>
@@ -307,7 +307,7 @@ const AdminOrdersPage = () => {
       key: "customer",
       width: 210,
       render: (_, order) => (
-        <div><div style={{ color: "#fff" }}>{getCustomerName(order)}</div><Text type="secondary" style={{ fontSize: 12 }}>{getCustomerEmail(order) || order.shippingAddress?.phone || "-"}</Text></div>
+        <div><div style={{ color: "var(--adm-text)" }}>{getCustomerName(order)}</div><Text type="secondary" style={{ fontSize: 12 }}>{getCustomerEmail(order) || order.shippingAddress?.phone || "-"}</Text></div>
       ),
     },
     {
@@ -322,7 +322,7 @@ const AdminOrdersPage = () => {
       width: 140,
       align: "right",
       sorter: (a, b) => getOrderTotal(a) - getOrderTotal(b),
-      render: (_, order) => <strong style={{ color: "#fff" }}>{formatCurrency(getOrderTotal(order))}</strong>,
+      render: (_, order) => <strong style={{ color: "var(--adm-text)" }}>{formatCurrency(getOrderTotal(order))}</strong>,
     },
     {
       title: "",
@@ -337,19 +337,19 @@ const AdminOrdersPage = () => {
     <div style={{ maxWidth: 1600, margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 20, flexWrap: "wrap", marginBottom: 24 }}>
         <div>
-          <div style={{ color: "#f59e0b", fontSize: 12, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 7 }}>Order management</div>
-          <Title level={2} style={{ margin: 0, color: "#fff" }}>Orders</Title>
+          <div style={{ color: "var(--adm-warn)", fontSize: 12, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", marginBottom: 7 }}>Order management</div>
+          <Title level={2} style={{ margin: 0, color: "var(--adm-text)" }}>Orders</Title>
           <Text type="secondary">Review products, customer details and fulfilment status.</Text>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "9px 14px", borderRadius: 13, border: "1px solid rgba(255,255,255,.1)", background: "rgba(255,255,255,.04)" }}>
-          <ShoppingCartOutlined style={{ color: "#f59e0b" }} /><Text type="secondary">Total orders</Text><strong style={{ color: "#fff" }}>{getOrdersCount(ordersQuery.data)}</strong>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "9px 14px", borderRadius: 13, border: "1px solid var(--adm-border)", background: "var(--adm-wash)" }}>
+          <ShoppingCartOutlined style={{ color: "var(--adm-warn)" }} /><Text type="secondary">Total orders</Text><strong style={{ color: "var(--adm-text)" }}>{getOrdersCount(ordersQuery.data)}</strong>
         </div>
       </div>
 
-      <Card styles={{ body: { padding: 18 } }} style={{ borderColor: "rgba(255,255,255,.1)" }}>
+      <Card styles={{ body: { padding: 18 } }} style={{ borderColor: "var(--adm-border)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 18 }}>
           <Space wrap>
-            <Input allowClear size="large" prefix={<SearchOutlined style={{ color: "rgba(255,255,255,.4)" }} />} placeholder="Search order, customer or product..." value={search} onChange={(event) => setSearch(event.target.value)} style={{ width: 360 }} />
+            <Input allowClear size="large" prefix={<SearchOutlined style={{ color: "var(--adm-text-3)" }} />} placeholder="Search order, customer or product..." value={search} onChange={(event) => setSearch(event.target.value)} style={{ width: 360 }} />
             <Select size="large" value={status} onChange={setStatus} style={{ width: 170 }} options={[{ value: "all", label: "All statuses" }, ...ORDER_STATUSES.map((value) => ({ value, label: value[0].toUpperCase() + value.slice(1) }))]} />
           </Space>
           <Text type="secondary" style={{ alignSelf: "center" }}>{filteredOrders.length} results</Text>
@@ -363,7 +363,7 @@ const AdminOrdersPage = () => {
           <div style={{ minHeight: 300, display: "grid", placeItems: "center" }}><Spin /></div>
         ) : detailOrder ? (
           <Space direction="vertical" size={24} style={{ width: "100%" }}>
-            <Card size="small" title="Fulfilment" style={{ borderColor: "rgba(255,255,255,.1)" }}>
+            <Card size="small" title="Fulfilment" style={{ borderColor: "var(--adm-border)" }}>
               {cancelledDetailOrder && (
                 <div
                   style={{
@@ -397,23 +397,23 @@ const AdminOrdersPage = () => {
             ]} />
 
             <div>
-              <Title level={5} style={{ color: "#fff", marginBottom: 8 }}>Delivery address</Title>
+              <Title level={5} style={{ color: "var(--adm-text)", marginBottom: 8 }}>Delivery address</Title>
               <Text type="secondary" style={{ lineHeight: 1.7 }}>
                 {[detailOrder.shippingAddress?.addressLine1, detailOrder.shippingAddress?.addressLine2, detailOrder.shippingAddress?.city, detailOrder.shippingAddress?.state, detailOrder.shippingAddress?.postalCode, detailOrder.shippingAddress?.country].filter(Boolean).join(", ") || "No address supplied"}
               </Text>
             </div>
 
             <div>
-              <Title level={5} style={{ color: "#fff", marginBottom: 10 }}>Products ({detailOrder.items?.length || 0})</Title>
+              <Title level={5} style={{ color: "var(--adm-text)", marginBottom: 10 }}>Products ({detailOrder.items?.length || 0})</Title>
               <div style={{ display: "grid", gap: 10 }}>
                 {(detailOrder.items || []).map((item, index) => {
                   const color = getItemColor(item);
                   const productId = getItemProductId(item);
                   return (
-                    <div key={`${item.sku || getItemName(item)}-${index}`} style={{ display: "grid", gridTemplateColumns: "72px minmax(0,1fr) auto", gap: 14, alignItems: "center", padding: 12, border: "1px solid rgba(255,255,255,.09)", borderRadius: 12, background: "rgba(255,255,255,.025)" }}>
+                    <div key={`${item.sku || getItemName(item)}-${index}`} style={{ display: "grid", gridTemplateColumns: "72px minmax(0,1fr) auto", gap: 14, alignItems: "center", padding: 12, border: "1px solid var(--adm-border)", borderRadius: 12, background: "var(--adm-wash)" }}>
                       <ProductThumb item={item} size={72} />
                       <div style={{ minWidth: 0 }}>
-                        {productId ? <a href={`/products/${item.slug || productId}`} target="_blank" rel="noreferrer" style={{ color: "#fff", fontWeight: 600 }}>{getItemName(item)}</a> : <div style={{ color: "#fff", fontWeight: 600 }}>{getItemName(item)}</div>}
+                        {productId ? <a href={`/products/${item.slug || productId}`} target="_blank" rel="noreferrer" style={{ color: "var(--adm-text)", fontWeight: 600 }}>{getItemName(item)}</a> : <div style={{ color: "var(--adm-text)", fontWeight: 600 }}>{getItemName(item)}</div>}
                         <Text type="secondary" style={{ display: "block", fontSize: 12, marginTop: 3 }}>SKU: {item.sku || "-"}</Text>
                         <Space size={8} wrap style={{ marginTop: 7 }}>
                           <Tag>Qty {item.quantity || 1}</Tag>
@@ -422,14 +422,14 @@ const AdminOrdersPage = () => {
                         </Space>
                         <Text type="secondary" style={{ display: "block", fontSize: 12, marginTop: 7 }}>Unit price: {formatCurrency(item.price)}{item.originalPrice && item.originalPrice > Number(item.price || 0) ? ` (was ${formatCurrency(item.originalPrice)})` : ""}</Text>
                       </div>
-                      <strong style={{ color: "#fff", whiteSpace: "nowrap" }}>{formatCurrency(getItemLineTotal(item))}</strong>
+                      <strong style={{ color: "var(--adm-text)", whiteSpace: "nowrap" }}>{formatCurrency(getItemLineTotal(item))}</strong>
                     </div>
                   );
                 })}
               </div>
             </div>
 
-            <Card size="small" title="Order total" style={{ borderColor: "rgba(255,255,255,.1)" }}>
+            <Card size="small" title="Order total" style={{ borderColor: "var(--adm-border)" }}>
               {[
                 ["Subtotal", detailOrder.subtotal],
                 ["Discount", -(detailOrder.discountTotal || detailOrder.discount || 0)],
@@ -447,7 +447,7 @@ const AdminOrdersPage = () => {
             ]} />}
 
             <div>
-              <Title level={5} style={{ color: "#fff", marginBottom: 10 }}><ClockCircleOutlined /> Timeline</Title>
+              <Title level={5} style={{ color: "var(--adm-text)", marginBottom: 10 }}><ClockCircleOutlined /> Timeline</Title>
               <Space direction="vertical" size={6}>
                 <Text type="secondary">Placed: {formatDate(detailOrder.placedAt || detailOrder.createdAt)}</Text>
                 {detailOrder.confirmedAt && <Text type="secondary">Confirmed: {formatDate(detailOrder.confirmedAt)}</Text>}

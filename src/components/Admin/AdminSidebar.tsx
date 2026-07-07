@@ -40,7 +40,7 @@ const AdminSidebar = ({ activeKey, onNavigate }: AdminSidebarProps) => {
           gap: 12,
           padding: "4px 12px 20px",
           marginBottom: 8,
-          borderBottom: "1px solid rgba(255,255,255,0.07)",
+          borderBottom: "1px solid var(--adm-border)",
         }}
       >
         <span
@@ -59,10 +59,16 @@ const AdminSidebar = ({ activeKey, onNavigate }: AdminSidebarProps) => {
           IB
         </span>
         <div style={{ lineHeight: 1.2 }}>
-          <div style={{ color: "#fff", fontSize: 15, fontWeight: 650 }}>
+          <div
+            style={{
+              color: "var(--adm-text)",
+              fontSize: 15,
+              fontWeight: 650,
+            }}
+          >
             Inner Beast
           </div>
-          <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 12 }}>
+          <div style={{ color: "var(--adm-text-3)", fontSize: 12 }}>
             Admin Panel
           </div>
         </div>
@@ -87,7 +93,7 @@ const AdminSidebar = ({ activeKey, onNavigate }: AdminSidebarProps) => {
         style={{
           paddingTop: 14,
           marginTop: 8,
-          borderTop: "1px solid rgba(255,255,255,0.07)",
+          borderTop: "1px solid var(--adm-border)",
         }}
       >
         <Button

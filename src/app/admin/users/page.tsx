@@ -211,7 +211,7 @@ const AdminUsersPage = () => {
             {getInitials(customer.name)}
           </Avatar>
           <div style={{ lineHeight: 1.3 }}>
-            <div style={{ fontWeight: 500, color: "#fff" }}>{customer.name}</div>
+            <div style={{ fontWeight: 500, color: "var(--adm-text)" }}>{customer.name}</div>
             <Text type="secondary" style={{ fontSize: 12.5 }}>
               {customer.email}
             </Text>
@@ -347,7 +347,7 @@ const AdminUsersPage = () => {
         <div>
           <div
             style={{
-              color: "#60a5fa",
+              color: "var(--adm-accent)",
               fontSize: 12,
               fontWeight: 700,
               letterSpacing: "0.12em",
@@ -357,7 +357,7 @@ const AdminUsersPage = () => {
           >
             User management
           </div>
-          <Title level={2} style={{ margin: 0, color: "#fff" }}>
+          <Title level={2} style={{ margin: 0, color: "var(--adm-text)" }}>
             {actorIsSuperAdmin ? "Users & Staff" : "Customers"}
           </Title>
           <Text type="secondary">
@@ -373,10 +373,10 @@ const AdminUsersPage = () => {
             alignItems: "center",
             gap: 12,
             padding: "8px 10px 8px 16px",
-            background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.1)",
+            background: "var(--adm-wash)",
+            border: "1px solid var(--adm-border)",
             borderRadius: 14,
-            color: "rgba(255,255,255,0.65)",
+            color: "var(--adm-text-2)",
             fontSize: 13,
           }}
         >
@@ -402,7 +402,7 @@ const AdminUsersPage = () => {
 
       <Card
         styles={{ body: { padding: 18 } }}
-        style={{ borderColor: "rgba(255,255,255,0.1)" }}
+        style={{ borderColor: "var(--adm-border)" }}
       >
         <div
           style={{
@@ -417,7 +417,7 @@ const AdminUsersPage = () => {
           <Input
             allowClear
             size="large"
-            prefix={<SearchOutlined style={{ color: "rgba(255,255,255,0.4)" }} />}
+            prefix={<SearchOutlined style={{ color: "var(--adm-text-3)" }} />}
             placeholder="Search by name, email or role..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
