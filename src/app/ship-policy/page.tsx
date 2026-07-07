@@ -1,0 +1,1 @@
+export default function Page(){return <main className="container py-20"><h1>Delivery policy</h1><p>Delivery timelines and charges may vary by city, address and order value. Customers receive order updates through the checkout contact details.</p></main>}
