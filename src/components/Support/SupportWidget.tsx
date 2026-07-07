@@ -151,8 +151,8 @@ const SupportWidget = () => {
           <form onSubmit={handleSubmit} className='p-4 space-y-3'>
             {!conversation && (
               <div className='grid grid-cols-2 gap-2'>
-                <input value={name} onChange={(event) => setName(event.target.value)} placeholder='Name' className='rounded-xl border border-black/10 px-3 py-2 text-sm outline-none focus:border-black' />
-                <input value={email} onChange={(event) => setEmail(event.target.value)} placeholder='Email' className='rounded-xl border border-black/10 px-3 py-2 text-sm outline-none focus:border-black' />
+                <input value={name} onChange={(event) => setName(event.target.value)} placeholder='Name' className='rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-black placeholder:text-black/40 outline-none focus:border-black' />
+                <input value={email} onChange={(event) => setEmail(event.target.value)} placeholder='Email' className='rounded-xl border border-black/10 bg-white px-3 py-2 text-sm text-black placeholder:text-black/40 outline-none focus:border-black' />
               </div>
             )}
             <div className='flex gap-2'>
@@ -160,7 +160,7 @@ const SupportWidget = () => {
                 value={message}
                 onChange={(event) => setMessage(event.target.value)}
                 placeholder='Type your message...'
-                className='flex-1 rounded-xl border border-black/10 px-3 py-3 text-sm outline-none focus:border-black'
+                className='flex-1 rounded-xl border border-black/10 bg-white px-3 py-3 text-sm text-black placeholder:text-black/40 outline-none focus:border-black'
               />
               <button disabled={loading} className='rounded-xl bg-black px-4 py-3 text-sm font-semibold text-white disabled:opacity-50'>
                 Send

@@ -165,7 +165,7 @@ const AdminSupportPage = () => {
         <Alert
           type="error"
           showIcon
-          message="Support chat error"
+          title="Support chat error"
           description={error}
         />
       )}
@@ -179,7 +179,7 @@ const AdminSupportPage = () => {
               renderItem={(item) => (
                 <List.Item
                   onClick={() => setActiveId(item._id)}
-                  style={{ cursor: "pointer", padding: 16, background: activeId === item._id ? "#f5f5f5" : "transparent" }}
+                  style={{ cursor: "pointer", padding: 16, background: activeId === item._id ? "var(--adm-accent-soft)" : "transparent" }}
                 >
                   <List.Item.Meta
                     title={(
@@ -215,12 +215,21 @@ const AdminSupportPage = () => {
                 </Space>
               </Space>
 
-              <div style={{ height: 420, overflowY: "auto", background: "#f7f8fa", borderRadius: 16, padding: 16 }}>
+              <div style={{ height: 420, overflowY: "auto", background: "var(--adm-wash)", border: "1px solid var(--adm-border)", borderRadius: 16, padding: 16 }}>
                 {(active.messages || []).map((message, index) => {
                   const admin = message.senderType === "admin";
                   return (
                     <div key={message._id || index} style={{ display: "flex", justifyContent: admin ? "flex-end" : "flex-start", marginBottom: 12 }}>
-                      <div style={{ maxWidth: "70%", padding: "10px 14px", borderRadius: 16, background: admin ? "#111" : "#fff", color: admin ? "#fff" : "#111" }}>
+                      <div
+                        style={{
+                          maxWidth: "70%",
+                          padding: "10px 14px",
+                          borderRadius: 16,
+                          background: admin ? "#2563eb" : "var(--adm-sider-bg)",
+                          border: admin ? "none" : "1px solid var(--adm-border)",
+                          color: admin ? "#fff" : "var(--adm-text)",
+                        }}
+                      >
                         <div style={{ fontSize: 11, opacity: 0.55 }}>{message.name || message.senderType}</div>
                         <div>{message.message}</div>
                       </div>
