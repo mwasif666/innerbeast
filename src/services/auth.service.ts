@@ -78,7 +78,7 @@ export type AuthResponse = {
 
 export type MeResponse = {
   success: boolean;
-  data: User;
+  data: User | null;
 };
 
 export type BasicResponse = {

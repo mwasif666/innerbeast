@@ -52,7 +52,11 @@ const MyAccount = () => {
   const cancelMutation = useCancelOrder();
   const orders = useMemo(() => extractOrders(ordersQuery.data), [ordersQuery.data]);
 
-  useEffect(() => { if (userQuery.isError) router.replace("/login?redirect=/my-account"); }, [router, userQuery.isError]);
+  useEffect(() => {
+    if (userQuery.isError || (!userQuery.isLoading && !user)) {
+      router.replace("/login?redirect=/my-account");
+    }
+  }, [router, user, userQuery.isError, userQuery.isLoading]);
 
   const latestAddress = user?.addresses?.find((item) => item.isDefault) || user?.addresses?.[0] || orders[0]?.shippingAddress;
   const initials = (user?.name || "IB").split(" ").map((part) => part[0]).slice(0, 2).join("").toUpperCase();
