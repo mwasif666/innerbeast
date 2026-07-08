@@ -22,12 +22,15 @@ import {
   ResetPasswordPayload,
 } from "../services/auth.service";
 
+const AUTH_QUERY_STALE_TIME = 5 * 60 * 1000;
+
 const authQueryOptions = {
-  staleTime: 0,
+  staleTime: AUTH_QUERY_STALE_TIME,
+  gcTime: 30 * 60 * 1000,
   retry: false,
-  refetchOnMount: "always" as const,
-  refetchOnWindowFocus: "always" as const,
-  refetchOnReconnect: "always" as const,
+  refetchOnMount: true,
+  refetchOnWindowFocus: false,
+  refetchOnReconnect: true,
 };
 
 const getAuthUser = (response: { data?: User | null; user?: User }) =>
@@ -54,7 +57,7 @@ export const useLogin = () => {
 
   return useMutation({
     mutationFn: (payload: LoginPayload) => loginUser(payload),
-    onSuccess: async (response) => {
+    onSuccess: (response) => {
       const user = getAuthUser(response);
 
       if (user) {
@@ -62,11 +65,19 @@ export const useLogin = () => {
           success: true,
           data: user,
         });
-      }
 
-      await queryClient.invalidateQueries({
-        queryKey: ["auth"],
-      });
+        if (user.role === "admin" || user.role === "superAdmin") {
+          queryClient.setQueryData(["auth", "admin-check"], {
+            success: true,
+            data: user,
+            user,
+          });
+        } else {
+          queryClient.removeQueries({
+            queryKey: ["auth", "admin-check"],
+          });
+        }
+      }
     },
   });
 };
@@ -76,7 +87,7 @@ export const useRegister = () => {
 
   return useMutation({
     mutationFn: (payload: RegisterPayload) => registerUser(payload),
-    onSuccess: async (response) => {
+    onSuccess: (response) => {
       const user = getAuthUser(response);
 
       if (user) {
@@ -84,11 +95,10 @@ export const useRegister = () => {
           success: true,
           data: user,
         });
+        queryClient.removeQueries({
+          queryKey: ["auth", "admin-check"],
+        });
       }
-
-      await queryClient.invalidateQueries({
-        queryKey: ["auth"],
-      });
     },
   });
 };
@@ -98,7 +108,7 @@ export const useUpdateMe = () => {
 
   return useMutation({
     mutationFn: (payload: UpdateProfilePayload) => updateMe(payload),
-    onSuccess: async (response) => {
+    onSuccess: (response) => {
       const user = getAuthUser(response);
 
       if (user) {
@@ -107,10 +117,6 @@ export const useUpdateMe = () => {
           data: user,
         });
       }
-
-      await queryClient.invalidateQueries({
-        queryKey: ["auth", "me"],
-      });
     },
   });
 };
@@ -133,6 +139,7 @@ export const useVerifyResetToken = (token: string, enabled = true) => {
     queryFn: () => verifyResetToken(token),
     enabled: Boolean(token) && enabled,
     retry: false,
+    refetchOnWindowFocus: false,
   });
 };
 
