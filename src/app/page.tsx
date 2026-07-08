@@ -74,7 +74,7 @@ export default async function Home() {
       <TopNavThree props="style-three bg-white" />
       <div id="header" className='relative w-full style-nine'>
         <MenuTwo />
-        <BannerTop props="bg-[#ef4444] py-3" textColor='text-white' bgLine='bg-white' />
+        <BannerTop props="bg-[#e57112] py-3" textColor='text-white' bgLine='bg-white' />
         <SliderNine />
       </div>
       <WhatNewOne data={products} start={0} limit={4} />

@@ -106,9 +106,9 @@ const AboutUs = () => (
             <section className="container md:py-20 py-12">
                 <div className="grid lg:grid-cols-[1fr_0.95fr] items-center gap-10 xl:gap-16">
                     <div>
-                        <div className="text-button-uppercase tracking-[0.18em] text-[#f05252]">Our Mindset</div>
+                        <div className="text-button-uppercase tracking-[0.18em] text-[#e57112]">Our Mindset</div>
                         <h1 className="mt-4 text-[clamp(2.4rem,6vw,5rem)] leading-[0.98] font-semibold tracking-[-0.045em] max-w-[780px]">
-                            Unleash Your <span className="text-[#ef4444]">Inner Beast.</span>
+                            Unleash Your <span className="text-[#e57112]">Inner Beast.</span>
                         </h1>
                         <p className="mt-7 text-lg md:text-xl leading-8 text-white/65 max-w-[720px]">
                             At Inner Beast, we believe that greatness isn&apos;t handed to anyone. It is earned through effort,
@@ -117,7 +117,7 @@ const AboutUs = () => (
                         <div className="mt-9 flex flex-wrap items-center gap-4">
                             <Link
                                 href="/shop"
-                                className="inline-flex items-center gap-2 rounded-full bg-[#ef4444] px-8 py-3.5 font-semibold tracking-wide transition-transform duration-200 hover:-translate-y-0.5"
+                                className="inline-flex items-center gap-2 rounded-full bg-[#e57112] px-8 py-3.5 font-semibold tracking-wide transition-transform duration-200 hover:-translate-y-0.5"
                             >
                                 Shop the Collection
                                 <Icon.ArrowRight size={18} weight="bold" />
@@ -154,7 +154,7 @@ const AboutUs = () => (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4">
                         {highlights.map(({ icon: IconCmp, label }) => (
                             <div key={label} className="flex items-center justify-center gap-3 md:border-r md:last:border-r-0 border-white/10">
-                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#ef4444]/10 text-[#f05252]">
+                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#e57112]/10 text-[#e57112]">
                                     <IconCmp size={22} weight="bold" />
                                 </div>
                                 <span className="text-base md:text-lg font-medium tracking-wide">{label}</span>
@@ -168,7 +168,7 @@ const AboutUs = () => (
             <section className="container md:py-20 py-12">
                 <div className="grid lg:grid-cols-[0.85fr_1fr] gap-10 xl:gap-16 items-start">
                     <div>
-                        <div className="text-button-uppercase tracking-[0.18em] text-[#f05252]">Our Mission</div>
+                        <div className="text-button-uppercase tracking-[0.18em] text-[#e57112]">Our Mission</div>
                         <h2 className="mt-4 text-[clamp(1.9rem,4vw,3rem)] leading-[1.05] font-semibold tracking-[-0.03em]">
                             Push Beyond Your Limits
                         </h2>
@@ -209,7 +209,7 @@ const AboutUs = () => (
                             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                         </div>
                         <div>
-                            <div className="text-button-uppercase tracking-[0.18em] text-[#f05252]">Our Story</div>
+                            <div className="text-button-uppercase tracking-[0.18em] text-[#e57112]">Our Story</div>
                             <h2 className="mt-4 text-[clamp(1.9rem,4vw,3rem)] leading-[1.05] font-semibold tracking-[-0.03em]">
                                 Born in the Grind
                             </h2>
@@ -229,7 +229,7 @@ const AboutUs = () => (
                     <div className="mt-14 md:mt-20 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
                         {journey.map((item) => (
                             <article key={item.step} className="rounded-2xl border border-white/10 bg-white/[0.025] p-6">
-                                <div className="text-2xl font-semibold text-[#f05252]">{item.step}</div>
+                                <div className="text-2xl font-semibold text-[#e57112]">{item.step}</div>
                                 <h3 className="mt-3 text-lg font-semibold">{item.title}</h3>
                                 <p className="mt-2 leading-7 text-white/60">{item.text}</p>
                             </article>
@@ -241,7 +241,7 @@ const AboutUs = () => (
             {/* Values grid */}
             <section className="container md:py-20 py-12">
                 <div className="max-w-2xl">
-                    <div className="text-button-uppercase tracking-[0.18em] text-[#f05252]">What We Stand For</div>
+                    <div className="text-button-uppercase tracking-[0.18em] text-[#e57112]">What We Stand For</div>
                     <h2 className="mt-4 text-[clamp(1.9rem,4vw,3rem)] leading-[1.05] font-semibold tracking-[-0.03em]">
                         More Than a Clothing Brand
                     </h2>
@@ -254,9 +254,9 @@ const AboutUs = () => (
                     {values.map(({ icon: IconCmp, title, text }) => (
                         <article
                             key={title}
-                            className="group rounded-2xl border border-white/10 bg-white/[0.025] p-6 transition-colors duration-200 hover:border-[#ef4444]/50"
+                            className="group rounded-2xl border border-white/10 bg-white/[0.025] p-6 transition-colors duration-200 hover:border-[#e57112]/50"
                         >
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#ef4444]/10 text-[#f05252] transition-colors duration-200 group-hover:bg-[#ef4444] group-hover:text-white">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#e57112]/10 text-[#e57112] transition-colors duration-200 group-hover:bg-[#e57112] group-hover:text-white">
                                 <IconCmp size={24} weight="bold" />
                             </div>
                             <h3 className="mt-5 text-xl font-semibold">{title}</h3>
@@ -270,7 +270,7 @@ const AboutUs = () => (
             <section className="border-t border-white/10 bg-[#0d1010]">
                 <div className="container md:py-20 py-12">
                     <div className="max-w-2xl">
-                        <div className="text-button-uppercase tracking-[0.18em] text-[#f05252]">Why Choose Us</div>
+                        <div className="text-button-uppercase tracking-[0.18em] text-[#e57112]">Why Choose Us</div>
                         <h2 className="mt-4 text-[clamp(1.9rem,4vw,3rem)] leading-[1.05] font-semibold tracking-[-0.03em]">
                             The Inner Beast Promise
                         </h2>
@@ -282,7 +282,7 @@ const AboutUs = () => (
                         {promises.map(({ icon: IconCmp, title, text }) => (
                             <article key={title} className="rounded-2xl border border-white/10 bg-white/[0.025] p-6">
                                 <div className="flex items-center gap-3">
-                                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#ef4444]/10 text-[#f05252]">
+                                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#e57112]/10 text-[#e57112]">
                                         <IconCmp size={22} weight="bold" />
                                     </div>
                                     <h3 className="text-lg font-semibold">{title}</h3>
@@ -297,7 +297,7 @@ const AboutUs = () => (
             {/* Quote */}
             <section className="container md:py-20 py-12">
                 <figure className="max-w-4xl mx-auto text-center">
-                    <Icon.Quotes size={40} weight="fill" className="mx-auto text-[#ef4444]" />
+                    <Icon.Quotes size={40} weight="fill" className="mx-auto text-[#e57112]" />
                     <blockquote className="mt-6 text-[clamp(1.6rem,3.5vw,2.6rem)] leading-[1.25] font-semibold tracking-[-0.02em]">
                         The beast was never outside of you. Training just teaches you how to let it out.
                     </blockquote>
@@ -307,7 +307,7 @@ const AboutUs = () => (
 
             {/* CTA */}
             <section className="container pb-20 md:pb-24">
-                <div className="relative overflow-hidden rounded-[28px] bg-[#ef4444] px-6 md:px-16 py-14 md:py-20 text-center">
+                <div className="relative overflow-hidden rounded-[28px] bg-[#e57112] px-6 md:px-16 py-14 md:py-20 text-center">
                     <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-transparent" />
                     <div className="relative">
                         <h2 className="text-[clamp(2rem,4.5vw,3.4rem)] font-semibold tracking-[-0.03em]">Ready to unleash yours?</h2>

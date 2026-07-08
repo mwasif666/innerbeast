@@ -225,7 +225,7 @@ const AdminSupportPage = () => {
                           maxWidth: "70%",
                           padding: "10px 14px",
                           borderRadius: 16,
-                          background: admin ? "#2563eb" : "var(--adm-sider-bg)",
+                          background: admin ? "#e57112" : "var(--adm-sider-bg)",
                           border: admin ? "none" : "1px solid var(--adm-border)",
                           color: admin ? "#fff" : "var(--adm-text)",
                         }}

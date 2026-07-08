@@ -15,10 +15,10 @@ const Banner = () => {
                             alt='banner1'
                             className='object-cover object-center duration-1000 hover:scale-105'
                         />
-                        <div className="absolute inset-0 bg-[#ef4444]/30"></div>
+                        <div className="absolute inset-0 bg-[#e57112]/30"></div>
                         <div className="banner-content absolute inset-0 flex flex-col items-center justify-center">
                             <div className="heading4 text-white text-center">Women{String.raw`'s`} Activewear <br />Collection</div>
-                            <div className="text-button text-white relative inline-block px-5 py-2 rounded-lg bg-[#ef4444] duration-500 mt-3">Shop Now</div>
+                            <div className="text-button text-white relative inline-block px-5 py-2 rounded-lg bg-[#e57112] duration-500 mt-3">Shop Now</div>
                         </div>
                     </Link>
                     <Link href={'/shop'} className="banner-item relative block overflow-hidden rounded-2xl duration-500 aspect-[3/2]">
@@ -29,10 +29,10 @@ const Banner = () => {
                             alt='banner2'
                             className='object-cover object-center duration-1000 hover:scale-105'
                         />
-                        <div className="absolute inset-0 bg-[#ef4444]/30"></div>
+                        <div className="absolute inset-0 bg-[#e57112]/30"></div>
                         <div className="banner-content absolute inset-0 flex flex-col items-center justify-center">
                             <div className="heading4 text-white text-center">Men{String.raw`'s`} Performance <br />Gear</div>
-                            <div className="text-button text-white relative inline-block px-5 py-2 rounded-lg bg-[#ef4444] duration-500 mt-3">Shop Now</div>
+                            <div className="text-button text-white relative inline-block px-5 py-2 rounded-lg bg-[#e57112] duration-500 mt-3">Shop Now</div>
                         </div>
                     </Link>
                 </div>

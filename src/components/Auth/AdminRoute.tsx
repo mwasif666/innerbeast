@@ -13,14 +13,16 @@ const AdminRoute = ({ children }: AdminRouteProps) => {
   const currentUserQuery = useCurrentUser();
 
   const user = currentUserQuery.data?.data;
+  const isCheckingUser =
+    currentUserQuery.isLoading || (currentUserQuery.isFetching && !user);
 
   useEffect(() => {
-    if (currentUserQuery.isError || (!currentUserQuery.isLoading && !user)) {
+    if (currentUserQuery.isError || (!isCheckingUser && !user)) {
       router.replace("/login?redirect=/admin");
     }
-  }, [currentUserQuery.isError, currentUserQuery.isLoading, router, user]);
+  }, [currentUserQuery.isError, isCheckingUser, router, user]);
 
-  if (currentUserQuery.isLoading) {
+  if (isCheckingUser) {
     return (
       <div style={{ padding: "40px", fontSize: "18px" }}>
         Checking admin access...

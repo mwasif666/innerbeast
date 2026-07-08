@@ -15,17 +15,29 @@ import {
   resetPassword,
   LoginPayload,
   RegisterPayload,
+  User,
   UpdateProfilePayload,
   ChangePasswordPayload,
   ForgotPasswordPayload,
   ResetPasswordPayload,
 } from "../services/auth.service";
 
+const authQueryOptions = {
+  staleTime: 0,
+  retry: false,
+  refetchOnMount: "always" as const,
+  refetchOnWindowFocus: "always" as const,
+  refetchOnReconnect: "always" as const,
+};
+
+const getAuthUser = (response: { data?: User | null; user?: User }) =>
+  response.data || response.user || null;
+
 export const useCurrentUser = () => {
   return useQuery({
     queryKey: ["auth", "me"],
     queryFn: getMe,
-    retry: false,
+    ...authQueryOptions,
   });
 };
 
@@ -33,7 +45,7 @@ export const useAdminCheck = () => {
   return useQuery({
     queryKey: ["auth", "admin-check"],
     queryFn: adminCheck,
-    retry: false,
+    ...authQueryOptions,
   });
 };
 
@@ -42,9 +54,18 @@ export const useLogin = () => {
 
   return useMutation({
     mutationFn: (payload: LoginPayload) => loginUser(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["auth", "me"],
+    onSuccess: async (response) => {
+      const user = getAuthUser(response);
+
+      if (user) {
+        queryClient.setQueryData(["auth", "me"], {
+          success: true,
+          data: user,
+        });
+      }
+
+      await queryClient.invalidateQueries({
+        queryKey: ["auth"],
       });
     },
   });
@@ -55,9 +76,18 @@ export const useRegister = () => {
 
   return useMutation({
     mutationFn: (payload: RegisterPayload) => registerUser(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["auth", "me"],
+    onSuccess: async (response) => {
+      const user = getAuthUser(response);
+
+      if (user) {
+        queryClient.setQueryData(["auth", "me"], {
+          success: true,
+          data: user,
+        });
+      }
+
+      await queryClient.invalidateQueries({
+        queryKey: ["auth"],
       });
     },
   });
@@ -68,8 +98,17 @@ export const useUpdateMe = () => {
 
   return useMutation({
     mutationFn: (payload: UpdateProfilePayload) => updateMe(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    onSuccess: async (response) => {
+      const user = getAuthUser(response);
+
+      if (user) {
+        queryClient.setQueryData(["auth", "me"], {
+          success: true,
+          data: user,
+        });
+      }
+
+      await queryClient.invalidateQueries({
         queryKey: ["auth", "me"],
       });
     },
@@ -116,8 +155,8 @@ export const useLogout = () => {
     mutationFn: logoutUser,
     onSuccess: () => {
       queryClient.setQueryData(["auth", "me"], null);
-      queryClient.invalidateQueries({
-        queryKey: ["auth", "me"],
+      queryClient.removeQueries({
+        queryKey: ["auth", "admin-check"],
       });
     },
   });

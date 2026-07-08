@@ -1,18 +1,18 @@
 /* Main color */
 :root {
-  --green: #d2ef9a;
-  --orange: #ef4444;
+  --green: #e57112;
+  --orange: #e57112;
   --dark: #0c0d0d;
-  --black: #1f1f1f;
+  --black: #0c0d0d;
   --secondary: #696c70;
   --secondary2: #a0a0a0;
   --white: #ffffff;
   --surface: #f7f7f7;
-  --red: #ef4444;
-  --purple: #8684d4;
+  --red: #e57112;
+  --purple: #e57112;
   --success: #3dab25;
-  --yellow: #ecb018;
-  --pink: #f4407d;
+  --yellow: #e57112;
+  --pink: #e57112;
   --line: #e9e9e9;
   --outline: rgba(0, 0, 0, 0.15);
   --surface1: rgba(255, 255, 255, 0.1);
@@ -101,14 +101,6 @@ input[type="file"] {
 
 .bg-purple {
   background-color: var(--purple);
-}
-
-.bg-blue {
-  background-color: #4856da;
-}
-
-.bg-silver {
-  background-color: #a1a2af;
 }
 
 .bg-linear {

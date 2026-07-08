@@ -50,7 +50,7 @@ const AdminSidebar = ({ activeKey, onNavigate }: AdminSidebarProps) => {
             height: 40,
             placeItems: "center",
             color: "#fff",
-            background: "linear-gradient(135deg, #60a5fa, #2563eb)",
+            background: "linear-gradient(135deg, #e57112, #c4610f)",
             borderRadius: 11,
             fontSize: 15,
             fontWeight: 700,

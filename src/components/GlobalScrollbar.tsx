@@ -4,7 +4,7 @@ const GlobalScrollbar = () => {
       :root {
         --global-scrollbar-track: rgba(127, 127, 127, 0.12);
         --global-scrollbar-thumb: #686a6d;
-        --global-scrollbar-thumb-hover: #ee6b1f;
+        --global-scrollbar-thumb-hover: #e57112;
       }
 
       html,

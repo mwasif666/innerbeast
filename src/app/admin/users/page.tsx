@@ -201,9 +201,9 @@ const AdminUsersPage = () => {
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <Avatar
             style={{
-              background: "rgba(96,165,250,0.2)",
-              color: "#93c5fd",
-              border: "1px solid rgba(96,165,250,0.25)",
+              background: "rgba(229,113,18,0.2)",
+              color: "#e57112",
+              border: "1px solid rgba(229,113,18,0.25)",
               fontSize: 12,
               fontWeight: 600,
             }}
@@ -388,8 +388,8 @@ const AdminUsersPage = () => {
               minWidth: 34,
               height: 30,
               padding: "0 8px",
-              color: "#07111f",
-              background: "#60a5fa",
+              color: "#ffffff",
+              background: "#e57112",
               borderRadius: 9,
               fontSize: 14,
               fontWeight: 700,

@@ -239,7 +239,7 @@ const AdminCategoriesPage = () => {
               border: "1px solid var(--adm-border)",
               display: "grid",
               placeItems: "center",
-              color: "#93c5fd",
+              color: "#e57112",
               fontWeight: 700,
             }}
           >

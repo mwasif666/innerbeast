@@ -51,11 +51,11 @@ const PolicyToc = ({ items }: { items: TocItem[] }) => {
                                 }`}
                             >
                                 <span
-                                    className={`absolute left-0 top-1/2 -translate-y-1/2 w-px rounded-full bg-[#ef4444] transition-all duration-300 ${
+                                    className={`absolute left-0 top-1/2 -translate-y-1/2 w-px rounded-full bg-[#e57112] transition-all duration-300 ${
                                         isActive ? 'h-6 opacity-100' : 'h-0 opacity-0'
                                     }`}
                                 />
-                                <span className={`tabular-nums text-xs ${isActive ? 'text-[#f05252]' : 'text-white/30'}`}>
+                                <span className={`tabular-nums text-xs ${isActive ? 'text-[#e57112]' : 'text-white/30'}`}>
                                     {String(order + 1).padStart(2, '0')}
                                 </span>
                                 <span>{item.title}</span>

@@ -495,7 +495,7 @@ const AdminPage = () => {
       value: statsQuery.isLoading ? "…" : formatNumber(totals?.orders),
       note: "All customer orders",
       icon: <ShoppingCartOutlined />,
-      accent: isDark ? "#f59e0b" : "#d97706",
+      accent: "#e57112",
       href: "/admin/orders",
     },
     {
@@ -503,7 +503,7 @@ const AdminPage = () => {
       value: statsQuery.isLoading ? "…" : formatNumber(totals?.customers),
       note: "Registered accounts",
       icon: <TeamOutlined />,
-      accent: isDark ? "#60a5fa" : "#2563eb",
+      accent: "#e57112",
       href: "/admin/users",
     },
     {
@@ -511,7 +511,7 @@ const AdminPage = () => {
       value: statsQuery.isLoading ? "…" : formatNumber(totals?.products),
       note: "Catalogue items",
       icon: <AppstoreOutlined />,
-      accent: isDark ? "#a78bfa" : "#7c3aed",
+      accent: "#e57112",
       href: "/admin/products",
     },
     {
@@ -519,7 +519,7 @@ const AdminPage = () => {
       value: statsQuery.isLoading ? "…" : formatNumber(totals?.categories),
       note: "Product groups",
       icon: <TagsOutlined />,
-      accent: isDark ? "#38bdf8" : "#0284c7",
+      accent: "#e57112",
       href: "/admin/categories",
     },
     {

@@ -227,7 +227,7 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                 <div className="heading5">Subtotal</div>
                                 <div className="heading5">{formatPrice(totalCart)}</div>
                             </div>
-                            {modalDiscount > 0 && <div className="flex items-center justify-between pt-2 px-6 text-[#ef4444]"><div>Coupon ({appliedCoupon?.code}){appliedCoupon?.discountType === 'percentage' && appliedCoupon.discountValue ? ` · ${appliedCoupon.discountValue}% off` : ''}</div><div>−{formatPrice(modalDiscount)} saved</div></div>}
+                            {modalDiscount > 0 && <div className="flex items-center justify-between pt-2 px-6 text-[#e57112]"><div>Coupon ({appliedCoupon?.code}){appliedCoupon?.discountType === 'percentage' && appliedCoupon.discountValue ? ` · ${appliedCoupon.discountValue}% off` : ''}</div><div>−{formatPrice(modalDiscount)} saved</div></div>}
                             <div className="block-button text-center p-6">
                                 <div className="flex items-center gap-4">
                                     <Link
@@ -331,7 +331,7 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                     </div>
                                 </div>
                                 <div className="block-button text-center pt-4 px-6 pb-6">
-                                    <button type="button" disabled={isApplyingCoupon || !couponCode.trim()} className='button-main bg-[#ef4444] w-full text-center disabled:opacity-60' onClick={handleApplyCoupon}>{isApplyingCoupon ? 'Applying...' : 'Apply'}</button>
+                                    <button type="button" disabled={isApplyingCoupon || !couponCode.trim()} className='button-main bg-[#e57112] w-full text-center disabled:opacity-60' onClick={handleApplyCoupon}>{isApplyingCoupon ? 'Applying...' : 'Apply'}</button>
                                     <div onClick={() => setActiveTab('')} className="text-button-uppercase mt-4 text-center has-line-before cursor-pointer inline-block">Cancel</div>
                                 </div>
                             </div>

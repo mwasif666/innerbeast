@@ -62,13 +62,13 @@ const PolicyPage = ({
                     {/* Ambient glow */}
                     <div
                         aria-hidden
-                        className="pointer-events-none absolute -top-40 right-[-5%] h-[520px] w-[520px] rounded-full bg-[#ef4444]/20 blur-[130px]"
+                        className="pointer-events-none absolute -top-40 right-[-5%] h-[520px] w-[520px] rounded-full bg-[#e57112]/20 blur-[130px]"
                     />
                     <div className="container relative md:py-20 py-12">
                     <div className="grid lg:grid-cols-[1fr_0.95fr] items-center gap-10 xl:gap-16">
                         <div>
-                            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-1.5 text-button-uppercase tracking-[0.18em] text-[#f05252] text-xs">
-                                <span className="h-1.5 w-1.5 rounded-full bg-[#ef4444]" />
+                            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-1.5 text-button-uppercase tracking-[0.18em] text-[#e57112] text-xs">
+                                <span className="h-1.5 w-1.5 rounded-full bg-[#e57112]" />
                                 {eyebrow}
                             </div>
                             <h1 className="mt-5 text-[clamp(2.4rem,6vw,5rem)] leading-[0.98] font-semibold tracking-[-0.045em] max-w-[780px]">
@@ -77,7 +77,7 @@ const PolicyPage = ({
                             <p className="mt-7 text-lg md:text-xl leading-8 text-white/65 max-w-[720px]">{intro}</p>
                             {lastUpdated && (
                                 <div className="mt-7 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/60">
-                                    <Icon.Clock size={16} weight="bold" className="text-[#f05252]" />
+                                    <Icon.Clock size={16} weight="bold" className="text-[#e57112]" />
                                     Last updated: {lastUpdated}
                                 </div>
                             )}
@@ -106,10 +106,10 @@ const PolicyPage = ({
                                         id={section.title ? slugify(section.title) : undefined}
                                         className="group scroll-mt-28 relative rounded-2xl border border-white/10 bg-white/[0.025] md:p-8 p-6 transition-colors duration-300 hover:border-white/20"
                                     >
-                                        <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#ef4444]/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                                        <span className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#e57112]/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                                         {section.title && (
                                             <div className="flex items-center gap-4">
-                                                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#ef4444]/25 to-[#ef4444]/5 ring-1 ring-inset ring-[#ef4444]/20 text-sm font-semibold text-[#f05252] tabular-nums">
+                                                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#e57112]/25 to-[#e57112]/5 ring-1 ring-inset ring-[#e57112]/20 text-sm font-semibold text-[#e57112] tabular-nums">
                                                     {String(index + 1).padStart(2, '0')}
                                                 </span>
                                                 <h2 className="heading5 text-white">{section.title}</h2>
@@ -122,7 +122,7 @@ const PolicyPage = ({
                                             <ul className="mt-5 grid gap-3">
                                                 {section.bullets.map((bullet) => (
                                                     <li key={bullet} className="flex items-start gap-3 text-white/70 leading-7">
-                                                        <Icon.CheckCircle size={20} weight="fill" className="mt-1 shrink-0 text-[#f05252]" />
+                                                        <Icon.CheckCircle size={20} weight="fill" className="mt-1 shrink-0 text-[#e57112]" />
                                                         <span>{bullet}</span>
                                                     </li>
                                                 ))}
@@ -132,7 +132,7 @@ const PolicyPage = ({
                                 ))}
 
                                 {highlight && (
-                                    <div className="mt-2 rounded-2xl bg-[#ef4444] px-6 md:px-10 py-9 text-center text-xl md:text-2xl font-semibold tracking-wide">
+                                    <div className="mt-2 rounded-2xl bg-[#e57112] px-6 md:px-10 py-9 text-center text-xl md:text-2xl font-semibold tracking-wide">
                                         {highlight}
                                     </div>
                                 )}
@@ -141,10 +141,10 @@ const PolicyPage = ({
                                 <div className="mt-2 relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-white/[0.02] md:p-8 p-6 flex flex-col sm:flex-row sm:items-center gap-5 justify-between">
                                     <div
                                         aria-hidden
-                                        className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#ef4444]/15 blur-3xl"
+                                        className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#e57112]/15 blur-3xl"
                                     />
                                     <div className="relative flex items-start gap-4">
-                                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#ef4444]/10 text-[#f05252]">
+                                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#e57112]/10 text-[#e57112]">
                                             <Icon.ChatCircleDots size={22} weight="bold" />
                                         </div>
                                         <div>
@@ -154,7 +154,7 @@ const PolicyPage = ({
                                     </div>
                                     <Link
                                         href="/contact-us"
-                                        className="relative shrink-0 inline-flex items-center gap-2 rounded-full bg-[#ef4444] px-7 py-3 font-semibold tracking-wide transition-transform duration-200 hover:-translate-y-0.5"
+                                        className="relative shrink-0 inline-flex items-center gap-2 rounded-full bg-[#e57112] px-7 py-3 font-semibold tracking-wide transition-transform duration-200 hover:-translate-y-0.5"
                                     >
                                         Contact Us
                                         <Icon.ArrowRight size={18} weight="bold" />

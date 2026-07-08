@@ -56,7 +56,7 @@ const Faqs = () => (
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
                             <div className="absolute bottom-0 p-7 md:p-9">
-                                <div className="text-button-uppercase tracking-[0.16em] text-[#ff6262]">NEED ANSWERS?</div>
+                                <div className="text-button-uppercase tracking-[0.16em] text-[#e57112]">NEED ANSWERS?</div>
                                 <h1 className="mt-3 text-4xl md:text-5xl font-semibold tracking-[-0.04em]">We&apos;ve got you.</h1>
                                 <p className="mt-4 text-white/65 leading-7">Everything you need to know about ordering, delivery, sizing and returns.</p>
                             </div>
@@ -65,7 +65,7 @@ const Faqs = () => (
 
                     <div>
                         <div className="mb-8">
-                            <div className="text-button-uppercase tracking-[0.16em] text-[#ff6262]">FREQUENTLY ASKED QUESTIONS</div>
+                            <div className="text-button-uppercase tracking-[0.16em] text-[#e57112]">FREQUENTLY ASKED QUESTIONS</div>
                             <h2 className="mt-3 text-3xl md:text-5xl font-semibold tracking-[-0.04em]">How can we help?</h2>
                         </div>
                         <div className="grid gap-4">

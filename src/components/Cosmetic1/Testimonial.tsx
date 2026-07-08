@@ -25,11 +25,11 @@ const Testimonial = () => {
                             <div className="infor">
                                 <div className="body1 font-semibold uppercase">Emma cardi</div>
                                 <div className="rate flex items-center gap-0.5">
-                                    <Icon.Star size={12} color="#ECB018" weight="fill" />
-                                    <Icon.Star size={12} color="#ECB018" weight="fill" />
-                                    <Icon.Star size={12} color="#ECB018" weight="fill" />
-                                    <Icon.Star size={12} color="#ECB018" weight="fill" />
-                                    <Icon.Star size={12} color="#ECB018" weight="fill" />
+                                    <Icon.Star size={12} color="#e57112" weight="fill" />
+                                    <Icon.Star size={12} color="#e57112" weight="fill" />
+                                    <Icon.Star size={12} color="#e57112" weight="fill" />
+                                    <Icon.Star size={12} color="#e57112" weight="fill" />
+                                    <Icon.Star size={12} color="#e57112" weight="fill" />
                                 </div>
                             </div>
                         </div>

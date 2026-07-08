@@ -86,6 +86,11 @@ export type BasicResponse = {
   message?: string;
 };
 
+const uncachedAuthEndpoint = (endpoint: string) => {
+  const separator = endpoint.includes("?") ? "&" : "?";
+  return `${endpoint}${separator}_=${Date.now()}`;
+};
+
 export const registerUser = async (payload: RegisterPayload) => {
   return await api<AuthResponse>("/auth/register", {
     method: "POST",
@@ -107,7 +112,9 @@ export const logoutUser = async () => {
 };
 
 export const getMe = async () => {
-  return await api<MeResponse>("/auth/me");
+  return await api<MeResponse>(uncachedAuthEndpoint("/auth/me"), {
+    cache: "no-store",
+  });
 };
 
 export const updateMe = async (payload: UpdateProfilePayload) => {
@@ -151,5 +158,7 @@ export const resetPassword = async (
 };
 
 export const adminCheck = async () => {
-  return await api<AuthResponse>("/auth/admin-check");
+  return await api<AuthResponse>(uncachedAuthEndpoint("/auth/admin-check"), {
+    cache: "no-store",
+  });
 };

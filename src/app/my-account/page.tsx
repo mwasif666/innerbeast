@@ -51,12 +51,13 @@ const MyAccount = () => {
   const logoutMutation = useLogout();
   const cancelMutation = useCancelOrder();
   const orders = useMemo(() => extractOrders(ordersQuery.data), [ordersQuery.data]);
+  const isCheckingUser = userQuery.isLoading || (userQuery.isFetching && !user);
 
   useEffect(() => {
-    if (userQuery.isError || (!userQuery.isLoading && !user)) {
+    if (userQuery.isError || (!isCheckingUser && !user)) {
       router.replace("/login?redirect=/my-account");
     }
-  }, [router, user, userQuery.isError, userQuery.isLoading]);
+  }, [isCheckingUser, router, user, userQuery.isError]);
 
   const latestAddress = user?.addresses?.find((item) => item.isDefault) || user?.addresses?.[0] || orders[0]?.shippingAddress;
   const initials = (user?.name || "IB").split(" ").map((part) => part[0]).slice(0, 2).join("").toUpperCase();
@@ -148,7 +149,7 @@ const MyAccount = () => {
     if (willOpen) void loadOrderDetails(order);
   };
 
-  if (userQuery.isLoading || (!user && !userQuery.isError)) return <><TopNavOne props="style-one bg-black" slogan="New customers save 10% with the code GET10" /><div className={styles.page}><div className={styles.loading}>Loading your account...</div></div></>;
+  if (isCheckingUser || (!user && !userQuery.isError)) return <><TopNavOne props="style-one bg-black" slogan="New customers save 10% with the code GET10" /><div className={styles.page}><div className={styles.loading}>Loading your account...</div></div></>;
   if (!user) return null;
 
   const OrderList = ({ limit }: { limit?: number }) => {

@@ -90,7 +90,7 @@ const Cart = () => {
                 <div className="container">
                     <div className="content-main flex justify-between max-xl:flex-col gap-y-8">
                         <div className="xl:w-2/3 xl:pr-3 w-full">
-                            <div className="time bg-[#ef4444] text-white py-3 px-5 flex items-center rounded-lg">
+                            <div className="time bg-[#e57112] text-white py-3 px-5 flex items-center rounded-lg">
                                 <div className="heding5">🔥</div>
                                 <div className="caption1 pl-2">Your cart will expire in
                                     <span className="min text-white text-button fw-700"> {timeLeft.minutes}:{timeLeft.seconds < 10 ? `0${timeLeft.seconds}` : timeLeft.seconds}</span>
@@ -178,7 +178,7 @@ const Cart = () => {
                             <div className="input-block discount-code w-full h-12 sm:mt-7 mt-5">
                                 <form className='w-full h-full relative' onSubmit={handleApplyCode}>
                                     <input type="text" value={couponCode} onChange={(event) => setCouponCode(event.target.value)} placeholder='Add voucher discount' className='w-full h-full bg-surface text-black pl-4 pr-32 rounded-lg border border-line uppercase' required />
-                                    <button disabled={isApplyingCoupon} className='button-main bg-[#ef4444] absolute top-1 bottom-1 right-1 px-5 rounded-lg flex items-center justify-center disabled:opacity-60'>{isApplyingCoupon ? 'Applying...' : 'Apply Code'}
+                                    <button disabled={isApplyingCoupon} className='button-main bg-[#e57112] absolute top-1 bottom-1 right-1 px-5 rounded-lg flex items-center justify-center disabled:opacity-60'>{isApplyingCoupon ? 'Applying...' : 'Apply Code'}
                                     </button>
                                 </form>
                             </div>
@@ -205,7 +205,7 @@ const Cart = () => {
                                     <div className="heading5 text-red">{formatPrice(totalCart - discountCart)}</div>
                                 </div>
                                 <div className="block-button flex flex-col items-center gap-y-4 mt-5">
-                                    <div className="checkout-btn button-main bg-[#ef4444] text-center w-full" onClick={redirectToCheckout}>Process To Checkout</div>
+                                    <div className="checkout-btn button-main bg-[#e57112] text-center w-full" onClick={redirectToCheckout}>Process To Checkout</div>
                                     <Link className="text-button hover-underline" href={"/shop/breadcrumb1"}>Continue shopping</Link>
                                 </div>
                             </div>

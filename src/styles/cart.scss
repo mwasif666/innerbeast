@@ -1,7 +1,7 @@
 .cart-block {
     .discount-code .button-main,
     .checkout-btn.button-main {
-        background-color: #ef4444;
+        background-color: #e57112;
         color: #fff;
     }
 
@@ -15,7 +15,7 @@
                 position: absolute;
                 left: 0;
                 height: 4px;
-                background-color: #ef4444;
+                background-color: #e57112;
 
                 &::before {
                     content: "";
@@ -25,7 +25,7 @@
                     width: 16px;
                     height: 16px;
                     border-radius: 50%;
-                    background-color: #ef4444;
+                    background-color: #e57112;
                 }
             }
         }

@@ -32,7 +32,7 @@ const OrderSuccessContent = () => {
             <Icon.CheckCircle
               size={72}
               weight="fill"
-              className="mx-auto text-green"
+              className="mx-auto text-success"
             />
 
             <div className="mt-6 text-sm tracking-[0.18em] uppercase text-red">

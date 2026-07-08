@@ -94,7 +94,7 @@ const AdminTopbar = ({
             <Avatar
               size={34}
               style={{
-                background: "linear-gradient(135deg, #60a5fa, #2563eb)",
+                background: "linear-gradient(135deg, #e57112, #c4610f)",
                 fontSize: 12,
                 fontWeight: 700,
               }}
