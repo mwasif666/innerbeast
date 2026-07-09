@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getApiUrl } from "@/config/site";
 
 const backendApiUrl = getApiUrl().replace(/\/+$/, "");
+const CLIENT_AUTH_COOKIE = "innerbeast-auth-token";
 
 const HOP_BY_HOP_HEADERS = new Set([
   "connection",
@@ -79,6 +80,34 @@ const rewriteCookieForFrontend = (cookie: string, request: NextRequest) => {
     .join("; ");
 };
 
+const getCookieNameValue = (cookie: string) => cookie.split(";")[0]?.trim() || "";
+
+const appendReadableAuthCookie = (
+  response: NextResponse,
+  backendCookie: string,
+  request: NextRequest,
+) => {
+  const nameValue = getCookieNameValue(backendCookie);
+  if (!nameValue.startsWith("token=")) return;
+
+  const token = nameValue.slice("token=".length);
+  const secure = request.nextUrl.protocol === "https:";
+  const expiresNow = !token || backendCookie.toLowerCase().includes("expires=thu, 01 jan 1970");
+
+  response.headers.append(
+    "set-cookie",
+    [
+      `${CLIENT_AUTH_COOKIE}=${token}`,
+      "Path=/",
+      expiresNow ? "Max-Age=0" : "Max-Age=604800",
+      secure ? "Secure" : "",
+      "SameSite=Lax",
+    ]
+      .filter(Boolean)
+      .join("; "),
+  );
+};
+
 const proxy = async (
   request: NextRequest,
   context: { params: { path?: string[] } },
@@ -117,6 +146,7 @@ const proxy = async (
 
   getSetCookies(backendResponse.headers).forEach((cookie) => {
     response.headers.append("set-cookie", rewriteCookieForFrontend(cookie, request));
+    appendReadableAuthCookie(response, cookie, request);
   });
 
   return response;
