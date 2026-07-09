@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation';
 import TopNavOne from '@/components/Header/TopNav/TopNavOne'
 import MenuOne from '@/components/Header/Menu/MenuOne'
@@ -8,7 +8,7 @@ import VariableProduct from '@/components/Product/Detail/VariableProduct';
 import Footer from '@/components/Footer/Footer'
 import productData from '@/data/Product.json'
 
-const ProductVariableProduct = () => {
+const ProductVariableProductContent = () => {
     const searchParams = useSearchParams()
     let productId = searchParams.get('id')
 
@@ -28,5 +28,11 @@ const ProductVariableProduct = () => {
         </>
     )
 }
+
+const ProductVariableProduct = () => (
+    <Suspense fallback={null}>
+        <ProductVariableProductContent />
+    </Suspense>
+)
 
 export default ProductVariableProduct
