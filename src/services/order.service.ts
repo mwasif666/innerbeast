@@ -140,8 +140,6 @@ export type UpdateOrderPayload = {
 
 export type TrackOrderPayload = {
   orderNumber: string;
-  email?: string;
-  phone?: string;
 };
 
 export type CancelOrderPayload = {
