@@ -1,5 +1,5 @@
 import { getApiUrl } from "@/config/site";
-import { clearAuthSession, getStoredAuthToken } from "./auth-storage";
+import { getStoredAuthToken } from "./auth-storage";
 
 type ApiOptions = Omit<RequestInit, "body"> & {
   body?: unknown | FormData;
@@ -81,10 +81,6 @@ const api = async <T = unknown>(
   const data = await parseResponse(response);
 
   if (!response.ok) {
-    if (response.status === 401) {
-      clearAuthSession();
-    }
-
     const error = new Error(
       data?.message || "Something went wrong",
     ) as ApiError;
