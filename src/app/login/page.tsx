@@ -10,6 +10,7 @@ import MenuOne from "@/components/Header/Menu/MenuOne";
 import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
 import Footer from "@/components/Footer/Footer";
 import { useLogin } from "@/hooks/useAuth";
+import { saveAuthSession } from "@/services/auth-storage";
 import styles from "../auth.module.scss";
 
 const safeRedirect = (value: string | null) =>
@@ -31,8 +32,12 @@ const LoginContent = () => {
         email: String(formData.get("email") || "").trim(),
         password: String(formData.get("password") || ""),
       });
-      const role = response.data?.role || response.user?.role;
+      const user = response.data || response.user || null;
+      const role = user?.role;
       const redirect = safeRedirect(searchParams.get("redirect"));
+
+      saveAuthSession(response.token, user);
+
       router.replace(
         redirect || (role === "admin" || role === "superAdmin" ? "/admin" : "/my-account"),
       );
