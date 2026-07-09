@@ -156,31 +156,10 @@ export const createOrder = async (payload: CreateOrderPayload) => {
 };
 
 export const trackOrder = async (payload: TrackOrderPayload) => {
-  try {
-    return await api<OrderResponse>("/orders/track", {
-      method: "POST",
-      body: payload,
-    });
-  } catch (trackError) {
-    try {
-      const myOrders = await api<OrdersResponse>("/orders/my");
-      const normalizedOrderNumber = payload.orderNumber.toLowerCase();
-      const order = extractOrders(myOrders).find(
-        (item) => item.orderNumber?.toLowerCase() === normalizedOrderNumber,
-      );
-
-      if (order) {
-        return {
-          success: true,
-          data: order,
-        };
-      }
-    } catch {
-      // Preserve the public tracking error for guests and unrelated orders.
-    }
-
-    throw trackError;
-  }
+  return api<OrderResponse>("/orders/track", {
+    method: "POST",
+    body: payload,
+  });
 };
 
 export const cancelOrder = async (
