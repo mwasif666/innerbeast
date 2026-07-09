@@ -21,8 +21,6 @@ import {
 import { toStorefrontProduct } from '@/utils/productAdapter'
 import { getApiUrl } from '@/config/site'
 
-export const revalidate = 60
-
 const emptyList = <T,>(): ApiListResponse<T> => ({
   success: false,
   count: 0,
@@ -32,27 +30,35 @@ const emptyList = <T,>(): ApiListResponse<T> => ({
 const getHomepageData = async () => {
   const apiUrl = getApiUrl()
 
-  const [productsResponse, categoriesResponse] = await Promise.all([
-    fetch(`${apiUrl}/products?limit=40&sort=newest&isActive=true`, {
-      next: { revalidate: 60 },
-    }),
-    fetch(`${apiUrl}/categories?limit=100`, { next: { revalidate: 60 } }),
-  ])
+  try {
+    const [productsResponse, categoriesResponse] = await Promise.all([
+      fetch(`${apiUrl}/products?limit=40&sort=newest&isActive=true`, {
+        cache: 'force-cache',
+      }),
+      fetch(`${apiUrl}/categories?limit=100`, { cache: 'force-cache' }),
+    ])
 
-  if (!productsResponse.ok || !categoriesResponse.ok) {
-    console.error('Unable to load homepage catalogue', {
-      productsStatus: productsResponse.status,
-      categoriesStatus: categoriesResponse.status,
-    })
-  }
+    if (!productsResponse.ok || !categoriesResponse.ok) {
+      console.error('Unable to load homepage catalogue', {
+        productsStatus: productsResponse.status,
+        categoriesStatus: categoriesResponse.status,
+      })
+    }
 
-  return {
-    products: productsResponse.ok
-      ? (await productsResponse.json()) as ApiListResponse<ApiProduct>
-      : emptyList<ApiProduct>(),
-    categories: categoriesResponse.ok
-      ? (await categoriesResponse.json()) as ApiListResponse<Category>
-      : emptyList<Category>(),
+    return {
+      products: productsResponse.ok
+        ? (await productsResponse.json()) as ApiListResponse<ApiProduct>
+        : emptyList<ApiProduct>(),
+      categories: categoriesResponse.ok
+        ? (await categoriesResponse.json()) as ApiListResponse<Category>
+        : emptyList<Category>(),
+    }
+  } catch (error) {
+    console.error('Unable to load homepage catalogue', error)
+    return {
+      products: emptyList<ApiProduct>(),
+      categories: emptyList<Category>(),
+    }
   }
 }
 
