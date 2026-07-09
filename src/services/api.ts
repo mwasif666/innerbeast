@@ -11,11 +11,19 @@ type ApiError = Error & {
 };
 
 const CONFIGURED_BASE_URL = getApiUrl();
-const USE_SAME_ORIGIN_PROXY = process.env.NEXT_PUBLIC_USE_API_PROXY === "true";
+const PROXY_SETTING = process.env.NEXT_PUBLIC_USE_API_PROXY;
 const SAME_ORIGIN_PROXY_BASE_URL = "/api";
 
+const shouldUseSameOriginProxy = () => {
+  if (PROXY_SETTING === "true") return true;
+  if (PROXY_SETTING === "false") return false;
+  if (typeof window === "undefined") return false;
+
+  return window.location.hostname.endsWith(".vercel.app");
+};
+
 const getBaseUrl = () => {
-  if (USE_SAME_ORIGIN_PROXY) {
+  if (shouldUseSameOriginProxy()) {
     return SAME_ORIGIN_PROXY_BASE_URL;
   }
 
