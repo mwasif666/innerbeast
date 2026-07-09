@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
+    output: 'standalone',
     distDir: process.env.NODE_ENV === 'development' ? '.next-dev' : '.next',
     images: {
         remotePatterns: [
@@ -19,6 +20,7 @@ const nextConfig = {
             { source: '/pages/returns', destination: '/returns', permanent: true },
             { source: '/pages/privacy-policy', destination: '/privacy', permanent: true },
             { source: '/pages/terms-conditions', destination: '/terms', permanent: true },
+            { source: '/order-tracking', destination: '/track-order', permanent: true },
             { source: '/faqs', destination: '/faq', permanent: true },
             { source: '/privacy-policy', destination: '/privacy', permanent: true },
             { source: '/terms-and-conditions', destination: '/terms', permanent: true },

@@ -268,8 +268,8 @@ const MenuTwo = () => {
                                                             </li>
                                                             <li>
                                                                 <Link
-                                                                    href={'/order-tracking'}
-                                                                    className={`link text-secondary duration-300 ${pathname === '/order-tracking' ? 'active' : ''}`}
+                                                                    href={'/track-order'}
+                                                                    className={`link text-secondary duration-300 ${pathname === '/track-order' ? 'active' : ''}`}
                                                                 >
                                                                     Order Tracking
                                                                 </Link>
@@ -548,8 +548,8 @@ const MenuTwo = () => {
                                                                 </li>
                                                                 <li>
                                                                     <Link
-                                                                        href={'/order-tracking'}
-                                                                        className={`text-secondary duration-300 ${pathname === '/order-tracking' ? 'active' : ''}`}
+                                                                        href={'/track-order'}
+                                                                        className={`text-secondary duration-300 ${pathname === '/track-order' ? 'active' : ''}`}
                                                                     >
                                                                         Order Tracking
                                                                     </Link>
