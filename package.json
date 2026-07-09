@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
-    "build": "next build",
-    "build:hostinger": "next build",
+    "build": "node scripts/clean-export.js && next build && node scripts/verify-export.js",
+    "build:hostinger": "node scripts/clean-export.js && next build && node scripts/verify-export.js",
     "start": "next start",
     "lint": "next lint"
   },
