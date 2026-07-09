@@ -17,6 +17,7 @@ import ModalCompare from "@/components/Modal/ModalCompare";
 import CountdownTimeType from "@/type/CountdownType";
 import { countdownTime } from "@/store/countdownTime";
 import type { StoreSettingsResponse } from "@/services/settings.service";
+import { getApiUrl } from "@/config/site";
 
 const serverTimeLeft: CountdownTimeType = countdownTime();
 
@@ -28,11 +29,8 @@ const instrument = Instrument_Sans({
 });
 
 const getServerSettings = cache(async (): Promise<StoreSettingsResponse | undefined> => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (!apiUrl) return undefined;
-
   try {
-    const response = await fetch(`${apiUrl}/settings`, { cache: "no-store" });
+    const response = await fetch(`${getApiUrl()}/settings`, { cache: "force-cache" });
     if (!response.ok) return undefined;
 
     return await response.json() as StoreSettingsResponse;
