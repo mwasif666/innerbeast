@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { getApiUrl, getSiteUrl } from '@/config/site'
+import ProductOneScrolling from '../../product/one-scrolling/page'
 
 type ProductResponse = {
   data?: {
@@ -91,4 +92,6 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
-export { default } from '../../product/one-scrolling/page'
+const ProductDetailPage = () => <ProductOneScrolling />
+
+export default ProductDetailPage
