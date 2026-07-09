@@ -1,1 +1,5 @@
-export { default } from './sidebar-list/page'
+import SidebarList from './sidebar-list/page'
+
+const ShopPage = () => <SidebarList />
+
+export default ShopPage
