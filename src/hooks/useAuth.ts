@@ -21,29 +21,9 @@ import {
   ForgotPasswordPayload,
   ResetPasswordPayload,
 } from "../services/auth.service";
+import { clearAuthSession, saveAuthSession } from "../services/auth-storage";
 
 const AUTH_QUERY_STALE_TIME = 5 * 60 * 1000;
-const AUTH_TOKEN_KEY = "innerbeast-auth-token";
-
-const saveAuthToken = (token?: string) => {
-  if (typeof window === "undefined" || !token) return;
-
-  try {
-    window.localStorage.setItem(AUTH_TOKEN_KEY, token);
-  } catch {
-    // Storage can be unavailable in private/restricted browser modes.
-  }
-};
-
-const clearAuthToken = () => {
-  if (typeof window === "undefined") return;
-
-  try {
-    window.localStorage.removeItem(AUTH_TOKEN_KEY);
-  } catch {
-    // Storage can be unavailable in private/restricted browser modes.
-  }
-};
 
 const authQueryOptions = {
   staleTime: AUTH_QUERY_STALE_TIME,
@@ -56,6 +36,28 @@ const authQueryOptions = {
 
 const getAuthUser = (response: { data?: User | null; user?: User }) =>
   response.data || response.user || null;
+
+const cacheAuthUser = (
+  queryClient: ReturnType<typeof useQueryClient>,
+  user: User,
+) => {
+  queryClient.setQueryData(["auth", "me"], {
+    success: true,
+    data: user,
+  });
+
+  if (user.role === "admin" || user.role === "superAdmin") {
+    queryClient.setQueryData(["auth", "admin-check"], {
+      success: true,
+      data: user,
+      user,
+    });
+  } else {
+    queryClient.removeQueries({
+      queryKey: ["auth", "admin-check"],
+    });
+  }
+};
 
 export const useCurrentUser = () => {
   return useQuery({
@@ -79,26 +81,11 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: (payload: LoginPayload) => loginUser(payload),
     onSuccess: (response) => {
-      saveAuthToken(response.token);
       const user = getAuthUser(response);
 
       if (user) {
-        queryClient.setQueryData(["auth", "me"], {
-          success: true,
-          data: user,
-        });
-
-        if (user.role === "admin" || user.role === "superAdmin") {
-          queryClient.setQueryData(["auth", "admin-check"], {
-            success: true,
-            data: user,
-            user,
-          });
-        } else {
-          queryClient.removeQueries({
-            queryKey: ["auth", "admin-check"],
-          });
-        }
+        saveAuthSession(response.token, user);
+        cacheAuthUser(queryClient, user);
       }
     },
   });
@@ -110,17 +97,11 @@ export const useRegister = () => {
   return useMutation({
     mutationFn: (payload: RegisterPayload) => registerUser(payload),
     onSuccess: (response) => {
-      saveAuthToken(response.token);
       const user = getAuthUser(response);
 
       if (user) {
-        queryClient.setQueryData(["auth", "me"], {
-          success: true,
-          data: user,
-        });
-        queryClient.removeQueries({
-          queryKey: ["auth", "admin-check"],
-        });
+        saveAuthSession(response.token, user);
+        cacheAuthUser(queryClient, user);
       }
     },
   });
@@ -135,10 +116,8 @@ export const useUpdateMe = () => {
       const user = getAuthUser(response);
 
       if (user) {
-        queryClient.setQueryData(["auth", "me"], {
-          success: true,
-          data: user,
-        });
+        saveAuthSession(response.token, user);
+        cacheAuthUser(queryClient, user);
       }
     },
   });
@@ -184,7 +163,7 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: logoutUser,
     onSuccess: () => {
-      clearAuthToken();
+      clearAuthSession();
       queryClient.setQueryData(["auth", "me"], null);
       queryClient.removeQueries({
         queryKey: ["auth", "admin-check"],
