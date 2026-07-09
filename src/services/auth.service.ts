@@ -74,6 +74,7 @@ export type AuthResponse = {
   message?: string;
   data?: User;
   user?: User;
+  token?: string;
 };
 
 export type MeResponse = {
