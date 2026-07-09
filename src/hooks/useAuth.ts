@@ -21,9 +21,29 @@ import {
   ForgotPasswordPayload,
   ResetPasswordPayload,
 } from "../services/auth.service";
-import { clearAuthToken, saveAuthToken } from "../services/api";
 
 const AUTH_QUERY_STALE_TIME = 5 * 60 * 1000;
+const AUTH_TOKEN_KEY = "innerbeast-auth-token";
+
+const saveAuthToken = (token?: string) => {
+  if (typeof window === "undefined" || !token) return;
+
+  try {
+    window.localStorage.setItem(AUTH_TOKEN_KEY, token);
+  } catch {
+    // Storage can be unavailable in private/restricted browser modes.
+  }
+};
+
+const clearAuthToken = () => {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.localStorage.removeItem(AUTH_TOKEN_KEY);
+  } catch {
+    // Storage can be unavailable in private/restricted browser modes.
+  }
+};
 
 const authQueryOptions = {
   staleTime: AUTH_QUERY_STALE_TIME,
