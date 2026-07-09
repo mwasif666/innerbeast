@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
-    "build": "node scripts/clean-export.js && next build && node scripts/verify-export.js",
-    "build:hostinger": "node scripts/clean-export.js && next build && node scripts/verify-export.js",
+    "build": "node --max-old-space-size=8192 scripts/clean-export.js && node --max-old-space-size=8192 ./node_modules/next/dist/bin/next build && node scripts/verify-export.js",
+    "build:hostinger": "node --max-old-space-size=8192 scripts/clean-export.js && node --max-old-space-size=8192 ./node_modules/next/dist/bin/next build && node scripts/verify-export.js",
+    "type-check": "tsc --noEmit",
     "start": "next start",
     "lint": "next lint"
   },
