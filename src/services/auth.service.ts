@@ -1,4 +1,9 @@
 import api from "./api";
+import {
+  clearAuthSession,
+  getStoredAuthUser,
+  isStoredAuthTokenValid,
+} from "./auth-storage";
 
 export type UserRole = "user" | "admin" | "superAdmin";
 
@@ -92,6 +97,16 @@ const uncachedAuthEndpoint = (endpoint: string) => {
   return `${endpoint}${separator}_=${Date.now()}`;
 };
 
+const storedMeResponse = (): MeResponse | null => {
+  if (!isStoredAuthTokenValid()) {
+    clearAuthSession();
+    return null;
+  }
+
+  const storedUser = getStoredAuthUser();
+  return storedUser ? { success: true, data: storedUser } : null;
+};
+
 export const registerUser = async (payload: RegisterPayload) => {
   return await api<AuthResponse>("/auth/register", {
     method: "POST",
@@ -113,9 +128,20 @@ export const logoutUser = async () => {
 };
 
 export const getMe = async () => {
-  return await api<MeResponse>(uncachedAuthEndpoint("/auth/me"), {
-    cache: "no-store",
-  });
+  try {
+    const response = await api<MeResponse>(uncachedAuthEndpoint("/auth/me"), {
+      cache: "no-store",
+    });
+
+    if (response.data) return response;
+
+    return storedMeResponse() || response;
+  } catch (error) {
+    const storedResponse = storedMeResponse();
+    if (storedResponse) return storedResponse;
+
+    throw error;
+  }
 };
 
 export const updateMe = async (payload: UpdateProfilePayload) => {
