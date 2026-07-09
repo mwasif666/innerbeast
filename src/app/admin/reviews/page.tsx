@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { App, Button, Card, Empty, Form, Input, InputNumber, List, Select, Space, Switch, Tag, Typography } from "antd";
 import {
   useAdminReviews,
@@ -143,20 +143,20 @@ const AdminReviewsPage = () => {
         {editing && (
           <Card title="Edit review" extra={<Button onClick={() => setEditing(null)}>Close</Button>}>
             <Form form={form} layout="vertical" onFinish={saveEdit}>
-              <Form.Item label="Status" name="status" rules={[{ required: true }]}>
+              <Form.Item label="Status" name="status" rules={[{ required: true }]}> 
                 <Select options={[
                   { label: "Pending", value: "pending" },
                   { label: "Approved", value: "approved" },
                   { label: "Rejected", value: "rejected" },
                 ]} />
               </Form.Item>
-              <Form.Item label="Rating" name="rating" rules={[{ required: true }]}>
+              <Form.Item label="Rating" name="rating" rules={[{ required: true }]}> 
                 <InputNumber min={1} max={5} style={{ width: "100%" }} />
               </Form.Item>
               <Form.Item label="Title" name="title">
                 <Input />
               </Form.Item>
-              <Form.Item label="Comment" name="comment" rules={[{ required: true, min: 5 }]}>
+              <Form.Item label="Comment" name="comment" rules={[{ required: true, min: 5 }]}> 
                 <Input.TextArea rows={5} />
               </Form.Item>
               <Button htmlType="submit" type="primary" loading={updateReview.isPending}>Save review</Button>
