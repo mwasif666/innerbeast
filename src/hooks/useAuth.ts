@@ -21,6 +21,7 @@ import {
   ForgotPasswordPayload,
   ResetPasswordPayload,
 } from "../services/auth.service";
+import { clearAuthToken, saveAuthToken } from "../services/api";
 
 const AUTH_QUERY_STALE_TIME = 5 * 60 * 1000;
 
@@ -58,6 +59,7 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: (payload: LoginPayload) => loginUser(payload),
     onSuccess: (response) => {
+      saveAuthToken(response.token);
       const user = getAuthUser(response);
 
       if (user) {
@@ -88,6 +90,7 @@ export const useRegister = () => {
   return useMutation({
     mutationFn: (payload: RegisterPayload) => registerUser(payload),
     onSuccess: (response) => {
+      saveAuthToken(response.token);
       const user = getAuthUser(response);
 
       if (user) {
@@ -161,6 +164,7 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: logoutUser,
     onSuccess: () => {
+      clearAuthToken();
       queryClient.setQueryData(["auth", "me"], null);
       queryClient.removeQueries({
         queryKey: ["auth", "admin-check"],
