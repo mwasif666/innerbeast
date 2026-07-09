@@ -13,6 +13,26 @@ const safeStorage = () => {
   }
 };
 
+const getCookieValue = (name: string) => {
+  if (typeof document === "undefined") return "";
+
+  const encodedName = `${encodeURIComponent(name)}=`;
+  const cookie = document.cookie
+    .split("; ")
+    .find((item) => item.startsWith(encodedName));
+
+  return cookie ? decodeURIComponent(cookie.slice(encodedName.length)) : "";
+};
+
+const setCookieValue = (name: string, value: string, maxAgeSeconds: number) => {
+  if (typeof document === "undefined") return;
+
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(
+    value,
+  )}; Path=/; Max-Age=${maxAgeSeconds}; SameSite=Lax${secure}`;
+};
+
 const decodeJwtPayload = (token: string) => {
   try {
     const [, payload] = token.split(".");
@@ -30,7 +50,8 @@ const decodeJwtPayload = (token: string) => {
   }
 };
 
-export const getStoredAuthToken = () => safeStorage()?.getItem(AUTH_TOKEN_KEY) || "";
+export const getStoredAuthToken = () =>
+  safeStorage()?.getItem(AUTH_TOKEN_KEY) || getCookieValue(AUTH_TOKEN_KEY) || "";
 
 export const isStoredAuthTokenValid = () => {
   const token = getStoredAuthToken();
@@ -56,21 +77,21 @@ export const getStoredAuthUser = (): User | null => {
 
 export const saveAuthSession = (token?: string, user?: User | null) => {
   const storage = safeStorage();
-  if (!storage) return;
 
   if (token) {
-    storage.setItem(AUTH_TOKEN_KEY, token);
+    storage?.setItem(AUTH_TOKEN_KEY, token);
+    setCookieValue(AUTH_TOKEN_KEY, token, 7 * 24 * 60 * 60);
   }
 
   if (user) {
-    storage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+    storage?.setItem(AUTH_USER_KEY, JSON.stringify(user));
   }
 };
 
 export const clearAuthSession = () => {
   const storage = safeStorage();
-  if (!storage) return;
 
-  storage.removeItem(AUTH_TOKEN_KEY);
-  storage.removeItem(AUTH_USER_KEY);
+  storage?.removeItem(AUTH_TOKEN_KEY);
+  storage?.removeItem(AUTH_USER_KEY);
+  setCookieValue(AUTH_TOKEN_KEY, "", 0);
 };
