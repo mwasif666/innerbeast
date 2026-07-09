@@ -11,13 +11,41 @@ type ProductResponse = {
   }
 }
 
+type ProductsResponse = {
+  data?: {
+    slug?: string
+  }[]
+}
+
+export const dynamicParams = false
+
+export async function generateStaticParams() {
+  const baseApi = getApiUrl()
+  if (!baseApi) return []
+
+  try {
+    const response = await fetch(`${baseApi}/products?limit=1000`, {
+      cache: 'force-cache',
+    })
+    if (!response.ok) return []
+
+    const json = (await response.json()) as ProductsResponse
+    return (json.data || [])
+      .map((product) => product.slug?.trim())
+      .filter((slug): slug is string => Boolean(slug))
+      .map((slug) => ({ slug }))
+  } catch {
+    return []
+  }
+}
+
 const getProduct = async (slug: string) => {
   const baseApi = getApiUrl()
   if (!baseApi || !slug) return null
 
   try {
     const response = await fetch(`${baseApi}/products/${encodeURIComponent(slug)}`, {
-      next: { revalidate: 300 },
+      cache: 'force-cache',
     })
     if (!response.ok) return null
 
