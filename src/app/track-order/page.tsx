@@ -9,7 +9,7 @@ import MenuOne from "@/components/Header/Menu/MenuOne";
 import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
 import Footer from "@/components/Footer/Footer";
 import { useTrackOrder } from "@/hooks/useOrders";
-import { Order, OrderItem, TrackOrderPayload } from "@/services/order.service";
+import { Order, OrderItem } from "@/services/order.service";
 import { formatMoney } from "@/utils/currency";
 
 const money = (value?: number) => formatMoney(value);
@@ -49,24 +49,6 @@ const getItemImage = (item: OrderItem) => {
   return "";
 };
 
-const buildTrackPayload = (
-  orderNumber: string,
-  contact: string,
-): TrackOrderPayload => {
-  const payload: TrackOrderPayload = { orderNumber };
-  const cleanContact = contact.trim();
-
-  if (!cleanContact) return payload;
-
-  if (cleanContact.includes("@")) {
-    payload.email = cleanContact.toLowerCase();
-  } else {
-    payload.phone = cleanContact;
-  }
-
-  return payload;
-};
-
 const statusSteps = [
   { key: "pending", label: "Pending", icon: Icon.Hourglass },
   { key: "confirmed", label: "Confirmed", icon: Icon.SealCheck },
@@ -87,7 +69,6 @@ const TrackOrderPage = () => {
 
     const formData = new FormData(event.currentTarget);
     const orderNumber = String(formData.get("orderNumber") || "").trim();
-    const contact = String(formData.get("contact") || "").trim();
 
     if (!orderNumber) {
       setError("Order number is required.");
@@ -95,10 +76,7 @@ const TrackOrderPage = () => {
     }
 
     try {
-      const response = await trackMutation.mutateAsync(
-        buildTrackPayload(orderNumber, contact),
-      );
-
+      const response = await trackMutation.mutateAsync({ orderNumber });
       setOrder(response.data);
     } catch (trackError) {
       setError((trackError as Error).message || "Order not found.");
@@ -134,8 +112,7 @@ const TrackOrderPage = () => {
               <h1 className="heading4 mt-3 text-white">Track your order</h1>
 
               <p className="mt-3 text-secondary">
-                Enter your order number to view the latest status. Email or phone
-                is optional.
+                Enter your order number to view the latest status.
               </p>
 
               <form className="grid gap-5 mt-7" onSubmit={handleTrack}>
@@ -146,20 +123,6 @@ const TrackOrderPage = () => {
                     className="h-12 rounded-lg bg-[#191c1c] border border-[#373d3d] px-4 text-white"
                     placeholder="IB-89322677-79QO"
                     required
-                  />
-                </label>
-
-                <label className="grid gap-2">
-                  <span className="text-sm font-semibold">
-                    Email or phone <span className="text-secondary">(optional)</span>
-                  </span>
-                  <input
-                    name="contact"
-                    type="text"
-                    autoCapitalize="none"
-                    autoCorrect="off"
-                    className="h-12 rounded-lg bg-[#191c1c] border border-[#373d3d] px-4 text-white"
-                    placeholder="Optional"
                   />
                 </label>
 
