@@ -32,6 +32,16 @@ const orderDiscount = (order: Order) => firstNumber(order.discountTotal, order.d
 const orderShipping = (order: Order) => firstNumber(order.shippingFee, order.shipping);
 const orderTotal = (order: Order) => firstNumber(order.grandTotal, order.totalAmount, order.total, orderSubtotal(order) - orderDiscount(order) + orderShipping(order));
 const couponCode = (order: Order) => order.coupon?.code || order.appliedCoupon?.code || order.couponCode || "";
+const mergeOrderSnapshot = (detail: Order, snapshot: Order): Order => ({
+  ...detail,
+  ...snapshot,
+  items: snapshot.items?.length ? snapshot.items : detail.items,
+  shippingAddress: snapshot.shippingAddress || detail.shippingAddress,
+  customer: snapshot.customer || detail.customer,
+  user: snapshot.user || detail.user,
+  coupon: snapshot.coupon || detail.coupon,
+  appliedCoupon: snapshot.appliedCoupon || detail.appliedCoupon,
+});
 
 const MyAccount = () => {
   const router = useRouter();
@@ -58,6 +68,21 @@ const MyAccount = () => {
       router.replace("/login?redirect=/my-account");
     }
   }, [isCheckingUser, router, user, userQuery.isError]);
+
+  useEffect(() => {
+    setOrderDetails((current) => {
+      let changed = false;
+      const next = { ...current };
+
+      orders.forEach((order) => {
+        if (!current[order._id]) return;
+        next[order._id] = mergeOrderSnapshot(current[order._id], order);
+        changed = true;
+      });
+
+      return changed ? next : current;
+    });
+  }, [orders]);
 
   const latestAddress = user?.addresses?.find((item) => item.isDefault) || user?.addresses?.[0] || orders[0]?.shippingAddress;
   const initials = (user?.name || "IB").split(" ").map((part) => part[0]).slice(0, 2).join("").toUpperCase();
