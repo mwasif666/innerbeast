@@ -8,6 +8,7 @@ type ApiError = Error & {
 };
 
 const CONFIGURED_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
+const USE_SAME_ORIGIN_PROXY = process.env.NEXT_PUBLIC_USE_API_PROXY === "true";
 const SAME_ORIGIN_PROXY_BASE_URL = "/api";
 
 const getBaseUrl = () => {
@@ -15,23 +16,9 @@ const getBaseUrl = () => {
     return SAME_ORIGIN_PROXY_BASE_URL;
   }
 
-  if (typeof window === "undefined") {
-    return CONFIGURED_BASE_URL;
-  }
-
-  try {
-    const configuredOrigin = new URL(
-      CONFIGURED_BASE_URL,
-      window.location.origin,
-    ).origin;
-
-    // Chrome can block or drop third-party auth cookies when the frontend and
-    // backend are on different domains. For browser requests, always use the
-    // same-origin Next.js API proxy when NEXT_PUBLIC_API_URL is cross-origin.
-    if (configuredOrigin !== window.location.origin) {
-      return SAME_ORIGIN_PROXY_BASE_URL;
-    }
-  } catch {
+  // Hostinger static export has no Next.js server, so /api proxy routes cannot
+  // exist there. Keep proxy usage opt-in for server deployments only.
+  if (USE_SAME_ORIGIN_PROXY) {
     return SAME_ORIGIN_PROXY_BASE_URL;
   }
 
@@ -63,6 +50,10 @@ const api = async <T = unknown>(
   endpoint: string,
   options: ApiOptions = {},
 ): Promise<T> => {
+  if (!CONFIGURED_BASE_URL && !USE_SAME_ORIGIN_PROXY) {
+    throw new Error("NEXT_PUBLIC_API_URL is missing");
+  }
+
   const { method = "GET", body, headers = {}, ...customOptions } = options;
 
   const isFormData =
