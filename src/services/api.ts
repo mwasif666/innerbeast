@@ -1,3 +1,5 @@
+import { DEFAULT_API_URL } from "@/config/site";
+
 type ApiOptions = Omit<RequestInit, "body"> & {
   body?: unknown | FormData;
 };
@@ -7,7 +9,7 @@ type ApiError = Error & {
   data?: unknown;
 };
 
-const CONFIGURED_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
+const CONFIGURED_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL).replace(/\/+$/, "");
 const SAME_ORIGIN_PROXY_BASE_URL = "/api";
 
 const getBaseUrl = () => {

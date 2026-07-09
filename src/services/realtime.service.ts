@@ -1,11 +1,8 @@
 import { io } from "socket.io-client";
+import { getSocketUrl } from "@/config/site";
 
 export const getRealtimeUrl = () => {
-  const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL;
-  if (socketUrl) return socketUrl;
-
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-  return apiUrl.replace("/api", "");
+  return getSocketUrl();
 };
 
 export const realtimeSocket = io(getRealtimeUrl(), {

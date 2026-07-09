@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { DEFAULT_API_URL } from "@/config/site";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -8,7 +9,7 @@ const getBackendApiUrl = () =>
     process.env.API_URL ||
     process.env.BACKEND_API_URL ||
     process.env.NEXT_PUBLIC_API_URL ||
-    ""
+    DEFAULT_API_URL
   ).replace(/\/+$/, "");
 
 const HOP_BY_HOP_HEADERS = new Set([

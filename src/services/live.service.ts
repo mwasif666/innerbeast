@@ -1,11 +1,9 @@
+import { getSocketUrl } from "@/config/site";
+
 let source: EventSource | null = null;
 
 const getBaseUrl = () => {
-  const explicitUrl = process.env.NEXT_PUBLIC_SOCKET_URL;
-  if (explicitUrl) return explicitUrl.replace(/\/$/, "");
-
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-  return apiUrl.replace(/\/api\/?$/, "").replace(/\/$/, "");
+  return getSocketUrl();
 };
 
 export const getLiveSource = () => {

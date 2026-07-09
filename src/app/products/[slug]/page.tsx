@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { getApiUrl, getSiteUrl } from '@/config/site'
 
 type ProductResponse = {
   data?: {
@@ -10,13 +11,8 @@ type ProductResponse = {
   }
 }
 
-const siteUrl = () =>
-  (process.env.NEXT_PUBLIC_SITE_URL || 'https://innerbeast-chi.vercel.app').replace(/\/$/, '')
-
-const apiUrl = () => (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '')
-
 const getProduct = async (slug: string) => {
-  const baseApi = apiUrl()
+  const baseApi = getApiUrl()
   if (!baseApi || !slug) return null
 
   try {
@@ -45,7 +41,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const title = product.title || 'Product'
   const description = product.description || `Shop ${title} at Inner Beast.`
   const image = product.images?.find((item) => item.url)?.url
-  const url = `${siteUrl()}/products/${encodeURIComponent(product.slug || params.slug)}`
+  const url = `${getSiteUrl()}/products/${encodeURIComponent(product.slug || params.slug)}`
 
   return {
     title,

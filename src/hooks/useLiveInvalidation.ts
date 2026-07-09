@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { getSocketUrl } from "@/config/site";
 
 export const useLiveInvalidation = () => {
   const queryClient = useQueryClient();
@@ -10,9 +11,7 @@ export const useLiveInvalidation = () => {
     const source = typeof window !== "undefined" ? window.EventSource : null;
     if (!source) return;
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
-    const baseUrl = apiUrl.replace(/\/api\/?$/, "");
-    if (!baseUrl) return;
+    const baseUrl = getSocketUrl();
 
     const events = new source(`${baseUrl}/api/realtime/stream`, {
       withCredentials: true,

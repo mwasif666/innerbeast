@@ -19,6 +19,7 @@ import {
   Product as ApiProduct,
 } from '@/services/product.service'
 import { toStorefrontProduct } from '@/utils/productAdapter'
+import { getApiUrl } from '@/config/site'
 
 export const revalidate = 60
 
@@ -29,9 +30,7 @@ const emptyList = <T,>(): ApiListResponse<T> => ({
 })
 
 const getHomepageData = async () => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL
-
-  if (!apiUrl) throw new Error('NEXT_PUBLIC_API_URL is missing')
+  const apiUrl = getApiUrl()
 
   const [productsResponse, categoriesResponse] = await Promise.all([
     fetch(`${apiUrl}/products?limit=40&sort=newest&isActive=true`, {

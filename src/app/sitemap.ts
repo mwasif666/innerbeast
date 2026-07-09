@@ -1,16 +1,12 @@
 import type { MetadataRoute } from 'next'
+import { getApiUrl, getSiteUrl } from '@/config/site'
 
 type Product = { slug?: string; updatedAt?: string }
 type Category = { slug?: string; updatedAt?: string }
 type ApiList<T> = { data?: T[] }
 
-const siteUrl = () =>
-  (process.env.NEXT_PUBLIC_SITE_URL || 'https://innerbeast-chi.vercel.app').replace(/\/$/, '')
-
-const apiUrl = () => (process.env.NEXT_PUBLIC_API_URL || '').replace(/\/$/, '')
-
 const getList = async <T,>(path: string): Promise<T[]> => {
-  const baseApi = apiUrl()
+  const baseApi = getApiUrl()
   if (!baseApi) return []
 
   try {
@@ -25,7 +21,7 @@ const getList = async <T,>(path: string): Promise<T[]> => {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = siteUrl()
+  const base = getSiteUrl()
   const now = new Date()
 
   const staticRoutes: MetadataRoute.Sitemap = [
