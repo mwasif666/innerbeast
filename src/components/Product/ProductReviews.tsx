@@ -28,7 +28,7 @@ const ProductReviews = ({ productId }: { productId?: string }) => {
   const [notice, setNotice] = useState("");
 
   const userQuery = useCurrentUser();
-  const user = userQuery.data?.data || userQuery.data?.user || null;
+  const user = userQuery.data?.data || null;
   const reviewsQuery = useProductReviews(productId);
   const eligibilityQuery = useReviewEligibility(productId, Boolean(user));
   const createReview = useCreateProductReview(productId);
