@@ -73,7 +73,9 @@ const ProductReviews = ({ productId }: { productId?: string }) => {
           </div>
 
           <div className="rounded-3xl border border-line p-6">
-            {!user ? (
+            {userQuery.isLoading ? (
+              <div className="text-secondary">Checking your account...</div>
+            ) : !user ? (
               <div>
                 <h3 className="heading5">Login to review</h3>
                 <p className="body1 text-secondary mt-2">You must be logged in and have a delivered order for this product.</p>

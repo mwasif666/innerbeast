@@ -3,9 +3,8 @@ import ProductReviewsBySlug from '@/components/Product/ProductReviewsBySlug'
 
 export default function ProductDetailPage({ params }: { params: { slug: string } }) {
   return (
-    <>
-      <ProductOneScrolling />
+    <ProductOneScrolling>
       <ProductReviewsBySlug slug={params.slug} />
-    </>
+    </ProductOneScrolling>
   )
 }
