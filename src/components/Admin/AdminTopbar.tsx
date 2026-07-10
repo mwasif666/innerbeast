@@ -15,94 +15,32 @@ type AdminTopbarProps = {
 };
 
 const getInitials = (name?: string) =>
-  (name || "A")
-    .split(" ")
-    .map((part) => part[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+  (name || "A").split(" ").map((part) => part[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
 
-const AdminTopbar = ({
-  title,
-  user,
-  onMenuClick,
-  showMenuButton,
-}: AdminTopbarProps) => {
+const AdminTopbar = ({ title, user, onMenuClick, showMenuButton }: AdminTopbarProps) => {
   const { mode, toggleMode } = useAdminTheme();
+  const avatarUrl = user?.avatar?.url || "";
 
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: 16,
-        height: "100%",
-        padding: "0 clamp(16px, 3vw, 28px)",
-      }}
-    >
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, height: "100%", padding: "0 clamp(16px, 3vw, 28px)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-        {showMenuButton && (
-          <Button
-            type="text"
-            icon={<MenuOutlined />}
-            onClick={onMenuClick}
-            aria-label="Toggle menu"
-          />
-        )}
+        {showMenuButton && <Button type="text" icon={<MenuOutlined />} onClick={onMenuClick} aria-label="Toggle menu" />}
         <div style={{ lineHeight: 1.25 }}>
           <div style={{ color: "var(--adm-text-3)", fontSize: 12 }}>Admin</div>
-          <div
-            style={{
-              color: "var(--adm-text)",
-              fontSize: 19,
-              fontWeight: 650,
-            }}
-          >
-            {title}
-          </div>
+          <div style={{ color: "var(--adm-text)", fontSize: 19, fontWeight: 650 }}>{title}</div>
         </div>
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <LiveBadge />
-
-        <Tooltip
-          title={
-            mode === "dark" ? "Switch to light mode" : "Switch to dark mode"
-          }
-        >
-          <Button
-            type="text"
-            shape="circle"
-            icon={mode === "dark" ? <SunOutlined /> : <MoonOutlined />}
-            onClick={toggleMode}
-            aria-label="Toggle theme"
-          />
+        <Tooltip title={mode === "dark" ? "Switch to light mode" : "Switch to dark mode"}>
+          <Button type="text" shape="circle" icon={mode === "dark" ? <SunOutlined /> : <MoonOutlined />} onClick={toggleMode} aria-label="Toggle theme" />
         </Tooltip>
 
         {user && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 11,
-              padding: "5px 14px 5px 5px",
-              background: "var(--adm-wash)",
-              border: "1px solid var(--adm-border)",
-              borderRadius: 999,
-            }}
-          >
-            <Avatar
-              size={34}
-              style={{
-                background: "linear-gradient(135deg, #e57112, #c4610f)",
-                fontSize: 12,
-                fontWeight: 700,
-              }}
-            >
-              {getInitials(user.name)}
+          <div style={{ display: "flex", alignItems: "center", gap: 11, padding: "5px 14px 5px 5px", background: "var(--adm-wash)", border: "1px solid var(--adm-border)", borderRadius: 999 }}>
+            <Avatar size={34} src={avatarUrl || undefined} style={{ background: "linear-gradient(135deg, #e57112, #c4610f)", fontSize: 12, fontWeight: 700 }}>
+              {!avatarUrl && getInitials(user.name)}
             </Avatar>
             <div className="admin-user-meta" style={{ lineHeight: 1.25 }}>
               <div style={{ color: "var(--adm-text)", fontSize: 13, fontWeight: 600 }}>{user.name}</div>
