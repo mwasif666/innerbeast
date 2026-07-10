@@ -10,6 +10,7 @@ import MenuOne from "@/components/Header/Menu/MenuOne";
 import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
 import Footer from "@/components/Footer/Footer";
 import { useRegister } from "@/hooks/useAuth";
+import { uploadAvatarImage, UploadedImage } from "@/services/upload.service";
 import styles from "../auth.module.scss";
 
 const RegisterContent = () => {
@@ -17,6 +18,23 @@ const RegisterContent = () => {
   const searchParams = useSearchParams();
   const registerMutation = useRegister();
   const [error, setError] = useState("");
+  const [avatar, setAvatar] = useState<UploadedImage | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setError("");
+    setUploading(true);
+    try {
+      const response = await uploadAvatarImage(file);
+      setAvatar(response.data);
+    } catch (err) {
+      setError((err as Error).message || "Image upload failed.");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -32,6 +50,7 @@ const RegisterContent = () => {
         email: String(formData.get("email") || "").trim(),
         phone: String(formData.get("phone") || "").trim(),
         password,
+        avatar: avatar ? { url: avatar.url, publicId: avatar.publicId } : undefined,
       });
       const redirect = searchParams.get("redirect");
       router.replace(redirect?.startsWith("/") && !redirect.startsWith("//") ? redirect : "/my-account");
@@ -53,13 +72,15 @@ const RegisterContent = () => {
               <p className={styles.subtitle}>Your orders, addresses and account details—kept together.</p>
               <form className={styles.form} onSubmit={handleSubmit}>
                 {error && <div className={styles.error} role="alert">{error}</div>}
+                <label className={styles.field}><span>Profile image</span><input name="avatarFile" type="file" accept="image/*" onChange={handleAvatar} /></label>
+                {avatar?.url && <img src={avatar.url} alt="Profile preview" style={{ width: 72, height: 72, borderRadius: "50%", objectFit: "cover" }} />}
                 <label className={styles.field}><span>Full name</span><input name="name" type="text" autoComplete="name" placeholder="Your full name" required /></label>
                 <label className={styles.field}><span>Email address</span><input name="email" type="email" autoComplete="email" placeholder="you@example.com" required /></label>
                 <label className={styles.field}><span>Phone number</span><input name="phone" type="tel" autoComplete="tel" placeholder="+44 7700 900000" /></label>
                 <label className={styles.field}><span>Password</span><input name="password" type="password" autoComplete="new-password" placeholder="At least 6 characters" minLength={6} required /></label>
                 <label className={styles.field}><span>Confirm password</span><input name="confirmPassword" type="password" autoComplete="new-password" placeholder="Repeat your password" minLength={6} required /></label>
                 <label className={styles.terms}><input type="checkbox" name="terms" /><span>I agree to the <Link href="/terms-and-conditions">Terms & Conditions</Link> and <Link href="/privacy-policy">Privacy Policy</Link>.</span></label>
-                <button className={styles.submit} disabled={registerMutation.isPending}>{registerMutation.isPending ? "Creating account..." : "Create account"}</button>
+                <button className={styles.submit} disabled={registerMutation.isPending || uploading}>{uploading ? "Uploading image..." : registerMutation.isPending ? "Creating account..." : "Create account"}</button>
               </form>
             </section>
             <aside className={styles.sidePanel}>
