@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Badge, Button, List, Popover, Space, Tag, Typography } from "antd";
+import { Badge, Button, List, Popover, Space, Tag, Typography, message } from "antd";
 import { BellOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { connectRealtimeSocket } from "@/services/realtime.service";
 
@@ -9,11 +9,26 @@ const { Text } = Typography;
 
 type Notice = { id: string; event: string; text: string; date: string; seen?: boolean };
 
+const beep = () => {
+  try {
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    gain.gain.value = 0.02;
+    osc.frequency.value = 880;
+    osc.start();
+    osc.stop(ctx.currentTime + 0.1);
+  } catch {}
+};
+
 const LiveBadge = () => {
   const [items, setItems] = useState<Notice[]>([]);
   const [open, setOpen] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [live, setLive] = useState(false);
+  const [msg, holder] = message.useMessage();
   const unread = useMemo(() => items.filter((item) => !item.seen).length, [items]);
 
   useEffect(() => {
@@ -22,22 +37,23 @@ const LiveBadge = () => {
       if (event === "realtime:connected") return;
       setSyncing(true);
       window.setTimeout(() => setSyncing(false), 1000);
-      setItems((current) => [
-        {
-          id: `${event}-${Date.now()}`,
-          event,
-          text: String(payload.orderNumber || payload.action || "Data changed"),
-          date: new Date().toISOString(),
-        },
-        ...current,
-      ].slice(0, 10));
+      const text = String(payload.orderNumber || payload.action || "Data changed");
+      setItems((current) => [{ id: `${event}-${Date.now()}`, event, text, date: new Date().toISOString() }, ...current].slice(0, 10));
+      beep();
+      msg.info(`${event}: ${text}`);
     };
-    socket.on("connect", () => setLive(true));
-    socket.on("disconnect", () => setLive(false));
+    const onConnect = () => setLive(true);
+    const onDisconnect = () => setLive(false);
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
     socket.onAny(addNotice);
     if (socket.connected) setLive(true);
-    return () => socket.offAny(addNotice);
-  }, []);
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+      socket.offAny(addNotice);
+    };
+  }, [msg]);
 
   const content = (
     <div style={{ width: 320 }}>
@@ -67,9 +83,12 @@ const LiveBadge = () => {
   };
 
   return (
-    <Popover open={open} onOpenChange={handleOpen} content={content} trigger="click" placement="bottomRight">
-      <Badge count={unread} size="small"><Button shape="circle" icon={<BellOutlined />} /></Badge>
-    </Popover>
+    <>
+      {holder}
+      <Popover open={open} onOpenChange={handleOpen} content={content} trigger="click" placement="bottomRight">
+        <Badge count={unread} size="small"><Button shape="circle" icon={<BellOutlined />} /></Badge>
+      </Popover>
+    </>
   );
 };
 
