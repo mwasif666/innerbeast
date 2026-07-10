@@ -92,11 +92,6 @@ export type BasicResponse = {
   message?: string;
 };
 
-const uncachedAuthEndpoint = (endpoint: string) => {
-  const separator = endpoint.includes("?") ? "&" : "?";
-  return `${endpoint}${separator}_=${Date.now()}`;
-};
-
 const storedMeResponse = (): MeResponse | null => {
   if (!isStoredAuthTokenValid()) {
     clearAuthSession();
@@ -129,9 +124,7 @@ export const logoutUser = async () => {
 
 export const getMe = async () => {
   try {
-    const response = await api<MeResponse>(uncachedAuthEndpoint("/auth/me"), {
-      cache: "no-store",
-    });
+    const response = await api<MeResponse>("/auth/me");
 
     if (response.data) return response;
 
@@ -185,7 +178,5 @@ export const resetPassword = async (
 };
 
 export const adminCheck = async () => {
-  return await api<AuthResponse>(uncachedAuthEndpoint("/auth/admin-check"), {
-    cache: "no-store",
-  });
+  return await api<AuthResponse>("/auth/admin-check");
 };
