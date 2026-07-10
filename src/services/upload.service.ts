@@ -25,22 +25,23 @@ export type UploadImagesResponse = {
 export const uploadSingleImage = async (file: File) => {
   const formData = new FormData();
   formData.append("image", file);
+  return await api<UploadImageResponse>("/uploads/product", { method: "POST", body: formData });
+};
 
-  return await api<UploadImageResponse>("/uploads/product", {
-    method: "POST",
-    body: formData,
-  });
+export const uploadContentImage = async (file: File) => {
+  const formData = new FormData();
+  formData.append("image", file);
+  return await api<UploadImageResponse>("/uploads/content", { method: "POST", body: formData });
+};
+
+export const uploadAvatarImage = async (file: File) => {
+  const formData = new FormData();
+  formData.append("image", file);
+  return await api<UploadImageResponse>("/uploads/avatar", { method: "POST", body: formData });
 };
 
 export const uploadMultipleImages = async (files: File[]) => {
   const formData = new FormData();
-
-  files.forEach((file) => {
-    formData.append("images", file);
-  });
-
-  return await api<UploadImagesResponse>("/uploads/products", {
-    method: "POST",
-    body: formData,
-  });
+  files.forEach((file) => formData.append("images", file));
+  return await api<UploadImagesResponse>("/uploads/products", { method: "POST", body: formData });
 };
