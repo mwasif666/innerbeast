@@ -1,17 +1,5 @@
 import { ReactNode } from "react";
-import {
-  AppstoreOutlined,
-  DashboardOutlined,
-  ShoppingCartOutlined,
-  PercentageOutlined,
-  TagsOutlined,
-  TeamOutlined,
-  TruckOutlined,
-  SettingOutlined,
-  StarOutlined,
-  WarningOutlined,
-  FileTextOutlined,
-} from "@ant-design/icons";
+import { AppstoreOutlined, DashboardOutlined, ShoppingCartOutlined, PercentageOutlined, TagsOutlined, TeamOutlined, TruckOutlined, SettingOutlined, StarOutlined, WarningOutlined, FileTextOutlined, GlobalOutlined } from "@ant-design/icons";
 
 export type AdminNavItem = { key: string; label: string; icon: ReactNode };
 
@@ -23,6 +11,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { key: "/admin/orders", label: "Orders", icon: <ShoppingCartOutlined /> },
   { key: "/admin/inventory", label: "Inventory", icon: <WarningOutlined /> },
   { key: "/admin/blogs", label: "Blogs", icon: <FileTextOutlined /> },
+  { key: "/admin/site-content", label: "Site Content", icon: <GlobalOutlined /> },
   { key: "/admin/coupons", label: "Coupons", icon: <PercentageOutlined /> },
   { key: "/admin/shipping", label: "Shipping", icon: <TruckOutlined /> },
   { key: "/admin/reviews", label: "Reviews", icon: <StarOutlined /> },
