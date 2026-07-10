@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Instrument_Sans } from "next/font/google";
 import { cache, Suspense } from "react";
 import "@/styles/styles.scss";
+import "eddyter/style.css";
 
 import GlobalProvider from "./GlobalProvider";
 import ReactQueryProvider from "@/providers/ReactQueryProvider";
