@@ -10,13 +10,10 @@ import {
   SettingOutlined,
   StarOutlined,
   WarningOutlined,
+  FileTextOutlined,
 } from "@ant-design/icons";
 
-export type AdminNavItem = {
-  key: string;
-  label: string;
-  icon: ReactNode;
-};
+export type AdminNavItem = { key: string; label: string; icon: ReactNode };
 
 export const ADMIN_NAV: AdminNavItem[] = [
   { key: "/admin", label: "Dashboard", icon: <DashboardOutlined /> },
@@ -25,6 +22,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { key: "/admin/products", label: "Products", icon: <AppstoreOutlined /> },
   { key: "/admin/orders", label: "Orders", icon: <ShoppingCartOutlined /> },
   { key: "/admin/inventory", label: "Inventory", icon: <WarningOutlined /> },
+  { key: "/admin/blogs", label: "Blogs", icon: <FileTextOutlined /> },
   { key: "/admin/coupons", label: "Coupons", icon: <PercentageOutlined /> },
   { key: "/admin/shipping", label: "Shipping", icon: <TruckOutlined /> },
   { key: "/admin/reviews", label: "Reviews", icon: <StarOutlined /> },
@@ -34,13 +32,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
 
 export const getActiveKey = (pathname: string) => {
   if (pathname === "/admin") return "/admin";
-
-  const match = ADMIN_NAV.find(
-    (item) =>
-      item.key !== "/admin" &&
-      (pathname === item.key || pathname.startsWith(`${item.key}/`)),
-  );
-
+  const match = ADMIN_NAV.find((item) => item.key !== "/admin" && (pathname === item.key || pathname.startsWith(`${item.key}/`)));
   return match?.key ?? "/admin";
 };
 
