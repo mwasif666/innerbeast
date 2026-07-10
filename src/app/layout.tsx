@@ -8,20 +8,17 @@ import ReactQueryProvider from "@/providers/ReactQueryProvider";
 import GlobalScrollbar from "@/components/GlobalScrollbar";
 import SupportWidget from "@/components/Support/SupportWidget";
 import PageViewTracker from "@/components/Analytics/PageViewTracker";
-
 import ModalCart from "@/components/Modal/ModalCart";
 import ModalWishlist from "@/components/Modal/ModalWishlist";
 import ModalSearch from "@/components/Modal/ModalSearch";
 import ModalQuickview from "@/components/Modal/ModalQuickview";
 import ModalCompare from "@/components/Modal/ModalCompare";
-
 import CountdownTimeType from "@/type/CountdownType";
 import { countdownTime } from "@/store/countdownTime";
 import type { StoreSettingsResponse } from "@/services/settings.service";
 import { getApiUrl } from "@/config/site";
 
 const serverTimeLeft: CountdownTimeType = countdownTime();
-
 const instrument = Instrument_Sans({ subsets: ["latin"], adjustFontFallback: false });
 
 const getServerSettings = cache(async (): Promise<StoreSettingsResponse | undefined> => {
@@ -29,9 +26,7 @@ const getServerSettings = cache(async (): Promise<StoreSettingsResponse | undefi
     const response = await fetch(`${getApiUrl()}/settings`, { cache: "force-cache" });
     if (!response.ok) return undefined;
     return await response.json() as StoreSettingsResponse;
-  } catch {
-    return undefined;
-  }
+  } catch { return undefined; }
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -40,10 +35,13 @@ export async function generateMetadata(): Promise<Metadata> {
     const settings = await getServerSettings();
     if (!settings) return fallback;
     const seo = settings.data?.seo;
-    return { title: seo?.metaTitle || settings.data?.storeName || "Inner Beast", description: seo?.metaDescription || "Inner Beast Store" };
-  } catch {
-    return fallback;
-  }
+    const metadata: Metadata = {
+      title: seo?.metaTitle || settings.data?.storeName || "Inner Beast",
+      description: seo?.metaDescription || "Inner Beast Store",
+    };
+    if (seo?.siteIconUrl) metadata.icons = { icon: seo.siteIconUrl, shortcut: seo.siteIconUrl, apple: seo.siteIconUrl };
+    return metadata;
+  } catch { return fallback; }
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
