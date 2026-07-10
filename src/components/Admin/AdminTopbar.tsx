@@ -5,6 +5,7 @@ import { MenuOutlined, MoonOutlined, SunOutlined } from "@ant-design/icons";
 
 import { User } from "@/services/auth.service";
 import { useAdminTheme } from "@/providers/AdminAntdProvider";
+import LiveBadge from "./LiveBadge";
 
 type AdminTopbarProps = {
   title: string;
@@ -65,6 +66,8 @@ const AdminTopbar = ({
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <LiveBadge />
+
         <Tooltip
           title={
             mode === "dark" ? "Switch to light mode" : "Switch to dark mode"
@@ -102,24 +105,8 @@ const AdminTopbar = ({
               {getInitials(user.name)}
             </Avatar>
             <div className="admin-user-meta" style={{ lineHeight: 1.25 }}>
-              <div
-                style={{
-                  color: "var(--adm-text)",
-                  fontSize: 13,
-                  fontWeight: 600,
-                }}
-              >
-                {user.name}
-              </div>
-              <div
-                style={{
-                  color: "var(--adm-text-3)",
-                  fontSize: 12,
-                  textTransform: "capitalize",
-                }}
-              >
-                {user.role}
-              </div>
+              <div style={{ color: "var(--adm-text)", fontSize: 13, fontWeight: 600 }}>{user.name}</div>
+              <div style={{ color: "var(--adm-text-3)", fontSize: 12, textTransform: "capitalize" }}>{user.role}</div>
             </div>
           </div>
         )}
