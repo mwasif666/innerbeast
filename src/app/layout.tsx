@@ -35,10 +35,7 @@ export async function generateMetadata(): Promise<Metadata> {
     const settings = await getServerSettings();
     if (!settings) return fallback;
     const seo = settings.data?.seo;
-    const metadata: Metadata = {
-      title: seo?.metaTitle || settings.data?.storeName || "Inner Beast",
-      description: seo?.metaDescription || "Inner Beast Store",
-    };
+    const metadata: Metadata = { title: seo?.metaTitle || settings.data?.storeName || "Inner Beast", description: seo?.metaDescription || "Inner Beast Store" };
     if (seo?.siteIconUrl) metadata.icons = { icon: seo.siteIconUrl, shortcut: seo.siteIconUrl, apple: seo.siteIconUrl };
     return metadata;
   } catch { return fallback; }
@@ -50,6 +47,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en">
       <body className={instrument.className}>
+        <style dangerouslySetInnerHTML={{ __html: `.modal-cart-block:not(:has(.modal-cart-main.open)),.modal-wishlist-block:not(:has(.modal-wishlist-main.open)),.modal-search-block:not(:has(.modal-search-main.open)),.modal-quickview-block:not(:has(.modal-quickview-main.open)),.modal-compare-block:not(:has(.modal-compare-main.open)){display:none!important}.blog-content img{max-width:100%;height:auto;border-radius:16px;margin:18px 0}.blog-content h2{font-size:30px;line-height:1.25;margin:28px 0 12px}.blog-content p{margin:0 0 16px}` }} />
         <GlobalScrollbar />
         <Suspense fallback={null}><PageViewTracker /></Suspense>
         <ReactQueryProvider initialSettings={initialSettings}>
