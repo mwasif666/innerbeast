@@ -7,6 +7,7 @@ import {
   createOrder,
   getAdminOrders,
   getOrderById,
+  getOrderStatusHistory,
   getMyOrders,
   trackOrder,
   updateOrderStatus,
@@ -32,9 +33,7 @@ export const useCreateOrder = () => {
 };
 
 export const useTrackOrder = () => {
-  return useMutation({
-    mutationFn: (payload: TrackOrderPayload) => trackOrder(payload),
-  });
+  return useMutation({ mutationFn: (payload: TrackOrderPayload) => trackOrder(payload) });
 };
 
 export const useCancelOrder = () => {
@@ -84,6 +83,17 @@ export const useAdminOrder = (id: string) => {
   });
 };
 
+export const useOrderStatusHistory = (id: string) => {
+  return useQuery({
+    queryKey: ["orders", "admin", id, "history"],
+    queryFn: () => getOrderStatusHistory(id),
+    enabled: Boolean(id),
+    retry: false,
+    staleTime: 10 * 1000,
+    refetchOnWindowFocus: true,
+  });
+};
+
 export const useUpdateOrderStatus = () => {
   const queryClient = useQueryClient();
 
@@ -92,6 +102,7 @@ export const useUpdateOrderStatus = () => {
       updateOrderStatus(id, payload),
     onSuccess: (response) => {
       queryClient.setQueryData(["orders", "admin", response.data._id], response);
+      queryClient.invalidateQueries({ queryKey: ["orders", "admin", response.data._id, "history"] });
       refreshOrderData(queryClient);
     },
   });
