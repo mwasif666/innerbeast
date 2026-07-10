@@ -14,66 +14,33 @@ import Instagram from '@/components/Home1/Instagram'
 import Brand from '@/components/Home1/Brand'
 import Footer from '@/components/Footer/Footer'
 import SupportWidget from '@/components/Support/SupportWidget'
-import {
-  ApiListResponse,
-  Category,
-  Product as ApiProduct,
-} from '@/services/product.service'
+import HomePopupBanner from '@/components/Marketing/HomePopupBanner'
+import { ApiListResponse, Category, Product as ApiProduct } from '@/services/product.service'
 import { toStorefrontProduct } from '@/utils/productAdapter'
 import { getApiUrl } from '@/config/site'
 
-const emptyList = <T,>(): ApiListResponse<T> => ({
-  success: false,
-  count: 0,
-  data: [],
-})
+const emptyList = <T,>(): ApiListResponse<T> => ({ success: false, count: 0, data: [] })
 
 const getHomepageData = async () => {
   const apiUrl = getApiUrl()
-
   try {
     const [productsResponse, categoriesResponse] = await Promise.all([
-      fetch(`${apiUrl}/products?limit=40&sort=newest&isActive=true`, {
-        cache: 'force-cache',
-      }),
+      fetch(`${apiUrl}/products?limit=40&sort=newest&isActive=true`, { cache: 'force-cache' }),
       fetch(`${apiUrl}/categories?limit=100`, { cache: 'force-cache' }),
     ])
-
-    if (!productsResponse.ok || !categoriesResponse.ok) {
-      console.error('Unable to load homepage catalogue', {
-        productsStatus: productsResponse.status,
-        categoriesStatus: categoriesResponse.status,
-      })
-    }
-
     return {
-      products: productsResponse.ok
-        ? (await productsResponse.json()) as ApiListResponse<ApiProduct>
-        : emptyList<ApiProduct>(),
-      categories: categoriesResponse.ok
-        ? (await categoriesResponse.json()) as ApiListResponse<Category>
-        : emptyList<Category>(),
+      products: productsResponse.ok ? (await productsResponse.json()) as ApiListResponse<ApiProduct> : emptyList<ApiProduct>(),
+      categories: categoriesResponse.ok ? (await categoriesResponse.json()) as ApiListResponse<Category> : emptyList<Category>(),
     }
-  } catch (error) {
-    console.error('Unable to load homepage catalogue', error)
-    return {
-      products: emptyList<ApiProduct>(),
-      categories: emptyList<Category>(),
-    }
+  } catch {
+    return { products: emptyList<ApiProduct>(), categories: emptyList<Category>() }
   }
 }
 
 export default async function Home() {
   const homepageData = await getHomepageData()
-  const products = homepageData.products.data
-    .filter((product) => product.isActive !== false)
-    .map(toStorefrontProduct)
-  const categories = homepageData.categories.data
-    .filter((category) => category.isActive !== false)
-    .sort((first, second) =>
-      (first.sortOrder || 0) - (second.sortOrder || 0) ||
-      first.name.localeCompare(second.name),
-    )
+  const products = homepageData.products.data.filter((product) => product.isActive !== false).map(toStorefrontProduct)
+  const categories = homepageData.categories.data.filter((category) => category.isActive !== false).sort((first, second) => (first.sortOrder || 0) - (second.sortOrder || 0) || first.name.localeCompare(second.name))
 
   return (
     <>
@@ -83,6 +50,7 @@ export default async function Home() {
         <BannerTop props="bg-[#e57112] py-3" textColor='text-white' bgLine='bg-white' />
         <SliderNine />
       </div>
+      <HomePopupBanner />
       <WhatNewOne data={products} start={0} limit={4} />
       <Collection categories={categories} products={products} />
       <TabFeatures data={products} start={0} limit={6} />
