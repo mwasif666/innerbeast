@@ -9,6 +9,7 @@ import {
   TruckOutlined,
   SettingOutlined,
   StarOutlined,
+  WarningOutlined,
 } from "@ant-design/icons";
 
 export type AdminNavItem = {
@@ -23,6 +24,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { key: "/admin/categories", label: "Categories", icon: <TagsOutlined /> },
   { key: "/admin/products", label: "Products", icon: <AppstoreOutlined /> },
   { key: "/admin/orders", label: "Orders", icon: <ShoppingCartOutlined /> },
+  { key: "/admin/inventory", label: "Inventory", icon: <WarningOutlined /> },
   { key: "/admin/coupons", label: "Coupons", icon: <PercentageOutlined /> },
   { key: "/admin/shipping", label: "Shipping", icon: <TruckOutlined /> },
   { key: "/admin/reviews", label: "Reviews", icon: <StarOutlined /> },
