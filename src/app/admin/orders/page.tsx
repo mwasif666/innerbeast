@@ -358,7 +358,7 @@ const AdminOrdersPage = () => {
         <Table<AdminOrder> rowKey="_id" columns={columns} dataSource={filteredOrders} loading={ordersQuery.isLoading} scroll={{ x: 1050 }} pagination={{ pageSize: 10, showSizeChanger: true, pageSizeOptions: [10, 20, 50], showTotal: (total, range) => `Showing ${range[0]}-${range[1]} of ${total}` }} locale={{ emptyText: ordersQuery.isError ? <Empty description="Orders could not be loaded. Please confirm your admin session." /> : "No orders found." }} />
       </Card>
 
-      <Drawer title={detailOrder?.orderNumber || "Order details"} width={680} open={Boolean(selectedOrder)} onClose={() => setSelectedOrder(null)} styles={{ body: { padding: 24 } }}>
+      <Drawer title={detailOrder?.orderNumber || "Order details"} size={680} open={Boolean(selectedOrder)} onClose={() => setSelectedOrder(null)} styles={{ body: { padding: 24 } }}>
         {orderQuery.isLoading && !orderQuery.data ? (
           <div style={{ minHeight: 300, display: "grid", placeItems: "center" }}><Spin /></div>
         ) : detailOrder ? (

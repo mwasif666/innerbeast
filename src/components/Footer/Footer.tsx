@@ -76,7 +76,7 @@ const Footer = () => {
                                 <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/shop/breadcrumb1'}>Men</Link>
                                 <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/shop/breadcrumb1'}>Clothes</Link>
                                 <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/shop/breadcrumb1'}>Accessories</Link>
-                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/blog'}>Blog</Link>
+                                <Link className='caption1 text-white/55 hover:text-white hover:translate-x-1 duration-300 w-fit pt-2.5' href={'/blogs'}>Blog</Link>
                             </div>
                             <div className="item flex flex-col col-span-2 max-md:col-span-6">
                                 <div className="text-button-uppercase pb-4 text-white">Services</div>

@@ -8,12 +8,12 @@ import { usePublicSettings } from '@/hooks/useSettings'
 interface Props {
     props: string
     textColor: string
-    bgLine: string
+    bgLine?: string
 }
 
 const MARQUEE_REPEAT = 8
 
-const BannerTop: React.FC<Props> = ({ props, textColor, bgLine }) => {
+const BannerTop: React.FC<Props> = ({ props, textColor }) => {
     const { data, isSuccess } = usePublicSettings()
     const announcement = data?.data?.announcement
 
@@ -26,10 +26,7 @@ const BannerTop: React.FC<Props> = ({ props, textColor, bgLine }) => {
             <div className={`banner-top ${props}`}>
                 <Marquee>
                     {Array.from({ length: MARQUEE_REPEAT }).map((_, index) => (
-                        <React.Fragment key={index}>
-                            <div className={`text-button-uppercase px-8 ${textColor}`}>{text}</div>
-                            <div className={`line w-8 h-px ${bgLine}`}></div>
-                        </React.Fragment>
+                        <div key={index} className={`text-button-uppercase px-10 ${textColor}`}>{text}</div>
                     ))}
                 </Marquee>
             </div>

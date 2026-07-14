@@ -48,7 +48,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en">
       <body className={instrument.className}>
-        <style dangerouslySetInnerHTML={{ __html: `.modal-cart-block:not(:has(.modal-cart-main.open)),.modal-wishlist-block:not(:has(.modal-wishlist-main.open)),.modal-search-block:not(:has(.modal-search-main.open)),.modal-quickview-block:not(:has(.modal-quickview-main.open)),.modal-compare-block:not(:has(.modal-compare-main.open)){display:none!important}.blog-content img{max-width:100%;height:auto;border-radius:16px;margin:18px 0}.blog-content h2{font-size:30px;line-height:1.25;margin:28px 0 12px}.blog-content p{margin:0 0 16px}` }} />
+        <style dangerouslySetInnerHTML={{ __html: `.modal-cart-block:not(:has(.modal-cart-main.open)),.modal-wishlist-block:not(:has(.modal-wishlist-main.open)),.modal-search-block:not(:has(.modal-search-main.open)),.modal-quickview-block:not(:has(.modal-quickview-main.open)),.modal-compare-block:not(:has(.modal-compare-main.open)){display:none!important}` }} />
         <GlobalScrollbar />
         <Suspense fallback={null}><PageViewTracker /></Suspense>
         <ReactQueryProvider initialSettings={initialSettings}>

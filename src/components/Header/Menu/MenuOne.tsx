@@ -314,6 +314,11 @@ const MenuOne: React.FC<Props> = ({ props }) => {
                                         </Link>
                                     </li>
                                     <li className='h-full relative'>
+                                        <Link href="/blogs" className={`text-button-uppercase duration-300 h-full flex items-center justify-center ${pathname.startsWith('/blogs') ? 'active' : ''}`}>
+                                            Blog
+                                        </Link>
+                                    </li>
+                                    <li className='h-full relative'>
                                         <Link href="/contact-us" className={`text-button-uppercase duration-300 h-full flex items-center justify-center ${pathname === '/contact-us' ? 'active' : ''}`}>
                                             Contact Us
                                         </Link>
@@ -599,11 +604,11 @@ const MenuOne: React.FC<Props> = ({ props }) => {
                                             </div>
                                         </div>
                                     </li>
-                                    <li className="hidden">
-                                        <Link href="/blog/grid" className='text-xl font-semibold flex items-center justify-between mt-5'>Blog</Link>
-                                    </li>
                                     <li>
                                         <Link href="/about-us" className='text-xl font-semibold flex items-center justify-between mt-5'>About Us</Link>
+                                    </li>
+                                    <li>
+                                        <Link href="/blogs" className='text-xl font-semibold flex items-center justify-between mt-5'>Blog</Link>
                                     </li>
                                     <li>
                                         <Link href="/contact-us" className='text-xl font-semibold flex items-center justify-between mt-5'>Contact Us</Link>

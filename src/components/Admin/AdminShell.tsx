@@ -49,7 +49,7 @@ const AdminShell = ({ children }: { children: ReactNode }) => {
         placement="left"
         open={!isDesktop && drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        width={SIDER_WIDTH}
+        size={SIDER_WIDTH}
         closable={false}
         styles={{ body: { padding: 0, background: "var(--adm-sider-bg)" } }}
         rootClassName="admin-drawer"

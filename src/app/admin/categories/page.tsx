@@ -14,7 +14,6 @@ import {
   Tag,
   Tooltip,
   Typography,
-  Upload,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
@@ -22,7 +21,6 @@ import {
   EditOutlined,
   PlusOutlined,
   SearchOutlined,
-  UploadOutlined,
 } from "@ant-design/icons";
 
 import {
@@ -31,7 +29,8 @@ import {
   useDeleteCategory,
   useUpdateCategory,
 } from "@/hooks/useCategories";
-import { useUploadSingleImage } from "@/hooks/useUploads";
+import { ImageUploader } from "@/components/Admin/ImageUploader";
+import { uploadSingleImage } from "@/services/upload.service";
 import { Category, CategoryPayload } from "@/services/category.service";
 
 const { Title, Text } = Typography;
@@ -83,9 +82,9 @@ const AdminCategoriesPage = () => {
   const createCategoryMutation = useCreateCategory();
   const updateCategoryMutation = useUpdateCategory();
   const deleteCategoryMutation = useDeleteCategory();
-  const uploadImageMutation = useUploadSingleImage();
 
   const imagePreviewUrl = Form.useWatch("imageUrl", form);
+  const imagePublicId = Form.useWatch("imagePublicId", form);
 
   const filteredCategories = useMemo(() => {
     const categories = categoriesQuery.data?.data || [];
@@ -136,41 +135,10 @@ const AdminCategoriesPage = () => {
     form.resetFields();
   };
 
-  const handleImageUpload = async (file: File) => {
-    const isImage = file.type.startsWith("image/");
-
-    if (!isImage) {
-      message.error("Please upload a valid image file.");
-      return false;
-    }
-
-    const isUnderFiveMb = file.size / 1024 / 1024 < 5;
-
-    if (!isUnderFiveMb) {
-      message.error("Image must be smaller than 5MB.");
-      return false;
-    }
-
-    try {
-      const response = await uploadImageMutation.mutateAsync(file);
-
-      form.setFieldsValue({
-        imageUrl: response.data.url,
-        imagePublicId: response.data.publicId,
-      });
-
-      message.success("Image uploaded successfully.");
-    } catch {
-      message.error("Failed to upload image.");
-    }
-
-    return false;
-  };
-
-  const handleRemoveImage = () => {
+  const handleImageChange = (image: { url: string; publicId: string } | null) => {
     form.setFieldsValue({
-      imageUrl: "",
-      imagePublicId: "",
+      imageUrl: image?.url || "",
+      imagePublicId: image?.publicId || "",
     });
   };
 
@@ -340,8 +308,7 @@ const AdminCategoriesPage = () => {
 
   const saving =
     createCategoryMutation.isPending ||
-    updateCategoryMutation.isPending ||
-    uploadImageMutation.isPending;
+    updateCategoryMutation.isPending;
 
   return (
     <div style={{ maxWidth: 1600, margin: "0 auto" }}>
@@ -489,90 +456,16 @@ const AdminCategoriesPage = () => {
           </Form.Item>
 
           <Form.Item label="Category Image">
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 14,
-                flexWrap: "wrap",
-              }}
-            >
-              <Upload
-                accept="image/*"
-                maxCount={1}
-                showUploadList={false}
-                beforeUpload={handleImageUpload}
-                disabled={uploadImageMutation.isPending}
-              >
-                <Button
-                  icon={<UploadOutlined />}
-                  loading={uploadImageMutation.isPending}
-                >
-                  {uploadImageMutation.isPending
-                    ? "Uploading..."
-                    : "Upload from PC"}
-                </Button>
-              </Upload>
-
-              {imagePreviewUrl && (
-                <Button danger onClick={handleRemoveImage}>
-                  Remove Image
-                </Button>
-              )}
-            </div>
-
-            {imagePreviewUrl && (
-              <div
-                style={{
-                  marginTop: 14,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  padding: 10,
-                  border: "1px solid var(--adm-border)",
-                  borderRadius: 12,
-                  background: "var(--adm-wash)",
-                }}
-              >
-                <div
-                  style={{
-                    width: 64,
-                    height: 64,
-                    borderRadius: 10,
-                    overflow: "hidden",
-                    background: "var(--adm-wash)",
-                    flexShrink: 0,
-                  }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={imagePreviewUrl}
-                    alt="Category preview"
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                  />
-                </div>
-
-                <div style={{ minWidth: 0 }}>
-                  <Text style={{ display: "block", color: "var(--adm-text)" }}>
-                    Image uploaded
-                  </Text>
-                  <Text
-                    type="secondary"
-                    style={{
-                      display: "block",
-                      fontSize: 12,
-                      wordBreak: "break-all",
-                    }}
-                  >
-                    {imagePreviewUrl}
-                  </Text>
-                </div>
-              </div>
-            )}
+            <ImageUploader
+              value={
+                imagePreviewUrl
+                  ? { url: imagePreviewUrl, publicId: imagePublicId || "" }
+                  : null
+              }
+              onChange={handleImageChange}
+              upload={async (file) => (await uploadSingleImage(file)).data}
+              hint="Category thumbnail — PNG, JPG, WEBP up to 5MB"
+            />
           </Form.Item>
 
           <Form.Item label="Image URL" name="imageUrl">

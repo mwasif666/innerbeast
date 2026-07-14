@@ -16,7 +16,6 @@ import {
   Tag,
   Tooltip,
   Typography,
-  Upload,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import {
@@ -24,7 +23,6 @@ import {
   EditOutlined,
   PlusOutlined,
   SearchOutlined,
-  UploadOutlined,
 } from "@ant-design/icons";
 
 import { useCategories } from "@/hooks/useCategories";
@@ -35,6 +33,7 @@ import {
   useUpdateProduct,
 } from "@/hooks/useAdminProducts";
 import { useUploadMultipleImages } from "@/hooks/useUploads";
+import { MultiImageUploader } from "@/components/Admin/ImageUploader";
 import {
   Product,
   ProductImage,
@@ -230,6 +229,7 @@ const AdminProductsPage = () => {
       | ProductImage[]
       | undefined) || [];
   const watchedDiscountType = Form.useWatch("discountType", form);
+  const watchedTitle = Form.useWatch("title", form);
 
   const categories = categoriesQuery.data?.data || [];
 
@@ -315,98 +315,6 @@ const AdminProductsPage = () => {
     setModalOpen(false);
     setEditingProduct(null);
     form.resetFields();
-  };
-
-  const handleImagesUpload = async (files: File[]) => {
-    const currentImages = form.getFieldValue("images") || [];
-
-    if (currentImages.length >= 5) {
-      message.error("You can upload maximum 5 product images.");
-      return;
-    }
-
-    const remainingSlots = 5 - currentImages.length;
-    const selectedFiles = files.slice(0, remainingSlots);
-
-    const validImages = selectedFiles.filter((file) =>
-      file.type.startsWith("image/"),
-    );
-
-    if (validImages.length !== selectedFiles.length) {
-      message.error("Only image files are allowed.");
-      return;
-    }
-
-    const overSizedImage = validImages.find(
-      (file) => file.size / 1024 / 1024 >= 5,
-    );
-
-    if (overSizedImage) {
-      message.error("Each image must be smaller than 5MB.");
-      return;
-    }
-
-    try {
-      const response = await uploadImagesMutation.mutateAsync(validImages);
-
-      const uploadedImages = response.data.map((image) => ({
-        url: image.url,
-        publicId: image.publicId,
-        alt: form.getFieldValue("title") || "",
-      }));
-
-      form.setFieldsValue({
-        images: [...currentImages, ...uploadedImages].slice(0, 5),
-      });
-
-      message.success("Images uploaded successfully.");
-    } catch {
-      message.error("Failed to upload images.");
-    }
-  };
-
-  const handleRemoveImage = (imageUrl: string) => {
-    const currentImages = form.getFieldValue("images") || [];
-
-    form.setFieldsValue({
-      images: currentImages.filter((image) => image.url !== imageUrl),
-    });
-  };
-
-  const handleReplaceImage = async (index: number, file: File) => {
-    if (!file.type.startsWith("image/")) {
-      message.error("Only image files are allowed.");
-      return;
-    }
-
-    if (file.size / 1024 / 1024 >= 5) {
-      message.error("Each image must be smaller than 5MB.");
-      return;
-    }
-
-    try {
-      const response = await uploadImagesMutation.mutateAsync([file]);
-      const uploadedImage = response.data[0];
-
-      if (!uploadedImage) {
-        throw new Error("Upload did not return an image.");
-      }
-
-      const currentImages: ProductImage[] =
-        form.getFieldValue("images") || [];
-      const nextImages = [...currentImages];
-
-      nextImages[index] = {
-        url: uploadedImage.url,
-        publicId: uploadedImage.publicId,
-        alt: form.getFieldValue("title") || "",
-      };
-
-      form.setFieldValue("images", nextImages);
-      message.success("Image replaced successfully.");
-    } catch {
-      message.error("Failed to replace image.");
-    }
   };
 
   const handleSubmit = async () => {
@@ -880,101 +788,22 @@ const AdminProductsPage = () => {
             </Form.Item>
           )}
 
-          <Form.Item label="Product Images" required>
-            <Upload
-              accept="image/*"
-              multiple
-              maxCount={5}
-              showUploadList={false}
-              beforeUpload={(file) => {
-                void handleImagesUpload([file as File]);
-                return Upload.LIST_IGNORE;
+          <Form.Item
+            label="Product Images"
+            required
+            extra="Upload up to 5 images. The order here matches the color order below."
+          >
+            <MultiImageUploader
+              value={watchedImages}
+              onChange={(images) => form.setFieldValue("images", images)}
+              upload={async (file) => {
+                const response = await uploadImagesMutation.mutateAsync([file]);
+                return response.data[0];
               }}
-              disabled={uploadImagesMutation.isPending}
-            >
-              <Button
-                icon={<UploadOutlined />}
-                loading={uploadImagesMutation.isPending}
-              >
-                {uploadImagesMutation.isPending
-                  ? "Uploading..."
-                  : "Upload Images"}
-              </Button>
-            </Upload>
-
-            {watchedImages.length > 0 && (
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
-                  gap: 12,
-                  marginTop: 14,
-                }}
-              >
-                {watchedImages.map((image, index) => (
-                  <div
-                    key={image.url}
-                    style={{
-                      border: "1px solid var(--adm-border)",
-                      borderRadius: 12,
-                      overflow: "hidden",
-                      background: "var(--adm-wash)",
-                    }}
-                  >
-                    <div style={{ height: 92, background: "#111" }}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={image.url}
-                        alt={image.alt || "Product image"}
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                        }}
-                      />
-                    </div>
-
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        borderTop: "1px solid var(--adm-border)",
-                      }}
-                    >
-                      <Upload
-                        accept="image/*"
-                        maxCount={1}
-                        showUploadList={false}
-                        beforeUpload={(file) => {
-                          void handleReplaceImage(index, file as File);
-                          return Upload.LIST_IGNORE;
-                        }}
-                        disabled={uploadImagesMutation.isPending}
-                      >
-                        <Button
-                          block
-                          type="text"
-                          size="small"
-                          loading={uploadImagesMutation.isPending}
-                        >
-                          Replace
-                        </Button>
-                      </Upload>
-
-                      <Button
-                        block
-                        danger
-                        type="text"
-                        size="small"
-                        onClick={() => handleRemoveImage(image.url)}
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+              maxCount={5}
+              alt={watchedTitle}
+              numbered
+            />
           </Form.Item>
 
           <div

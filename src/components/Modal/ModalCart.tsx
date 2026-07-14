@@ -99,8 +99,8 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                     <div className="left w-1/2 border-r border-line py-6 max-md:hidden">
                         <div className="heading5 px-6 pb-3">You May Also Like</div>
                         <div className="list px-6">
-                            {suggestedProducts.map((product) => (
-                                <div key={product.id} className='item py-5 flex items-center justify-between gap-3 border-b border-line'>
+                            {suggestedProducts.map((product, index) => (
+                                <div key={`${product.id}-${index}`} className='item py-5 flex items-center justify-between gap-3 border-b border-line'>
                                     <div className="infor flex items-center gap-5">
                                         <div className="bg-img">
                                             <Image
@@ -164,8 +164,8 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                             </div>
                         )}
                         <div className="list-product px-6">
-                            {cartState.cartArray.map((product) => (
-                                <div key={product.id} className='item py-5 flex items-center justify-between gap-3 border-b border-line'>
+                            {cartState.cartArray.map((product, index) => (
+                                <div key={`${product.id}-${product.selectedSize || ''}-${product.selectedColor || ''}-${index}`} className='item py-5 flex items-center justify-between gap-3 border-b border-line'>
                                     <div className="infor flex items-center gap-3 w-full">
                                         <div className="bg-img w-[100px] aspect-square flex-shrink-0 rounded-lg overflow-hidden">
                                             <Image
