@@ -1,69 +1,101 @@
-'use client'
-import React, { useState } from 'react'
-import Link from 'next/link'
-import TopNavOne from '@/components/Header/TopNav/TopNavOne'
-import MenuOne from '@/components/Header/Menu/MenuOne'
-import Breadcrumb from '@/components/Breadcrumb/Breadcrumb'
-import Footer from '@/components/Footer/Footer'
+"use client";
+
+import { Suspense, useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import * as Icon from "@phosphor-icons/react/dist/ssr";
 
-const Register = () => {
+import TopNavOne from "@/components/Header/TopNav/TopNavOne";
+import MenuOne from "@/components/Header/Menu/MenuOne";
+import Breadcrumb from "@/components/Breadcrumb/Breadcrumb";
+import Footer from "@/components/Footer/Footer";
+import { useRegister } from "@/hooks/useAuth";
+import { uploadAvatarImage, UploadedImage } from "@/services/upload.service";
+import styles from "../auth.module.scss";
 
-    return (
-        <>
-            <TopNavOne props="style-one bg-black" slogan="New customers save 10% with the code GET10" />
-            <div id="header" className='relative w-full'>
-                <MenuOne props="bg-transparent" />
-                <Breadcrumb heading='Create An Account' subHeading='Create An Account' />
-            </div>
-            <div className="register-block md:py-20 py-10">
-                <div className="container">
-                    <div className="content-main flex gap-y-8 max-md:flex-col">
-                        <div className="left md:w-1/2 w-full lg:pr-[60px] md:pr-[40px] md:border-r border-line">
-                            <div className="heading4">Register</div>
-                            <form className="md:mt-7 mt-4">
-                                <div className="email ">
-                                    <input className="border-line px-4 pt-3 pb-3 w-full rounded-lg" id="username" type="email" placeholder="Username or email address *" required />
-                                </div>
-                                <div className="pass mt-5">
-                                    <input className="border-line px-4 pt-3 pb-3 w-full rounded-lg" id="password" type="password" placeholder="Password *" required />
-                                </div>
-                                <div className="confirm-pass mt-5">
-                                    <input className="border-line px-4 pt-3 pb-3 w-full rounded-lg" id="confirmPassword" type="password" placeholder="Confirm Password *" required />
-                                </div>
-                                <div className='flex items-center mt-5'>
-                                    <div className="block-input">
-                                        <input
-                                            type="checkbox"
-                                            name='remember'
-                                            id='remember'
-                                        />
-                                        <Icon.CheckSquare size={20} weight='fill' className='icon-checkbox' />
-                                    </div>
-                                    <label htmlFor='remember' className="pl-2 cursor-pointer text-secondary2">I agree to the
-                                        <Link href={'#!'} className='text-black hover:underline pl-1'>Terms of User</Link>
-                                    </label>
-                                </div>
-                                <div className="block-button md:mt-7 mt-4">
-                                    <button className="button-main">Register</button>
-                                </div>
-                            </form>
-                        </div>
-                        <div className="right md:w-1/2 w-full lg:pl-[60px] md:pl-[40px] flex items-center">
-                            <div className="text-content">
-                                <div className="heading4">Already have an account?</div>
-                                <div className="mt-2 text-secondary">Welcome back. Sign in to access your personalized experience, saved preferences, and more. We{String.raw`'re`} thrilled to have you with us again!</div>
-                                <div className="block-button md:mt-7 mt-4">
-                                    <Link href={'/login'} className="button-main">Login</Link>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <Footer />
-        </>
-    )
-}
+const RegisterContent = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const registerMutation = useRegister();
+  const [error, setError] = useState("");
+  const [avatar, setAvatar] = useState<UploadedImage | null>(null);
+  const [uploading, setUploading] = useState(false);
 
-export default Register
+  const handleAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setError("");
+    setUploading(true);
+    try {
+      const response = await uploadAvatarImage(file);
+      setAvatar(response.data);
+    } catch (err) {
+      setError((err as Error).message || "Image upload failed.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError("");
+    const formData = new FormData(event.currentTarget);
+    const password = String(formData.get("password") || "");
+    if (password !== String(formData.get("confirmPassword") || "")) return setError("Passwords do not match.");
+    if (!formData.get("terms")) return setError("Please agree to the Terms & Conditions.");
+
+    try {
+      await registerMutation.mutateAsync({
+        name: String(formData.get("name") || "").trim(),
+        email: String(formData.get("email") || "").trim(),
+        phone: String(formData.get("phone") || "").trim(),
+        password,
+        avatar: avatar ? { url: avatar.url, publicId: avatar.publicId } : undefined,
+      });
+      const redirect = searchParams.get("redirect");
+      router.replace(redirect?.startsWith("/") && !redirect.startsWith("//") ? redirect : "/my-account");
+    } catch (err) {
+      setError((err as Error).message || "Registration failed. Please try again.");
+    }
+  };
+
+  return (
+    <>
+      <TopNavOne props="style-one bg-black" slogan="New customers save 10% with the code GET10" />
+      <div id="header" className="relative w-full"><MenuOne props="bg-transparent" /><Breadcrumb heading="Create Account" subHeading="Create Account" /></div>
+      <main className={styles.page}>
+        <div className={styles.container}>
+          <div className={styles.shell}>
+            <section className={styles.formPanel}>
+              <div className={styles.eyebrow}>JOIN THE PACK</div>
+              <h1 className={styles.title}>Create your account</h1>
+              <p className={styles.subtitle}>Your orders, addresses and account details—kept together.</p>
+              <form className={styles.form} onSubmit={handleSubmit}>
+                {error && <div className={styles.error} role="alert">{error}</div>}
+                <label className={styles.field}><span>Profile image</span><input name="avatarFile" type="file" accept="image/*" onChange={handleAvatar} /></label>
+                {avatar?.url && <img src={avatar.url} alt="Profile preview" style={{ width: 72, height: 72, borderRadius: "50%", objectFit: "cover" }} />}
+                <label className={styles.field}><span>Full name</span><input name="name" type="text" autoComplete="name" placeholder="Your full name" required /></label>
+                <label className={styles.field}><span>Email address</span><input name="email" type="email" autoComplete="email" placeholder="you@example.com" required /></label>
+                <label className={styles.field}><span>Phone number</span><input name="phone" type="tel" autoComplete="tel" placeholder="+44 7700 900000" /></label>
+                <label className={styles.field}><span>Password</span><input name="password" type="password" autoComplete="new-password" placeholder="At least 6 characters" minLength={6} required /></label>
+                <label className={styles.field}><span>Confirm password</span><input name="confirmPassword" type="password" autoComplete="new-password" placeholder="Repeat your password" minLength={6} required /></label>
+                <label className={styles.terms}><input type="checkbox" name="terms" /><span>I agree to the <Link href="/terms-and-conditions">Terms & Conditions</Link> and <Link href="/privacy-policy">Privacy Policy</Link>.</span></label>
+                <button className={styles.submit} disabled={registerMutation.isPending || uploading}>{uploading ? "Uploading image..." : registerMutation.isPending ? "Creating account..." : "Create account"}</button>
+              </form>
+            </section>
+            <aside className={styles.sidePanel}>
+              <span className={styles.sideIcon}><Icon.SignIn size={26} /></span>
+              <h2>Already a member?</h2>
+              <p>Sign in to view your dashboard, follow active orders and manage your saved information.</p>
+              <Link href="/login" className={styles.sideLink}>Sign in</Link>
+            </aside>
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </>
+  );
+};
+
+const Register = () => <Suspense fallback={null}><RegisterContent /></Suspense>;
+export default Register;

@@ -96,6 +96,7 @@
         width: 540px;
         height: calc(100vh - 40px);
         background-color: var(--white);
+        color: var(--black);
         border-radius: 32px;
         overflow: hidden;
         transition: all ease 0.5s;
@@ -174,81 +175,127 @@
     }
 
     .modal-quickview-main {
-        width: 856px;
+        top: 50%;
+        left: 50%;
+        right: auto;
+        width: min(960px, calc(100vw - 40px));
+        height: min(760px, calc(100vh - 40px));
+        color: var(--black);
+        opacity: 0;
+        transform: translate(-50%, -46%) scale(0.98);
 
-        .list-img {
-            max-height: calc(100%);
+        &.open {
+            right: auto;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .quickview-carousel {
             height: 100%;
-            overflow-x: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
 
-            .bg-img {
-                &:first-child {
-                    margin-top: 0;
-                }
+        .quickview-carousel-main {
+            max-height: calc(100% - 76px);
+        }
+
+        .quickview-carousel-arrow {
+            position: absolute;
+            top: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            color: var(--black);
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+            transform: translateY(-50%);
+            transition: all ease 0.25s;
+            z-index: 2;
+
+            &:hover {
+                color: var(--white);
+                background: var(--black);
+            }
+
+            &.prev {
+                left: 12px;
+            }
+
+            &.next {
+                right: 12px;
+            }
+        }
+
+        .quickview-carousel-thumbs {
+            scrollbar-width: thin;
+        }
+
+        .quickview-carousel-thumb {
+            width: 56px;
+            height: 56px;
+            flex: 0 0 56px;
+            padding: 2px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            opacity: 0.65;
+            transition: all ease 0.25s;
+
+            &.active,
+            &:hover {
+                border-color: var(--black);
+                opacity: 1;
             }
         }
 
         .product-infor {
-            overflow-x: auto;
+            overflow-y: auto;
             max-height: calc(100% - 54px);
             height: 100%;
         }
 
-        .list-img::-webkit-scrollbar,
         .product-infor::-webkit-scrollbar {
             width: 6px;
             background: var(--line);
         }
 
-        .list-img::-webkit-scrollbar-thumb,
         .product-infor::-webkit-scrollbar-thumb {
             background-color: var(--secondary2);
             border-radius: 4px;
         }
 
-        @media (max-width: 1023.98px) {
-            width: 720px;
-
-            .list-product {
-                max-height: calc(100% - 210px - 212px);
-            }
-        }
-
         @media (max-width: 767.98px) {
-            width: 480px;
+            width: calc(100vw - 32px);
+            height: calc(100vh - 32px);
+            padding-top: 16px;
+            padding-bottom: 16px;
 
             >div {
-                overflow-x: auto;
-                max-height: calc(100%);
+                overflow-y: auto;
                 height: 100%;
-
-                &::-webkit-scrollbar {
-                    width: 6px;
-                    background: var(--line);
-                }
-
-                &::-webkit-scrollbar-thumb {
-                    background-color: var(--secondary2);
-                    border-radius: 4px;
-                }
             }
 
-            .list-img::-webkit-scrollbar {
-                width: 2px;
+            .left {
+                width: 100%;
+            }
+
+            .quickview-carousel {
+                height: auto;
+            }
+
+            .quickview-carousel-main {
+                max-height: none;
+                aspect-ratio: 1 / 1;
             }
 
             .product-infor {
-                overflow-x: unset;
-                max-height: unset;
-                height: 100%;
-            }
-        }
-
-        @media (max-width: 575.98px) {
-            width: unset;
-
-            .list-product {
-                max-height: calc(100% - 210px - 165px);
+                overflow: visible;
+                max-height: none;
             }
         }
     }
@@ -357,11 +404,13 @@
 
     .modal-search-main {
         position: absolute;
-        width: calc((1290px / 6) * 5);
+        width: min(680px, calc(100vw - 40px));
+        max-height: calc(100vh - 120px);
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
         background-color: var(--white);
+        color: var(--black);
         transition: all ease 0.5s;
         opacity: 0;
         visibility: hidden;
@@ -372,40 +421,22 @@
             visibility: visible;
         }
 
-        .list-product {
-            .product-item {
-                .list-action {
-                    grid-template-columns: repeat(1, minmax(0, 1fr));
-                    transform: translateY(120px);
-
-                    >div {
-                        width: 100%;
-                    }
-                }
-            }
-        }
-
-        @media (max-width: 1400px) {
-            max-height: calc(100vh - 400px);
-            height: 100%;
-            width: calc(100vw - 200px);
-        }
-
         @media (max-width: 640px) {
-            max-height: calc(100vh - 200px);
-            height: 100%;
-            width: calc(100vw - 80px);
+            max-height: calc(100vh - 80px);
+            width: calc(100vw - 24px);
             border-radius: 16px;
         }
     }
 
     .modal-sizeguide-main {
         position: absolute;
-        width: calc((1290px / 6) * 5);
+        width: min(960px, calc(100vw - 40px));
+        max-height: calc(100vh - 40px);
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
         background-color: var(--white);
+        color: var(--black);
         transition: all ease 0.5s;
         opacity: 0;
         visibility: hidden;
@@ -454,11 +485,12 @@
         }
 
         @media (max-width: 1200px) {
-            width: calc(100vw - 120px);
+            width: calc(100vw - 48px);
         }
 
         @media (max-width: 640px) {
-            width: calc(100vw - 80px);
+            width: calc(100vw - 24px);
+            max-height: calc(100vh - 24px);
             border-radius: 16px;
 
             .progress {

@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation';
 import TopNavOne from '@/components/Header/TopNav/TopNavOne'
 import MenuOne from '@/components/Header/Menu/MenuOne'
@@ -8,7 +8,7 @@ import OutOfStock from '@/components/Product/Detail/OutOfStock';
 import Footer from '@/components/Footer/Footer'
 import productData from '@/data/Product.json'
 
-const ProductOutOfStock = () => {
+const ProductOutOfStockContent = () => {
     const searchParams = useSearchParams()
     let productId = searchParams.get('id')
 
@@ -28,5 +28,11 @@ const ProductOutOfStock = () => {
         </>
     )
 }
+
+const ProductOutOfStock = () => (
+    <Suspense fallback={null}>
+        <ProductOutOfStockContent />
+    </Suspense>
+)
 
 export default ProductOutOfStock

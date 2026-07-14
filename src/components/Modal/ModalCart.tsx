@@ -1,18 +1,22 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import * as Icon from "@phosphor-icons/react/dist/ssr";
-import productData from '@/data/Product.json'
 import { ProductType } from '@/type/ProductType';
 import { useModalCartContext } from '@/context/ModalCartContext'
 import { useCart } from '@/context/CartContext'
+import { useProducts } from '@/hooks/useProducts'
+import { toStorefrontProduct } from '@/utils/productAdapter'
 import { countdownTime } from '@/store/countdownTime'
 import CountdownTimeType from '@/type/CountdownType';
+import { useStoreCurrency } from '@/hooks/useStoreCurrency'
+import { usePublicSettings } from '@/hooks/useSettings'
 
 const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) => {
     const [timeLeft, setTimeLeft] = useState(serverTimeLeft);
+    const { format: formatPrice } = useStoreCurrency()
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -24,7 +28,23 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
 
     const [activeTab, setActiveTab] = useState<string | undefined>('')
     const { isModalOpen, closeModalCart } = useModalCartContext();
-    const { cartState, addToCart, removeFromCart, updateCart } = useCart()
+    const { cartState, addToCart, removeFromCart, updateCart, appliedCoupon, applyCouponToCart } = useCart()
+    const [couponCode, setCouponCode] = useState('')
+    const [couponError, setCouponError] = useState('')
+    const [isApplyingCoupon, setIsApplyingCoupon] = useState(false)
+
+    useEffect(() => {
+        setCouponCode(appliedCoupon?.code || '')
+    }, [appliedCoupon?.code])
+
+    const productsQuery = useProducts({ limit: 12, sort: 'newest', isActive: true })
+
+    const suggestedProducts = useMemo(() => {
+        const cartIds = new Set(cartState.cartArray.map((item) => item.id))
+        return (productsQuery.data?.data?.map(toStorefrontProduct) || [])
+            .filter((product) => !cartIds.has(product.id))
+            .slice(0, 4)
+    }, [productsQuery.data, cartState.cartArray])
 
     const handleAddToCart = (productItem: ProductType) => {
         if (!cartState.cartArray.find(item => item.id === productItem.id)) {
@@ -39,11 +59,35 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
         setActiveTab(tab)
     }
 
-    let moneyForFreeship = 150;
+    const { data: settingsData } = usePublicSettings()
+    const moneyForFreeship = Number(settingsData?.data?.shippingDefaults?.freeShippingThreshold || 0)
     let [totalCart, setTotalCart] = useState<number>(0)
     let [discountCart, setDiscountCart] = useState<number>(0)
 
     cartState.cartArray.map(item => totalCart += item.price * item.quantity)
+
+    const modalDiscount = Number(appliedCoupon?.discountAmount || 0)
+
+    const handleApplyCoupon = async () => {
+        setCouponError('')
+        if (!cartState.cartArray.length) return setCouponError('Your cart is empty.')
+
+        const code = couponCode.trim().toUpperCase()
+        if (!code) return setCouponError('Enter a coupon code.')
+
+        setIsApplyingCoupon(true)
+        try {
+            const coupon = await applyCouponToCart(code)
+            const discountAmount = Number(coupon?.discountAmount || 0)
+            if (discountAmount <= 0) throw new Error('This coupon did not return a discount.')
+            setCouponCode(code)
+            setActiveTab('')
+        } catch (error) {
+            setCouponError((error as Error).message || 'Coupon could not be applied.')
+        } finally {
+            setIsApplyingCoupon(false)
+        }
+    }
 
     return (
         <>
@@ -55,7 +99,7 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                     <div className="left w-1/2 border-r border-line py-6 max-md:hidden">
                         <div className="heading5 px-6 pb-3">You May Also Like</div>
                         <div className="list px-6">
-                            {productData.slice(0, 4).map((product) => (
+                            {suggestedProducts.map((product) => (
                                 <div key={product.id} className='item py-5 flex items-center justify-between gap-3 border-b border-line'>
                                     <div className="infor flex items-center gap-5">
                                         <div className="bg-img">
@@ -64,14 +108,14 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                                 width={300}
                                                 height={300}
                                                 alt={product.name}
-                                                className='w-[100px] aspect-square flex-shrink-0 rounded-lg'
+                                                className='w-[100px] aspect-square flex-shrink-0 rounded-lg object-cover'
                                             />
                                         </div>
                                         <div className=''>
                                             <div className="name text-button">{product.name}</div>
                                             <div className="flex items-center gap-2 mt-2">
-                                                <div className="product-price text-title">${product.price}.00</div>
-                                                <div className="product-origin-price text-title text-secondary2"><del>${product.originPrice}.00</del></div>
+                                            <div className="product-price text-title">{formatPrice(product.price)}</div>
+                                            <div className="product-origin-price text-title text-secondary2"><del>{formatPrice(product.originPrice)}</del></div>
                                             </div>
                                         </div>
                                     </div>
@@ -106,17 +150,19 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                     Please checkout now before your items sell out!</div>
                             </div>
                         </div>
-                        <div className="heading banner mt-3 px-6">
-                            <div className="text">Buy <span className="text-button"> $<span className="more-price">{moneyForFreeship - totalCart > 0 ? (<>{moneyForFreeship - totalCart}</>) : (0)}</span>.00 </span>
-                                <span>more to get </span>
-                                <span className="text-button">freeship</span></div>
-                            <div className="tow-bar-block mt-3">
-                                <div
-                                    className="progress-line"
-                                    style={{ width: totalCart <= moneyForFreeship ? `${(totalCart / moneyForFreeship) * 100}%` : `100%` }}
-                                ></div>
+                        {moneyForFreeship > 0 && (
+                            <div className="heading banner mt-3 px-6">
+                                <div className="text">Buy <span className="text-button text-red"> {formatPrice(Math.max(0, moneyForFreeship - totalCart))} </span>
+                                    <span>more to get </span>
+                                    <span className="text-button">freeship</span></div>
+                                <div className="tow-bar-block mt-3">
+                                    <div
+                                        className="progress-line"
+                                        style={{ width: totalCart <= moneyForFreeship ? `${(totalCart / moneyForFreeship) * 100}%` : `100%` }}
+                                    ></div>
+                                </div>
                             </div>
-                        </div>
+                        )}
                         <div className="list-product px-6">
                             {cartState.cartArray.map((product) => (
                                 <div key={product.id} className='item py-5 flex items-center justify-between gap-3 border-b border-line'>
@@ -127,7 +173,7 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                                 width={300}
                                                 height={300}
                                                 alt={product.name}
-                                                className='w-full h-full'
+                                                className='w-full h-full object-cover'
                                             />
                                         </div>
                                         <div className='w-full'>
@@ -142,9 +188,11 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                             </div>
                                             <div className="flex items-center justify-between gap-2 mt-3 w-full">
                                                 <div className="flex items-center text-secondary2 capitalize">
-                                                    {product.selectedSize || product.sizes[0]}/{product.selectedColor || product.variation[0].color}
+                                                    {product.selectedSize || product.sizes?.[0] || ''}
+                                                    {(product.selectedColor || product.variation?.[0]?.color) ? ' / ' : ''}
+                                                    {product.selectedColor || product.variation?.[0]?.color || ''}
                                                 </div>
-                                                <div className="product-price text-title">${product.price}.00</div>
+                                                <div className="product-price text-title">{formatPrice(product.price)}</div>
                                             </div>
                                         </div>
                                     </div>
@@ -177,8 +225,9 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                             </div>
                             <div className="flex items-center justify-between pt-6 px-6">
                                 <div className="heading5">Subtotal</div>
-                                <div className="heading5">${totalCart}.00</div>
+                                <div className="heading5">{formatPrice(totalCart)}</div>
                             </div>
+                            {modalDiscount > 0 && <div className="flex items-center justify-between pt-2 px-6 text-[#e57112]"><div>Coupon ({appliedCoupon?.code}){appliedCoupon?.discountType === 'percentage' && appliedCoupon.discountValue ? ` · ${appliedCoupon.discountValue}% off` : ''}</div><div>−{formatPrice(modalDiscount)} saved</div></div>}
                             <div className="block-button text-center p-6">
                                 <div className="flex items-center gap-4">
                                     <Link
@@ -189,7 +238,7 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                         View cart
                                     </Link>
                                     <Link
-                                        href={'/checkout'}
+                                        href="/checkout"
                                         className='button-main basis-1/2 text-center uppercase'
                                         onClick={closeModalCart}
                                     >
@@ -277,11 +326,12 @@ const ModalCart = ({ serverTimeLeft }: { serverTimeLeft: CountdownTimeType }) =>
                                 <div className="form pt-4 px-6">
                                     <div className="">
                                         <label htmlFor='select-discount' className="caption1 text-secondary">Enter Code</label>
-                                        <input className="border-line px-5 py-3 w-full rounded-xl mt-3" id="select-discount" type="text" placeholder="Discount code" />
+                                        <input value={couponCode} onChange={(event) => setCouponCode(event.target.value)} className="border-line px-5 py-3 w-full rounded-xl mt-3 uppercase" id="select-discount" type="text" placeholder="Discount code" />
+                                        {couponError && <div className="text-red caption1 mt-2">{couponError}</div>}
                                     </div>
                                 </div>
                                 <div className="block-button text-center pt-4 px-6 pb-6">
-                                    <div className='button-main w-full text-center' onClick={() => setActiveTab('')}>Apply</div>
+                                    <button type="button" disabled={isApplyingCoupon || !couponCode.trim()} className='button-main bg-[#e57112] w-full text-center disabled:opacity-60' onClick={handleApplyCoupon}>{isApplyingCoupon ? 'Applying...' : 'Apply'}</button>
                                     <div onClick={() => setActiveTab('')} className="text-button-uppercase mt-4 text-center has-line-before cursor-pointer inline-block">Cancel</div>
                                 </div>
                             </div>

@@ -8,6 +8,7 @@ import Product from '../Product/Product';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css'
 import HandlePagination from '../Other/HandlePagination';
+import { useStoreCurrency } from '@/hooks/useStoreCurrency';
 
 interface Props {
     data: Array<ProductType>
@@ -18,6 +19,7 @@ interface Props {
 }
 
 const ShopBreadCrumb1: React.FC<Props> = ({ data, productPerPage, dataType, gender, category }) => {
+    const { symbol } = useStoreCurrency()
     const [showOnlySale, setShowOnlySale] = useState(false)
     const [sortOption, setSortOption] = useState('');
     const [type, setType] = useState<string | null | undefined>(dataType)
@@ -210,16 +212,16 @@ const ShopBreadCrumb1: React.FC<Props> = ({ data, productPerPage, dataType, gend
 
     return (
         <>
-            <div className="breadcrumb-block style-img">
-                <div className="breadcrumb-main bg-linear overflow-hidden">
+            <div className="breadcrumb-block style-img text-white">
+                <div className="breadcrumb-main bg-[#242626] overflow-hidden">
                     <div className="container lg:pt-[134px] pt-24 pb-10 relative">
                         <div className="main-content w-full h-full flex flex-col items-center justify-center relative z-[1]">
                             <div className="text-content">
                                 <div className="heading2 text-center">{dataType === null ? 'Shop' : dataType}</div>
                                 <div className="link flex items-center justify-center gap-1 caption1 mt-3">
                                     <Link href={'/'}>Homepage</Link>
-                                    <Icon.CaretRight size={14} className='text-secondary2' />
-                                    <div className='text-secondary2 capitalize'>{dataType === null ? 'Shop' : dataType}</div>
+                                    <Icon.CaretRight size={14} className='text-white/70' />
+                                    <div className='text-white/70 capitalize'>{dataType === null ? 'Shop' : dataType}</div>
                                 </div>
                             </div>
                             <div className="list-tab flex flex-wrap items-center justify-center gap-y-5 gap-8 lg:mt-[70px] mt-12 overflow-hidden">
@@ -294,13 +296,13 @@ const ShopBreadCrumb1: React.FC<Props> = ({ data, productPerPage, dataType, gend
                                 <div className="price-block flex items-center justify-between flex-wrap mt-4">
                                     <div className="min flex items-center gap-1">
                                         <div>Min price:</div>
-                                        <div className='price-min'>$
+                                        <div className='price-min'>{symbol}
                                             <span>{priceRange.min}</span>
                                         </div>
                                     </div>
                                     <div className="min flex items-center gap-1">
                                         <div>Max price:</div>
-                                        <div className='price-max'>$
+                                        <div className='price-max'>{symbol}
                                             <span>{priceRange.max}</span>
                                         </div>
                                     </div>

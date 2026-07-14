@@ -6,11 +6,19 @@ export type ProductImage = {
   alt?: string
 }
 
+export type ProductColor = {
+  name: string
+  hex?: string
+}
+
 export type Category = {
   _id: string
   name: string
   slug: string
   description?: string
+  image?: ProductImage
+  isActive?: boolean
+  sortOrder?: number
 }
 
 export type Product = {
@@ -24,8 +32,17 @@ export type Product = {
   stock?: number
   images?: ProductImage[]
   category?: Category
+  sizes?: string[]
+  colors?: ProductColor[]
+  fitType?: string
+  gender?: string
+  material?: string
+  tags?: string[]
   isFeatured?: boolean
   isNewArrival?: boolean
+  isActive?: boolean
+  ratingsAverage?: number
+  ratingsCount?: number
 }
 
 export type ApiListResponse<T> = {

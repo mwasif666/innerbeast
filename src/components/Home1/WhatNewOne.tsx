@@ -12,32 +12,41 @@ interface Props {
 }
 
 const WhatNewOne: React.FC<Props> = ({ data, start, limit }) => {
-    const [activeTab, setActiveTab] = useState<string>('t-shirt');
+    const [activeTab, setActiveTab] = useState<string>('all');
 
     const handleTabClick = (type: string) => {
         setActiveTab(type);
     };
 
-    const filteredProducts = data.filter((product) => product.type === activeTab && (product.category === 'fashion'));
+    const categoryTabs = [
+        'all',
+        ...Array.from(new Set(data.map((product) => product.type))).slice(0, 4),
+    ]
+    const filteredProducts = activeTab === 'all'
+        ? data
+        : data.filter((product) => product.type === activeTab)
+
+    const formatTabLabel = (type: string) =>
+        type.replace(/-/g, ' ')
 
     return (
         <>
             <div className="whate-new-block md:pt-20 pt-10">
                 <div className="container">
-                    <div className="heading flex flex-col items-center text-center">
+                    <div className="heading w-full flex flex-col items-center text-center">
                         <div className="heading3">What{String.raw`'s`} new</div>
-                        <div className="menu-tab flex items-center gap-2 p-1 bg-surface rounded-2xl mt-6">
-                            {['top', 't-shirt', 'dress', 'sets', 'shirt'].map((type) => (
+                        <div className="menu-tab max-w-full overflow-x-auto flex items-center gap-1.5 p-1.5 bg-[#171919] border border-white/10 rounded-2xl mt-6 shadow-lg shadow-black/20">
+                            {categoryTabs.map((type) => (
                                 <div
                                     key={type}
-                                    className={`tab-item relative text-secondary text-button-uppercase py-2 px-5 cursor-pointer duration-500 hover:text-black ${activeTab === type ? 'active' : ''}`}
+                                    className={`tab-item shrink-0 whitespace-nowrap relative text-button-uppercase py-2 px-5 cursor-pointer duration-300 ${activeTab === type ? 'active !bg-transparent !text-white !shadow-none' : 'text-white/60 hover:text-white'}`}
                                     onClick={() => handleTabClick(type)}
                                 >
                                     {activeTab === type && (
-                                        <motion.div layoutId='active-pill' className='absolute inset-0 rounded-2xl bg-white'></motion.div>
+                                        <motion.div layoutId='whats-new-active-pill' className='absolute inset-0 rounded-xl border border-white/10 bg-[#303333] shadow-md'></motion.div>
                                     )}
                                     <span className='relative text-button-uppercase z-[1]'>
-                                        {type}
+                                        {formatTabLabel(type)}
                                     </span>
                                 </div>
                             ))}

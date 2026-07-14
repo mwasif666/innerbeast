@@ -7,34 +7,32 @@ const Banner = () => {
         <>
             <div className="banner-block style-one md:pt-20 pt-10">
                 <div className="container grid sm:grid-cols-2 gap-5">
-                    <Link href={'/shop/breadcrumb-img'} className="banner-item relative block overflow-hidden rounded-2xl duration-500">
-                        <div className="banner-img">
-                            <Image
-                                src={'/images/banner/8.png'}
-                                width={2000}
-                                height={1300}
-                                alt='banner1'
-                                className='duration-1000 w-full'
-                            />
-                        </div>
-                        <div className="banner-content absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center">
-                            <div className="heading4 text-white text-center">Women{String.raw`'s`} Fashion <br />Must-Haves</div>
-                            <div className="text-button text-white relative inline-block pb-1 border-b-2 border-white duration-500 mt-2">Shop Now</div>
+                    <Link href={'/shop'} className="banner-item relative block overflow-hidden rounded-2xl duration-500 aspect-[3/2]">
+                        <Image
+                            src={'/images/banner/8.png'}
+                            fill
+                            sizes="(max-width: 640px) 100vw, 50vw"
+                            alt='banner1'
+                            className='object-cover object-center duration-1000 hover:scale-105'
+                        />
+                        <div className="absolute inset-0 bg-[#e57112]/30"></div>
+                        <div className="banner-content absolute inset-0 flex flex-col items-center justify-center">
+                            <div className="heading4 text-white text-center">Women{String.raw`'s`} Activewear <br />Collection</div>
+                            <div className="text-button text-white relative inline-block px-5 py-2 rounded-lg bg-[#e57112] duration-500 mt-3">Shop Now</div>
                         </div>
                     </Link>
-                    <Link href={'/shop/breadcrumb-img'} className="banner-item relative block overflow-hidden rounded-2xl duration-500">
-                        <div className="banner-img">
-                            <Image
-                                src={'/images/banner/9.png'}
-                                width={2000}
-                                height={1300}
-                                alt='banner2'
-                                className='duration-1000 w-full'
-                            />
-                        </div>
-                        <div className="banner-content absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center">
-                            <div className="heading4 text-white text-center">Latest Men{String.raw`'s`} <br />Fashion Essentials</div>
-                            <div className="text-button text-white relative inline-block pb-1 border-b-2 border-white duration-500 mt-2">Shop Now</div>
+                    <Link href={'/shop'} className="banner-item relative block overflow-hidden rounded-2xl duration-500 aspect-[3/2]">
+                        <Image
+                            src={'/images/banner/9.png'}
+                            fill
+                            sizes="(max-width: 640px) 100vw, 50vw"
+                            alt='banner2'
+                            className='object-cover object-center duration-1000 hover:scale-105'
+                        />
+                        <div className="absolute inset-0 bg-[#e57112]/30"></div>
+                        <div className="banner-content absolute inset-0 flex flex-col items-center justify-center">
+                            <div className="heading4 text-white text-center">Men{String.raw`'s`} Performance <br />Gear</div>
+                            <div className="text-button text-white relative inline-block px-5 py-2 rounded-lg bg-[#e57112] duration-500 mt-3">Shop Now</div>
                         </div>
                     </Link>
                 </div>

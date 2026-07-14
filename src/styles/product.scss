@@ -1,5 +1,22 @@
 /* Product Item */
 .product-item {
+    .quick-view-btn,
+    .quick-shop-btn,
+    .add-cart-btn,
+    .add-wishlist-btn,
+    .compare-btn,
+    .quick-view-btn-list {
+        color: var(--black);
+
+        svg {
+            color: currentColor;
+        }
+    }
+
+    .quick-shop-block {
+        color: var(--black);
+    }
+
     .product-thumb .list-action-right {
         transform: translateX(60px);
         transition: all ease 0.4s;

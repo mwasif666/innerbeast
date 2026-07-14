@@ -6,12 +6,17 @@
 .pnp.js
 .yarn/install-state.gz
 .env
+.env.local
+.env.production
+.DS_Store
+npm-debug.log
 
 # testing
 /coverage
 
 # next.js
 /.next/
+/.next-dev/
 /out/
 
 # production
@@ -35,3 +40,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# hostinger deploy artifacts
+deploy-hostinger/
+hostinger-frontend.zip

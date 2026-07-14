@@ -1,17 +1,29 @@
 'use client'
 
 import React from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Pagination } from 'swiper/modules';
+import { Autoplay } from 'swiper/modules';
 import 'swiper/css/bundle';
+
+const brands = [
+    'NIKE',
+    'ADIDAS',
+    'PUMA',
+    'REEBOK',
+    'UNDER ARMOUR',
+    'NEW BALANCE',
+    'CHAMPION',
+    'FILA',
+]
 
 const Brand = () => {
     return (
         <>
-            <div className="brand-block md:py-[60px] py-[32px]">
+            <div className="brand-block md:py-[60px] py-[32px] border-y border-line">
                 <div className="container">
+                    <div className="text-center text-button-uppercase text-secondary pb-8 tracking-[0.25em]">
+                        Trusted by leading brands
+                    </div>
                     <div className="list-brand">
                         <Swiper
                             spaceBetween={12}
@@ -19,8 +31,10 @@ const Brand = () => {
                             loop={true}
                             modules={[Autoplay]}
                             autoplay={{
-                                delay: 4000,
+                                delay: 2500,
+                                disableOnInteraction: false,
                             }}
+                            speed={900}
                             breakpoints={{
                                 500: {
                                     slidesPerView: 3,
@@ -40,72 +54,15 @@ const Brand = () => {
                                 },
                             }}
                         >
-                            <SwiperSlide>
-                                <div className="brand-item relative flex items-center justify-center h-[36px]">
-                                    <Image
-                                        src={'/images/brand/1.png'}
-                                        width={300}
-                                        height={300}
-                                        alt='1'
-                                        className='h-full w-auto duration-500 relative object-cover'
-                                    />
-                                </div>
-                            </SwiperSlide>
-                            <SwiperSlide>
-                                <div className="brand-item relative flex items-center justify-center h-[36px]">
-                                    <Image
-                                        src={'/images/brand/2.png'}
-                                        width={300}
-                                        height={300}
-                                        alt='1'
-                                        className='h-full w-auto duration-500 relative object-cover'
-                                    />
-                                </div>
-                            </SwiperSlide>
-                            <SwiperSlide>
-                                <div className="brand-item relative flex items-center justify-center h-[36px]">
-                                    <Image
-                                        src={'/images/brand/3.png'}
-                                        width={300}
-                                        height={300}
-                                        alt='1'
-                                        className='h-full w-auto duration-500 relative object-cover'
-                                    />
-                                </div>
-                            </SwiperSlide>
-                            <SwiperSlide>
-                                <div className="brand-item relative flex items-center justify-center h-[36px]">
-                                    <Image
-                                        src={'/images/brand/4.png'}
-                                        width={300}
-                                        height={300}
-                                        alt='1'
-                                        className='h-full w-auto duration-500 relative object-cover'
-                                    />
-                                </div>
-                            </SwiperSlide>
-                            <SwiperSlide>
-                                <div className="brand-item relative flex items-center justify-center h-[36px]">
-                                    <Image
-                                        src={'/images/brand/5.png'}
-                                        width={300}
-                                        height={300}
-                                        alt='1'
-                                        className='h-full w-auto duration-500 relative object-cover'
-                                    />
-                                </div>
-                            </SwiperSlide>
-                            <SwiperSlide>
-                                <div className="brand-item relative flex items-center justify-center h-[36px]">
-                                    <Image
-                                        src={'/images/brand/6.png'}
-                                        width={300}
-                                        height={300}
-                                        alt='1'
-                                        className='h-full w-auto duration-500 relative object-cover'
-                                    />
-                                </div>
-                            </SwiperSlide>
+                            {brands.map((brand) => (
+                                <SwiperSlide key={brand}>
+                                    <div className="brand-item flex items-center justify-center h-[44px]">
+                                        <span className="text-xl md:text-2xl font-bold tracking-wider text-secondary/60 hover:text-black duration-300 whitespace-nowrap select-none">
+                                            {brand}
+                                        </span>
+                                    </div>
+                                </SwiperSlide>
+                            ))}
                         </Swiper>
                     </div>
                 </div>

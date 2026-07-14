@@ -1,0 +1,28 @@
+DirectoryIndex index.html
+Options -MultiViews
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# Legacy route redirects that were previously handled by Next.js redirects().
+RewriteRule ^shop/sidebar-list/?$ /shop/ [R=301,L]
+RewriteRule ^pages/about/?$ /about-us/ [R=301,L]
+RewriteRule ^pages/contact/?$ /contact-us/ [R=301,L]
+RewriteRule ^pages/faqs/?$ /faq/ [R=301,L]
+RewriteRule ^pages/shipping/?$ /ship-policy/ [R=301,L]
+RewriteRule ^pages/returns/?$ /returns/ [R=301,L]
+RewriteRule ^pages/privacy-policy/?$ /privacy/ [R=301,L]
+RewriteRule ^pages/terms-conditions/?$ /terms/ [R=301,L]
+RewriteRule ^order-tracking/?$ /track-order/ [R=301,L]
+RewriteRule ^faqs/?$ /faq/ [R=301,L]
+RewriteRule ^privacy-policy/?$ /privacy/ [R=301,L]
+RewriteRule ^terms-and-conditions/?$ /terms/ [R=301,L]
+RewriteRule ^shipping-policy/?$ /ship-policy/ [R=301,L]
+RewriteRule ^return-policy/?$ /returns/ [R=301,L]
+
+# Serve exported Next.js routes from their folder index.html files.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/$1/index.html -f
+RewriteRule ^(.+?)/?$ /$1/index.html [L]
+</IfModule>

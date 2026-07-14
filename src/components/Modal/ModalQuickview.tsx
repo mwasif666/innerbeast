@@ -1,9 +1,8 @@
 'use client'
 
 // Quickview.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { ProductType } from '@/type/ProductType';
 import * as Icon from "@phosphor-icons/react/dist/ssr";
 import { useModalQuickviewContext } from '@/context/ModalQuickviewContext';
 import { useCart } from '@/context/CartContext';
@@ -14,10 +13,11 @@ import { useCompare } from '@/context/CompareContext'
 import { useModalCompareContext } from '@/context/ModalCompareContext'
 import Rate from '../Other/Rate';
 import ModalSizeguide from './ModalSizeguide';
+import { useStoreCurrency } from '@/hooks/useStoreCurrency';
 
 const ModalQuickview = () => {
     const [photoIndex, setPhotoIndex] = useState(0)
-    const [openPopupImg, setOpenPopupImg] = useState(false)
+    const { format: formatPrice } = useStoreCurrency()
     const [openSizeGuide, setOpenSizeGuide] = useState<boolean>(false)
     const { selectedProduct, closeQuickview } = useModalQuickviewContext()
     const [activeColor, setActiveColor] = useState<string>('')
@@ -29,6 +29,32 @@ const ModalQuickview = () => {
     const { addToCompare, removeFromCompare, compareState } = useCompare();
     const { openModalCompare } = useModalCompareContext()
     const percentSale = selectedProduct && Math.floor(100 - ((selectedProduct.price / selectedProduct.originPrice) * 100))
+    const selectedVariationImage = selectedProduct?.variation.find((item) => item.color === activeColor)?.image
+    const productImages = selectedVariationImage
+        ? [selectedVariationImage, ...(selectedProduct?.images ?? []).filter((image) => image !== selectedVariationImage)]
+        : (selectedProduct?.images ?? [])
+
+    useEffect(() => {
+        setPhotoIndex(0)
+        setActiveColor('')
+        setActiveSize('')
+    }, [selectedProduct?.id])
+
+    useEffect(() => {
+        setPhotoIndex(0)
+    }, [activeColor])
+
+    const showPreviousImage = () => {
+        if (productImages.length > 1) {
+            setPhotoIndex((current) => (current - 1 + productImages.length) % productImages.length)
+        }
+    }
+
+    const showNextImage = () => {
+        if (productImages.length > 1) {
+            setPhotoIndex((current) => (current + 1) % productImages.length)
+        }
+    }
 
     const handleOpenSizeGuide = () => {
         setOpenSizeGuide(true);
@@ -110,21 +136,46 @@ const ModalQuickview = () => {
                     className={`modal-quickview-main py-6 ${selectedProduct !== null ? 'open' : ''}`}
                     onClick={(e) => { e.stopPropagation() }}
                 >
-                    <div className="flex h-full max-md:flex-col-reverse gap-y-6">
-                        <div className="left lg:w-[388px] md:w-[300px] flex-shrink-0 px-6">
-                            <div className="list-img max-md:flex items-center gap-4">
-                                {selectedProduct?.images.map((item, index) => (
-                                    <div className="bg-img w-full aspect-[3/4] max-md:w-[150px] max-md:flex-shrink-0 rounded-[20px] overflow-hidden md:mt-6" key={index}>
+                    <div className="flex h-full max-md:flex-col gap-y-6">
+                        <div className="left lg:w-[430px] md:w-[340px] flex-shrink-0 px-6">
+                            <div className="quickview-carousel">
+                                {productImages.length > 0 && (
+                                    <div className="quickview-carousel-main relative w-full aspect-[3/4] rounded-[20px] overflow-hidden bg-surface">
                                         <Image
-                                            src={item}
+                                            src={productImages[photoIndex]}
                                             width={1500}
                                             height={2000}
-                                            alt={item}
+                                            alt={`${selectedProduct?.name ?? 'Product'} image ${photoIndex + 1}`}
                                             priority={true}
                                             className='w-full h-full object-cover'
                                         />
+                                        {productImages.length > 1 && (
+                                            <>
+                                                <button type="button" className="quickview-carousel-arrow prev" onClick={showPreviousImage} aria-label="Previous product image">
+                                                    <Icon.CaretLeft size={20} weight="bold" />
+                                                </button>
+                                                <button type="button" className="quickview-carousel-arrow next" onClick={showNextImage} aria-label="Next product image">
+                                                    <Icon.CaretRight size={20} weight="bold" />
+                                                </button>
+                                            </>
+                                        )}
                                     </div>
-                                ))}
+                                )}
+                                {productImages.length > 1 && (
+                                    <div className="quickview-carousel-thumbs mt-3 flex gap-2 overflow-x-auto">
+                                        {productImages.map((item, index) => (
+                                            <button
+                                                type="button"
+                                                className={`quickview-carousel-thumb ${photoIndex === index ? 'active' : ''}`}
+                                                onClick={() => setPhotoIndex(index)}
+                                                aria-label={`Show product image ${index + 1}`}
+                                                key={item}
+                                            >
+                                                <Image src={item} width={160} height={160} alt="" className="w-full h-full object-cover" />
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div className="right w-full px-4">
@@ -163,9 +214,9 @@ const ModalQuickview = () => {
                                     <span className='caption1 text-secondary'>(1.234 reviews)</span>
                                 </div>
                                 <div className="flex items-center gap-3 flex-wrap mt-5 pb-6 border-b border-line">
-                                    <div className="product-price heading5">${selectedProduct?.price}.00</div>
+                                    <div className="product-price heading5">{formatPrice(selectedProduct?.price)}</div>
                                     <div className='w-px h-4 bg-line'></div>
-                                    <div className="product-origin-price font-normal text-secondary2"><del>${selectedProduct?.originPrice}.00</del></div>
+                                    <div className="product-origin-price font-normal text-secondary2"><del>{formatPrice(selectedProduct?.originPrice)}</del></div>
                                     {selectedProduct?.originPrice && (
                                         <div className="product-sale caption2 font-semibold bg-green px-3 py-0.5 inline-block rounded-full">
                                             -{percentSale}%
@@ -186,12 +237,11 @@ const ModalQuickview = () => {
                                                         handleActiveColor(item.color)
                                                     }}
                                                 >
-                                                    <Image
-                                                        src={item.colorImage}
-                                                        width={100}
-                                                        height={100}
-                                                        alt='color'
-                                                        className='rounded-xl'
+                                                    <span
+                                                        className="block w-full h-full rounded-[10px] ring-1 ring-black/10"
+                                                        style={{ backgroundColor: item.colorCode }}
+                                                        aria-label={item.color}
+                                                        title={item.color}
                                                     />
                                                     <div className="tag-action bg-black text-white caption2 capitalize px-1.5 py-0.5 rounded-sm">
                                                         {item.color}
@@ -289,67 +339,6 @@ const ModalQuickview = () => {
                                         <div className="flex items-center gap-1 mt-3">
                                             <div className="text-title">Tag:</div>
                                             <div className="text-secondary">{selectedProduct?.type}</div>
-                                        </div>
-                                    </div>
-                                    <div className="list-payment mt-7">
-                                        <div className="main-content lg:pt-8 pt-6 lg:pb-6 pb-4 sm:px-4 px-3 border border-line rounded-xl relative max-md:w-2/3 max-sm:w-full">
-                                            <div className="heading6 px-5 bg-white absolute -top-[14px] left-1/2 -translate-x-1/2 whitespace-nowrap">Guranteed safe checkout</div>
-                                            <div className="list grid grid-cols-6">
-                                                <div className="item flex items-center justify-center lg:px-3 px-1">
-                                                    <Image
-                                                        src={'/images/payment/Frame-0.png'}
-                                                        width={500}
-                                                        height={450}
-                                                        alt='payment'
-                                                        className='w-full'
-                                                    />
-                                                </div>
-                                                <div className="item flex items-center justify-center lg:px-3 px-1">
-                                                    <Image
-                                                        src={'/images/payment/Frame-1.png'}
-                                                        width={500}
-                                                        height={450}
-                                                        alt='payment'
-                                                        className='w-full'
-                                                    />
-                                                </div>
-                                                <div className="item flex items-center justify-center lg:px-3 px-1">
-                                                    <Image
-                                                        src={'/images/payment/Frame-2.png'}
-                                                        width={500}
-                                                        height={450}
-                                                        alt='payment'
-                                                        className='w-full'
-                                                    />
-                                                </div>
-                                                <div className="item flex items-center justify-center lg:px-3 px-1">
-                                                    <Image
-                                                        src={'/images/payment/Frame-3.png'}
-                                                        width={500}
-                                                        height={450}
-                                                        alt='payment'
-                                                        className='w-full'
-                                                    />
-                                                </div>
-                                                <div className="item flex items-center justify-center lg:px-3 px-1">
-                                                    <Image
-                                                        src={'/images/payment/Frame-4.png'}
-                                                        width={500}
-                                                        height={450}
-                                                        alt='payment'
-                                                        className='w-full'
-                                                    />
-                                                </div>
-                                                <div className="item flex items-center justify-center lg:px-3 px-1">
-                                                    <Image
-                                                        src={'/images/payment/Frame-5.png'}
-                                                        width={500}
-                                                        height={450}
-                                                        alt='payment'
-                                                        className='w-full'
-                                                    />
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>

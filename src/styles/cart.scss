@@ -1,4 +1,10 @@
 .cart-block {
+    .discount-code .button-main,
+    .checkout-btn.button-main {
+        background-color: #e57112;
+        color: #fff;
+    }
+
     .heading.banner {
         .tow-bar-block {
             height: 4px;
@@ -9,7 +15,7 @@
                 position: absolute;
                 left: 0;
                 height: 4px;
-                background-color: #3DAB25;
+                background-color: #e57112;
 
                 &::before {
                     content: "";
@@ -19,7 +25,7 @@
                     width: 16px;
                     height: 16px;
                     border-radius: 50%;
-                    background-color: #3DAB25;
+                    background-color: #e57112;
                 }
             }
         }

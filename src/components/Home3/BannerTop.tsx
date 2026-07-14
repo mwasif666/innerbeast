@@ -1,5 +1,9 @@
+'use client'
+
 import React from 'react'
 import Marquee from 'react-fast-marquee'
+
+import { usePublicSettings } from '@/hooks/useSettings'
 
 interface Props {
     props: string
@@ -7,25 +11,26 @@ interface Props {
     bgLine: string
 }
 
+const MARQUEE_REPEAT = 8
+
 const BannerTop: React.FC<Props> = ({ props, textColor, bgLine }) => {
+    const { data, isSuccess } = usePublicSettings()
+    const announcement = data?.data?.announcement
+
+    if (!isSuccess || !announcement?.enabled || !announcement.text?.trim()) return null
+
+    const text = announcement.text.trim()
+
     return (
         <>
             <div className={`banner-top ${props}`}>
                 <Marquee>
-                    <div className={`text-button-uppercase px-8 ${textColor}`}>Get 10% off on selected items</div>
-                    <div className={`line w-8 h-px ${bgLine}`}></div>
-                    <div className={`text-button-uppercase px-8 ${textColor}`}>New customers save 10% with the code GET10</div>
-                    <div className={`line w-8 h-px ${bgLine}`}></div>
-                    <div className={`text-button-uppercase px-8 ${textColor}`}>10% off swim suits</div>
-                    <div className={`line w-8 h-px ${bgLine}`}></div>
-                    <div className={`text-button-uppercase px-8 ${textColor}`}>Free shipping on all orders over $50</div>
-                    <div className={`line w-8 h-px ${bgLine}`}></div>
-                    <div className={`text-button-uppercase px-8 ${textColor}`}>10% off on all summer essentials!</div>
-                    <div className={`line w-8 h-px ${bgLine}`}></div>
-                    <div className={`text-button-uppercase px-8 ${textColor}`}>Get summer-ready: 10% off swim suits</div>
-                    <div className={`line w-8 h-px ${bgLine}`}></div>
-                    <div className={`text-button-uppercase px-8 ${textColor}`}>10% off on all product</div>
-                    <div className={`line w-8 h-px ${bgLine}`}></div>
+                    {Array.from({ length: MARQUEE_REPEAT }).map((_, index) => (
+                        <React.Fragment key={index}>
+                            <div className={`text-button-uppercase px-8 ${textColor}`}>{text}</div>
+                            <div className={`line w-8 h-px ${bgLine}`}></div>
+                        </React.Fragment>
+                    ))}
                 </Marquee>
             </div>
         </>
